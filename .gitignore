@@ -1,0 +1,9 @@
+node_modules
+dist
+.astro
+uploads
+.env
+.emdash-db-backups
+data.db.before-repair
+data.db.before-repair-wal
+data.db.before-repair-shm

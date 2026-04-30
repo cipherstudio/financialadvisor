@@ -1,0 +1,538 @@
+---
+import type { MediaValue } from "emdash";
+import type { Faq, FaqPage } from "../../emdash-env";
+import { Image } from "emdash/ui";
+import FaqAccordionEntry from "./FaqAccordionEntry.astro";
+
+type EditBag = { [k: string]: unknown };
+
+/** Sidebar repeater row (typed here so template has no `Record<string, unknown>` — Astro would parse `<string` as HTML). */
+type FaqSidebarIconMeta = { storageKey?: string };
+type FaqSidebarCategoryRow = {
+	icon_image?: {
+		src?: string;
+		alt?: string;
+		id?: string;
+		previewUrl?: string;
+		meta?: FaqSidebarIconMeta;
+	};
+	label?: string;
+	term_slug?: string;
+};
+
+interface Props {
+	page: { data: FaqPage; edit: Partial<Record<keyof FaqPage, EditBag | undefined>> };
+	faqEntries: Array<{
+		id: string;
+		data: Faq;
+		edit: Partial<Record<keyof Faq, EditBag | undefined>>;
+	}>;
+}
+
+const { page, faqEntries } = Astro.props;
+const d: FaqPage = page.data;
+const e: Partial<Record<keyof FaqPage, EditBag | undefined>> = page.edit;
+
+const has = (s: string | undefined | null) => typeof s === "string" && s.trim() !== "";
+
+/** EmDash image fields are often `{ id, alt, meta }` without top-level `src`; <Image /> resolves URLs from id or meta.storageKey. */
+const hasEmDashMedia = (img: unknown): boolean => {
+	if (img == null) return false;
+	if (typeof img === "string") return img.trim() !== "";
+	if (typeof img !== "object") return false;
+	const o = img as Record<string, unknown>;
+	if (typeof o.src === "string" && o.src.trim() !== "") return true;
+	if (typeof o.previewUrl === "string" && o.previewUrl.trim() !== "") return true;
+	if (typeof o.id === "string" && o.id.trim() !== "") return true;
+	const meta = o.meta;
+	if (meta != null && typeof meta === "object") {
+		const sk = (meta as Record<string, unknown>).storageKey;
+		if (typeof sk === "string" && sk.trim() !== "") return true;
+	}
+	return false;
+};
+
+const sectionOn = (b: unknown, defaultValue = true): boolean => {
+	if (b === true || b === 1) {
+		return true;
+	}
+	if (b === false || b === 0) {
+		return false;
+	}
+	if (b == null) {
+		return defaultValue;
+	}
+	if (typeof b === "string") {
+		const t = b.trim().toLowerCase();
+		if (t === "0" || t === "false") {
+			return false;
+		}
+		if (t === "1" || t === "true") {
+			return true;
+		}
+	}
+	return defaultValue;
+};
+
+/**
+ * Tabs come from the FAQ page repeater; if editors only add one row, other categories vanish.
+ * Append any `faq_category` slugs found on published FAQs (with taxonomy labels) so all groups stay reachable.
+ */
+function mergeFaqSidebarCategories(
+	sidebar: unknown,
+	faqs: Array<{ data: Faq }>,
+): FaqSidebarCategoryRow[] {
+	type TermPick = { slug?: string; label?: string };
+	type WithTerms = { terms?: { faq_category?: TermPick[] } };
+
+	const configured = Array.isArray(sidebar)
+		? sidebar.filter(
+				(r) => has((r as { label?: string }).label) && has((r as { term_slug?: string }).term_slug),
+			)
+		: [];
+
+	const slugOrderFromConfig = configured
+		.map((r) => String((r as { term_slug?: string }).term_slug || "").trim())
+		.filter(Boolean);
+
+	const faqTermsBySlug = new Map<string, { slug: string; label: string }>();
+	for (const { data } of faqs) {
+		const t = (data as WithTerms).terms?.faq_category?.[0];
+		const slug = t?.slug?.trim();
+		if (!slug) continue;
+		const label = has(t.label) ? String(t.label).trim() : slug;
+		if (!faqTermsBySlug.has(slug)) {
+			faqTermsBySlug.set(slug, { slug, label });
+		}
+	}
+
+	const configuredBySlug = new Map<string, FaqSidebarCategoryRow>();
+	for (const r of configured) {
+		const row = r as FaqSidebarCategoryRow;
+		const slug = row.term_slug?.trim();
+		if (!slug) continue;
+		configuredBySlug.set(slug, row);
+	}
+
+	const ordered: FaqSidebarCategoryRow[] = [];
+	const seen = new Set<string>();
+
+	for (const slug of slugOrderFromConfig) {
+		const row = configuredBySlug.get(slug);
+		if (row && !seen.has(slug)) {
+			ordered.push(row);
+			seen.add(slug);
+		}
+	}
+
+	const extraSlugs = [...faqTermsBySlug.keys()].filter((s) => !seen.has(s)).sort((a, b) =>
+		faqTermsBySlug.get(a)!.label.localeCompare(faqTermsBySlug.get(b)!.label, "th"),
+	);
+	for (const slug of extraSlugs) {
+		const info = faqTermsBySlug.get(slug)!;
+		ordered.push({
+			term_slug: info.slug,
+			label: info.label,
+		});
+	}
+
+	return ordered;
+}
+
+const sideRows = mergeFaqSidebarCategories(d.sidebar_categories, faqEntries);
+
+const defaultCategorySlug = (() => {
+	const t = sideRows[0]?.term_slug;
+	return typeof t === "string" && t.trim() !== "" ? t.trim() : "financial_planning";
+})();
+
+/** First FAQ row matching default category (for initial open state). */
+type FaqDataWithCatTerms = { terms?: { faq_category?: Array<{ slug?: string }> } };
+const defaultOpenFaqIndex = (() => {
+	for (let i = 0; i < faqEntries.length; i++) {
+		const q = faqEntries[i].data as FaqDataWithCatTerms;
+		const cat = q.terms?.faq_category?.[0]?.slug?.trim() ?? "";
+		if (!cat || cat === defaultCategorySlug) {
+			return i;
+		}
+	}
+	return -1;
+})();
+---
+
+<main id="faq-page-main" class="pt-32 pb-xxl" data-faq-page>
+	<section class="max-w-[1200px] mx-auto px-6 mb-xxl text-center">
+		{has(d.hero_title) && (
+			<h1
+				class="font-display text-display text-primary mb-md"
+				{...((e as Record<string, EditBag>).hero_title ?? {})}
+			>
+				{d.hero_title}
+			</h1>
+		)}
+		{has(d.hero_description) && (
+			<p
+				class="text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-xl"
+				{...((e as Record<string, EditBag>).hero_description ?? {})}
+			>
+				{d.hero_description}
+			</p>
+		)}
+		<div class="relative max-w-2xl mx-auto" {...((e as Record<string, EditBag>).search_placeholder ?? {})}>
+			<span class="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-outline z-10 pointer-events-none" aria-hidden="true">search</span>
+			<input
+				id="faq-search-input"
+				name="q"
+				class="w-full pl-16 pr-6 py-5 bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary-container focus:border-primary-container transition-all shadow-sm font-body-md"
+				placeholder={d.search_placeholder || ""}
+				type="search"
+				autocomplete="off"
+				enterkeyhint="search"
+			/>
+		</div>
+	</section>
+
+	<section class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-xl" aria-label="รายการ FAQ">
+		<aside class="lg:col-span-3 space-y-sm min-w-0">
+			{has(d.categories_heading) && (
+				<h3
+					class="font-h3 text-primary mb-md px-2"
+					{...((e as Record<string, EditBag>).categories_heading ?? {})}
+				>
+					{d.categories_heading}
+				</h3>
+			)}
+			<div
+				class="flex flex-row flex-nowrap gap-2 overflow-x-auto overscroll-x-contain pb-1 -mx-6 px-6 scroll-ps-6 [-webkit-overflow-scrolling:touch] snap-x snap-mandatory lg:-mx-0 lg:px-0 lg:scroll-ps-0 lg:flex-col lg:flex-nowrap lg:overflow-x-visible lg:overflow-y-visible lg:gap-0 lg:space-y-sm lg:pb-0 lg:snap-none"
+				role="tablist"
+				aria-label="เลือกหมวดหมู่"
+			>
+				{
+					sideRows.length > 0
+						? sideRows.map((row, i) => {
+								const r = row as FaqSidebarCategoryRow;
+								const termSlug = r.term_slug || "";
+								const isFirst = i === 0;
+								const img = r.icon_image;
+								const hasImg = hasEmDashMedia(img);
+								return (
+									<button
+										type="button"
+										role="tab"
+										aria-selected={isFirst}
+										data-faq-cat={termSlug}
+										class={`faq-cat flex shrink-0 snap-start items-center gap-3 whitespace-nowrap px-4 py-3 rounded-lg font-label-sm transition-all shadow-sm text-left lg:w-full lg:whitespace-normal ${
+											isFirst
+												? "bg-secondary-container text-on-secondary-container"
+												: "hover:bg-white text-on-surface-variant"
+										}`}
+									>
+										{hasImg ? (
+											<span class="shrink-0 size-6 inline-flex items-center justify-center [&_img]:max-h-6 [&_img]:max-w-6 [&_img]:object-contain" aria-hidden="true">
+												<Image image={img as MediaValue} class="h-6 w-auto max-w-6 object-contain" alt={img.alt || ""} />
+											</span>
+										) : (
+											<svg
+												class="h-6 w-6 shrink-0 text-current"
+												viewBox="0 0 24 24"
+												xmlns="http://www.w3.org/2000/svg"
+												aria-hidden="true"
+											>
+												<path
+													fill="currentColor"
+													d="M12,22A10,10,0,1,0,2,12,10,10,0,0,0,12,22Zm0-2a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,12,20ZM8,8.994a3.907,3.907,0,0,1,2.319-3.645,4.061,4.061,0,0,1,3.889.316,4,4,0,0,1,.294,6.456,3.972,3.972,0,0,0-1.411,2.114,1,1,0,0,1-1.944-.47,5.908,5.908,0,0,1,2.1-3.2,2,2,0,0,0-.146-3.23,2.06,2.06,0,0,0-2.006-.14,1.937,1.937,0,0,0-1.1,1.8A1,1,0,0,1,8,9Z"
+												/>
+											</svg>
+										)}
+										<span>{r.label}</span>
+									</button>
+								);
+							})
+						: (
+							<p class="text-on-surface-variant text-sm">เพิ่ม &quot;แถบหมวดหมู่&quot; ในแก้ไขหน้า FAQ (CMS)</p>
+						)
+				}
+			</div>
+		</aside>
+
+		<div class="lg:col-span-9 space-y-sm" id="faq-list-region">
+			{faqEntries.length === 0 ? (
+				<p class="text-on-surface-variant">ยังไม่มีคำถามในระบบ — สร้างรายการ Faq ใน /_emdash/admin ได้</p>
+			) : null}
+
+			<p class="text-on-surface-variant text-sm font-body-md hidden" id="faq-no-results" role="status">
+				ไม่พบรายการที่ตรงกับการค้นหา
+			</p>
+
+			{faqEntries.map((entry, i) => (
+				<FaqAccordionEntry
+					entry={entry}
+					initiallyOpen={i === defaultOpenFaqIndex}
+					popularBadgeLabel={has(d.popular_badge_label) ? d.popular_badge_label : "ยอดนิยม"}
+					popularBadgeEditAttrs={(e as Record<string, EditBag>).popular_badge_label ?? {}}
+				/>
+			))}
+		</div>
+	</section>
+
+	{
+		sectionOn(d.show_cta) && (has(d.cta_title) || has(d.cta_description) || (has(d.cta_primary_label) && has(d.cta_primary_url)) || (has(d.cta_secondary_label) && has(d.cta_secondary_url))) && (
+			<section class="max-w-[1200px] mx-auto px-6 mt-xxl">
+				<div
+					class="bg-primary-container rounded-3xl p-12 text-center relative overflow-hidden"
+					{...((e as Record<string, EditBag>).show_cta ?? {})}
+				>
+					{d.cta_background_image && (
+						<div class="absolute inset-0 opacity-10" {...(e.cta_background_image ?? {})}>
+							<Image image={d.cta_background_image} class="h-full w-full object-cover" alt={d.cta_background_image?.alt || ""} />
+						</div>
+					)}
+					{!d.cta_background_image && <div class="absolute inset-0 opacity-10 bg-slate-900" aria-hidden="true" />}
+
+					<div class="relative z-10">
+						{has(d.cta_title) && <h2 class="font-display text-h1 text-white mb-md" {...(e.cta_title ?? {})}>{d.cta_title}</h2>}
+						{has(d.cta_description) && <p class="text-body-lg text-on-primary-container mb-xl max-w-xl mx-auto" {...(e.cta_description ?? {})}>{d.cta_description}</p>}
+
+						<div class="flex flex-col sm:flex-row gap-md justify-center">
+							{has(d.cta_primary_label) && has(d.cta_primary_url) && (
+								<a
+									href={d.cta_primary_url}
+									class="bg-secondary-fixed text-on-secondary-fixed px-8 py-4 rounded-xl font-label-sm hover:opacity-90 transition-all flex items-center justify-center gap-2"
+									{...((e as Record<string, EditBag>).cta_primary_url ?? e.cta_primary_label ?? {})}
+								>
+									<span class="material-symbols-outlined" aria-hidden="true">mail</span>
+									{d.cta_primary_label}
+								</a>
+							)}
+							{has(d.cta_secondary_label) && has(d.cta_secondary_url) && (
+								<a
+									href={d.cta_secondary_url}
+									class="bg-transparent border border-on-primary-container text-white px-8 py-4 rounded-xl font-label-sm hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+									{...((e as Record<string, EditBag>).cta_secondary_url ?? e.cta_secondary_label ?? {})}
+								>
+									<span class="material-symbols-outlined" aria-hidden="true">call</span>
+									{d.cta_secondary_label}
+								</a>
+							)}
+						</div>
+					</div>
+				</div>
+			</section>
+		)
+	}
+</main>
+
+<script is:inline define:vars={{ defaultCategory: defaultCategorySlug }}>
+	(() => {
+		var root = document.getElementById("faq-page-main");
+		if (!root) {
+			return;
+		}
+		var searchInput = document.getElementById("faq-search-input");
+		var items = root.querySelectorAll("[data-faq-item]");
+		var noResults = document.getElementById("faq-no-results");
+		var catButtons = root.querySelectorAll("button.faq-cat");
+		var active = defaultCategory;
+
+		var normalize = (function () {
+			return function (s) {
+				if (!s) {
+					return "";
+				}
+				return String(s)
+					.toLowerCase()
+					.replace(/\s+/g, " ")
+					.trim();
+			};
+		})();
+
+		function anyVisible() {
+			var n = 0;
+			for (var i = 0; i < items.length; i++) {
+				if (items[i].getAttribute("data-faq-hidden") === "0") {
+					n++;
+				}
+			}
+			return n;
+		}
+
+		function setAccordionState(acc, open) {
+			if (!acc) {
+				return;
+			}
+			if (open) {
+				acc.classList.add("fap-open");
+			} else {
+				acc.classList.remove("fap-open");
+			}
+			var tb = acc.querySelector("button.fap-toggle");
+			if (tb) {
+				tb.setAttribute("aria-expanded", open ? "true" : "false");
+			}
+			var content = acc.querySelector(".fap-panel-content");
+			if (content && content.classList) {
+				content.classList.remove("py-0", "sm:py-0", "py-4", "sm:py-5");
+				if (open) {
+					content.classList.add("py-4", "sm:py-5");
+				} else {
+					content.classList.add("py-0", "sm:py-0");
+				}
+			}
+		}
+
+		function closeAllAccordions() {
+			for (var i = 0; i < items.length; i++) {
+				setAccordionState(items[i], false);
+			}
+		}
+
+		function isItemShown(el) {
+			if (el.classList.contains("hidden")) {
+				return false;
+			}
+			var h = el.getAttribute("data-faq-hidden");
+			return h !== "1";
+		}
+
+		function openFirstVisibleAccordion() {
+			for (var i = 0; i < items.length; i++) {
+				var el = items[i];
+				if (!isItemShown(el)) {
+					continue;
+				}
+				setAccordionState(el, true);
+				break;
+			}
+		}
+
+		function apply() {
+			var q = searchInput && searchInput.value ? normalize(searchInput.value) : "";
+			for (var i = 0; i < items.length; i++) {
+				var el = items[i];
+				var cat = el.getAttribute("data-cat") || "";
+				var blob = (el.getAttribute("data-search-blob") || "").toLowerCase().normalize("NFKC");
+				if (q) {
+					if (blob.indexOf(q) !== -1) {
+						el.setAttribute("data-faq-hidden", "0");
+						el.classList.remove("hidden");
+					} else {
+						el.setAttribute("data-faq-hidden", "1");
+						el.classList.add("hidden");
+					}
+					continue;
+				}
+				if (!cat || cat === active) {
+					el.setAttribute("data-faq-hidden", "0");
+					el.classList.remove("hidden");
+				} else {
+					el.setAttribute("data-faq-hidden", "1");
+					el.classList.add("hidden");
+				}
+			}
+			if (noResults) {
+				noResults.classList.toggle("hidden", anyVisible() > 0);
+			}
+			closeAllAccordions();
+			openFirstVisibleAccordion();
+		}
+
+		if (searchInput) {
+			searchInput.addEventListener("input", apply);
+		}
+		catButtons.forEach(function (btn) {
+			btn.addEventListener("click", function () {
+				var slug = btn.getAttribute("data-faq-cat") || "";
+				active = slug;
+				if (searchInput) {
+					searchInput.value = "";
+				}
+				catButtons.forEach(function (b) {
+					var s = b.getAttribute("data-faq-cat") || "";
+					var isActive = s === active;
+					b.setAttribute("aria-selected", isActive);
+					if (isActive) {
+						b.classList.add("bg-secondary-container", "text-on-secondary-container", "shadow-sm");
+						b.classList.remove("hover:bg-white", "text-on-surface-variant");
+					} else {
+						b.classList.remove("bg-secondary-container", "text-on-secondary-container", "shadow-sm");
+						b.classList.add("hover:bg-white", "text-on-surface-variant");
+					}
+				});
+				apply();
+			});
+		});
+
+		root.addEventListener("click", function (ev) {
+			var node = ev.target;
+			if (!node || !node.closest) {
+				return;
+			}
+			var toggle = node.closest("button.fap-toggle");
+			if (!toggle) {
+				return;
+			}
+			var acc = toggle.closest("[data-faq-item]");
+			if (!acc) {
+				return;
+			}
+			var isOpen = acc.classList.contains("fap-open");
+			if (isOpen) {
+				setAccordionState(acc, false);
+			} else {
+				for (var i = 0; i < items.length; i++) {
+					setAccordionState(items[i], false);
+				}
+				setAccordionState(acc, true);
+			}
+		});
+
+		apply();
+	})();
+</script>
+
+<style is:global>
+	[data-faq-page] [data-faq-item] .fap-panel {
+		display: grid;
+		grid-template-rows: 0fr;
+		transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	[data-faq-page] [data-faq-item].fap-open .fap-panel {
+		grid-template-rows: 1fr;
+	}
+	[data-faq-page] [data-faq-item] .fap-panel > * {
+		min-height: 0;
+		overflow: hidden;
+		opacity: 0;
+		transform: translateY(-2px);
+		transition: opacity 0.2s ease, transform 0.35s ease;
+	}
+	[data-faq-page] [data-faq-item].fap-open .fap-panel > * {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	[data-faq-page] [data-faq-item] .fap-panel-content {
+		padding-top: 0;
+		padding-bottom: 0;
+		transition: padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	[data-faq-page] [data-faq-item].fap-open .fap-panel-content {
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+	}
+	@media (min-width: 640px) {
+		[data-faq-page] [data-faq-item].fap-open .fap-panel-content {
+			padding-top: 1.25rem;
+			padding-bottom: 1.25rem;
+		}
+	}
+	[data-faq-page] [data-faq-item] .fap-chevron {
+		transition: transform 0.25s ease;
+	}
+	[data-faq-page] [data-faq-item].fap-open .fap-chevron {
+		transform: rotate(180deg);
+	}
+	[data-faq-page] #faq-search-input {
+		-webkit-appearance: none;
+		appearance: none;
+	}
+</style>

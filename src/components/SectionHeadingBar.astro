@@ -1,0 +1,82 @@
+---
+/**
+ * Section header: optional gold eyebrow, title, optional description, optional trailing link (e.g. “ทั้งหมด →”).
+ */
+interface Props {
+	title: string;
+	/** Non-empty text shows the gold line above the title; omit, null, or "" hides it */
+	eyebrow?: string | null;
+	/** Optional subtitle under the title; omit, null, or "" hides it */
+	description?: string | null;
+	linkHref?: string;
+	/** Default “ทั้งหมด” */
+	linkLabel?: string;
+	class?: string;
+	titleAttrs?: Record<string, unknown>;
+	linkAttrs?: Record<string, unknown>;
+	eyebrowAttrs?: Record<string, unknown>;
+	descriptionAttrs?: Record<string, unknown>;
+}
+
+const {
+	title,
+	eyebrow: eyebrowProp,
+	description: descriptionProp,
+	linkHref,
+	linkLabel = "ทั้งหมด",
+	class: className,
+	titleAttrs,
+	linkAttrs,
+	eyebrowAttrs,
+	descriptionAttrs,
+} = Astro.props;
+
+const eyebrowText = (eyebrowProp ?? "").trim();
+const showEyebrow = eyebrowText.length > 0;
+const descriptionText = (descriptionProp ?? "").trim();
+const showDescription = descriptionText.length > 0;
+---
+
+<div class:list={["mb-xl", className]}>
+	{
+		showEyebrow && (
+			<p
+				class="font-label-sm text-[#D4AF37] uppercase tracking-widest text-xs mb-1"
+				{...(eyebrowAttrs ?? {})}
+			>
+				{eyebrowText}
+			</p>
+		)
+	}
+	<div class="flex flex-wrap justify-between gap-x-4 gap-y-2 items-end">
+		<div class="min-w-0 flex-1">
+			<h2 class="font-h1 text-h1 text-primary mb-0" {...(titleAttrs ?? {})}>
+				{title}
+			</h2>
+			{
+				showDescription && (
+					<p
+						class="font-body-md text-on-surface-variant mt-sm mb-0"
+						{...(descriptionAttrs ?? {})}
+					>
+						{descriptionText}
+					</p>
+				)
+			}
+		</div>
+		{
+			linkHref && (
+				<a
+					class="group text-primary font-label-sm inline-flex shrink-0 items-center gap-1 whitespace-nowrap"
+					href={linkHref}
+					{...(linkAttrs ?? {})}
+				>
+					<span class="group-hover:underline">{linkLabel}</span>
+					<span class="material-symbols-outlined text-base leading-none no-underline" aria-hidden="true">
+						arrow_forward
+					</span>
+				</a>
+			)
+		}
+	</div>
+</div>

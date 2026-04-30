@@ -1,0 +1,392 @@
+---
+import type { AboutUs } from "../../emdash-env";
+import { Image } from "emdash/ui";
+
+/** Entry from getEmDashEntry with visual-edit handles */
+type EditBag = { [k: string]: unknown };
+
+interface Props {
+	entry: {
+		data: AboutUs;
+		edit: Partial<Record<keyof AboutUs, EditBag | undefined>>;
+	};
+}
+
+const { entry } = Astro.props;
+const d: AboutUs = entry.data;
+const e = entry.edit;
+
+/**
+ * สวิตช์แสดง section จากฐานข้อมูล: EmDash เก็บ boolean เป็น 0/1
+ * เงื่อนไข `value !== false` จึงมอง 0 เป็น "เปิด" ผิดพลาด ต้องนับ 0/1 ชัดเจน
+ */
+const sectionOn = (b: unknown, defaultValue = true): boolean => {
+	if (b === true || b === 1) {
+		return true;
+	}
+	if (b === false || b === 0) {
+		return false;
+	}
+	if (b == null) {
+		return defaultValue;
+	}
+	if (typeof b === "string") {
+		const t = b.trim().toLowerCase();
+		if (t === "0" || t === "false") {
+			return false;
+		}
+		if (t === "1" || t === "true") {
+			return true;
+		}
+	}
+	return defaultValue;
+};
+/** มีเนื้อหาหลัง trim — สตริงว่างหรือช่องว่างอย่างเดียว = ไม่แสดง */
+const has = (s: string | undefined | null) => typeof s === "string" && s.trim() !== "";
+
+const showLegacyBadge = has(d.legacy_badge_text) || has(d.legacy_badge_icon);
+const hasStat1 = has(d.stat_1_value) || has(d.stat_1_label);
+const hasStat2 = has(d.stat_2_value) || has(d.stat_2_label);
+const hasAnyStat = hasStat1 || hasStat2;
+
+const showMissionVision = has(d.vision_title) || has(d.vision_text) || has(d.vision_icon);
+const showMissionBlock =
+	has(d.mission_block_title) || has(d.mission_block_text) || has(d.mission_block_icon);
+
+const coreValues = Array.isArray(d.core_values) ? d.core_values : [];
+const valueRows = coreValues.filter(
+	(r: { icon?: string; title?: string; text?: string }) =>
+		has(r?.title) || has(r?.text) || has(r?.icon)
+);
+---
+
+<main class="pt-20">
+	{
+		sectionOn(d.show_hero) && (
+			<section class="relative h-[600px] flex items-center overflow-hidden">
+				<div class="absolute inset-0 z-0">
+					{d.hero_image && (
+						<div class="absolute inset-0" {...(e.hero_image ?? {})}>
+							<Image
+								image={d.hero_image}
+								class="w-full h-full object-cover grayscale opacity-20"
+								alt={d.hero_image?.alt || ""}
+							/>
+						</div>
+					)}
+					<div class="absolute inset-0 bg-gradient-to-r from-surface via-surface/80 to-transparent" />
+				</div>
+				<div class="relative z-10 max-w-[1200px] mx-auto px-6 w-full">
+					<div class="max-w-2xl">
+						{has(d.hero_badge) && (
+							<span
+								class="inline-block px-4 py-1.5 mb-6 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm"
+								{...e.hero_badge}
+							>
+								{d.hero_badge}
+							</span>
+						)}
+						{has(d.hero_title) && (
+							<h1
+								class="font-display text-display text-primary-container mb-6"
+								{...e.hero_title}
+							>
+								{d.hero_title}
+							</h1>
+						)}
+						{has(d.hero_description) && (
+							<p
+								class="font-body-lg text-body-lg text-on-surface-variant mb-10 leading-relaxed"
+								{...e.hero_description}
+							>
+								{d.hero_description}
+							</p>
+						)}
+						{(has(d.hero_primary_label) || has(d.hero_secondary_label)) && (
+							<div class="flex flex-wrap gap-4">
+								{has(d.hero_primary_label) && (
+									<a
+										href={d.hero_primary_url?.trim() || "#"}
+										class="inline-flex bg-primary-container text-on-primary px-8 py-4 rounded-lg font-medium shadow-md transition-all active:scale-95"
+										{...e.hero_primary_label}
+									>
+										{d.hero_primary_label}
+									</a>
+								)}
+								{has(d.hero_secondary_label) && (
+									<a
+										href={d.hero_secondary_url?.trim() || "#"}
+										class="inline-flex border border-outline-variant text-primary-container px-8 py-4 rounded-lg font-medium transition-all hover:bg-surface-container-low active:scale-95"
+										{...e.hero_secondary_label}
+									>
+										{d.hero_secondary_label}
+									</a>
+								)}
+							</div>
+						)}
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	{
+		sectionOn(d.show_legacy) && (
+			<section class="py-xxl bg-white">
+				<div class="max-w-[1200px] mx-auto px-6">
+					<div
+						class:list={[
+							"flex flex-col gap-12 md:flex-row md:items-stretch md:gap-24",
+							showLegacyBadge && "md:pb-8",
+						]}
+					>
+						<div class="flex min-w-0 flex-1 flex-col min-h-0">
+							{has(d.legacy_heading) && (
+								<h2 class="font-h1 text-h1 text-primary-container mb-8" {...e.legacy_heading}>
+									{d.legacy_heading}
+								</h2>
+							)}
+							{(has(d.legacy_paragraph_1) || has(d.legacy_paragraph_2)) && (
+								<div class="space-y-6">
+									{has(d.legacy_paragraph_1) && (
+										<p class="font-body-md text-body-md text-on-surface-variant" {...e.legacy_paragraph_1}>
+											{d.legacy_paragraph_1}
+										</p>
+									)}
+									{has(d.legacy_paragraph_2) && (
+										<p class="font-body-md text-body-md text-on-surface-variant" {...e.legacy_paragraph_2}>
+											{d.legacy_paragraph_2}
+										</p>
+									)}
+								</div>
+							)}
+							{hasAnyStat && (
+								<div
+									class:list={[
+										"mt-auto grid gap-8 pt-8",
+										hasStat1 && hasStat2 ? "grid-cols-2" : "grid-cols-1 max-w-sm",
+									]}
+								>
+									{hasStat1 && (
+										<div class="border-l-4 border-secondary-container pl-6">
+											{has(d.stat_1_value) && (
+												<div class="text-3xl font-bold text-primary-container" {...e.stat_1_value}>
+													{d.stat_1_value}
+												</div>
+											)}
+											{has(d.stat_1_label) && (
+												<div class="text-sm text-on-surface-variant font-medium" {...e.stat_1_label}>
+													{d.stat_1_label}
+												</div>
+											)}
+										</div>
+									)}
+									{hasStat2 && (
+										<div class="border-l-4 border-secondary-container pl-6">
+											{has(d.stat_2_value) && (
+												<div class="text-3xl font-bold text-primary-container" {...e.stat_2_value}>
+													{d.stat_2_value}
+												</div>
+											)}
+											{has(d.stat_2_label) && (
+												<div class="text-sm text-on-surface-variant font-medium" {...e.stat_2_label}>
+													{d.stat_2_label}
+												</div>
+											)}
+										</div>
+									)}
+								</div>
+							)}
+						</div>
+						<div class="relative min-w-0 w-full max-w-md flex-1 self-start mx-auto md:mx-0">
+							{d.legacy_side_image && (
+								<div class="rounded-2xl overflow-hidden shadow-2xl border-t-4 border-secondary-container" {...e.legacy_side_image}>
+									<Image image={d.legacy_side_image} class="w-full h-full object-cover" alt={d.legacy_side_image?.alt || ""} />
+								</div>
+							)}
+							{showLegacyBadge && (
+								<div class="absolute -bottom-10 lg:-bottom-8 -left-3 lg:-left-8 bg-primary-container p-8 rounded-xl shadow-xl text-white max-w-xs">
+									{has(d.legacy_badge_icon) && (
+										<span
+											class="material-symbols-outlined text-4xl text-secondary-fixed mb-4"
+											aria-hidden="true"
+										>
+											{d.legacy_badge_icon}
+										</span>
+									)}
+									{has(d.legacy_badge_text) && (
+										<p class="text-sm font-light leading-relaxed" {...e.legacy_badge_text}>{d.legacy_badge_text}</p>
+									)}
+								</div>
+							)}
+						</div>
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	{
+		sectionOn(d.show_mission) &&
+			(has(d.mission_section_title) ||
+				has(d.mission_section_subtitle) ||
+				showMissionVision ||
+				showMissionBlock) && (
+			<section class="py-xxl bg-surface-container-low">
+				<div class="max-w-[1200px] mx-auto px-6">
+					{(has(d.mission_section_title) || has(d.mission_section_subtitle)) && (
+						<div class="text-center mb-16">
+							{has(d.mission_section_title) && (
+								<h2 class="font-h2 text-h2 text-primary-container mb-4" {...e.mission_section_title}>
+									{d.mission_section_title}
+								</h2>
+							)}
+							{has(d.mission_section_subtitle) && (
+								<p class="font-body-md text-on-surface-variant" {...e.mission_section_subtitle}>
+									{d.mission_section_subtitle}
+								</p>
+							)}
+						</div>
+					)}
+					{(showMissionVision || showMissionBlock) && (
+						<div
+							class:list={[
+								"grid grid-cols-1 gap-8",
+								showMissionVision && showMissionBlock ? "md:grid-cols-3" : "md:grid-cols-1",
+							]}
+						>
+							{showMissionVision && (
+								<div
+									class:list={[
+										"bg-white p-10 rounded-xl shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] border-t-4 border-secondary-container",
+										showMissionBlock ? "md:col-span-2" : "md:col-span-1",
+									]}
+								>
+									{has(d.vision_icon) && (
+										<span class="material-symbols-outlined text-3xl text-secondary mb-6" aria-hidden="true">
+											{d.vision_icon}
+										</span>
+									)}
+									{has(d.vision_title) && (
+										<h3 class="font-h2 text-h2 text-primary-container mb-4" {...e.vision_title}>
+											{d.vision_title}
+										</h3>
+									)}
+									{has(d.vision_text) && (
+										<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed" {...e.vision_text}>
+											{d.vision_text}
+										</p>
+									)}
+								</div>
+							)}
+							{showMissionBlock && (
+								<div
+									class:list={[
+										"bg-primary-container p-10 rounded-xl shadow-xl text-white",
+										!showMissionVision ? "md:col-span-1" : "",
+									]}
+								>
+									{has(d.mission_block_icon) && (
+										<span class="material-symbols-outlined text-3xl text-secondary-fixed mb-6" aria-hidden="true">
+											{d.mission_block_icon}
+										</span>
+									)}
+									{has(d.mission_block_title) && (
+										<h3 class="font-h3 text-h3 mb-4" {...e.mission_block_title}>{d.mission_block_title}</h3>
+									)}
+									{has(d.mission_block_text) && (
+										<p class="font-body-md text-sm opacity-80 leading-relaxed" {...e.mission_block_text}>
+											{d.mission_block_text}
+										</p>
+									)}
+								</div>
+							)}
+						</div>
+					)}
+				</div>
+			</section>
+		)
+	}
+
+	{
+		sectionOn(d.show_values) && (has(d.values_heading) || valueRows.length > 0) && (
+			<section class="py-xxl bg-white">
+				<div class="max-w-[1200px] mx-auto px-6">
+					{has(d.values_heading) && (
+						<h2 class="font-h1 text-h1 text-primary-container mb-16 text-center" {...e.values_heading}>
+							{d.values_heading}
+						</h2>
+					)}
+					{valueRows.length > 0 && (
+						<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+							{valueRows.map(
+								(row: { icon?: string; title?: string; text?: string }) => (
+									<div class="p-8 rounded-xl bg-surface border border-slate-100 premium-card-hover transition-all duration-300">
+										{has(row.icon) && (
+											<div class="w-12 h-12 bg-secondary-fixed rounded-lg flex items-center justify-center mb-6">
+												<span class="material-symbols-outlined text-secondary" aria-hidden="true">
+													{row.icon}
+												</span>
+											</div>
+										)}
+										{has(row.title) && <h4 class="font-h3 text-h3 text-primary-container mb-3">{row.title}</h4>}
+										{has(row.text) && <p class="text-sm text-on-surface-variant leading-relaxed">{row.text}</p>}
+									</div>
+								)
+							)}
+						</div>
+					)}
+				</div>
+			</section>
+		)
+	}
+
+	{
+		sectionOn(d.show_cta) &&
+			(has(d.cta_title) ||
+				has(d.cta_description) ||
+				has(d.cta_primary_label) ||
+				has(d.cta_secondary_label)) && (
+			<section class="py-24 bg-primary-container text-white overflow-hidden relative">
+				<div class="absolute inset-0 opacity-10">
+					<div class="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full filter blur-[100px] translate-x-1/2 -translate-y-1/2" />
+					<div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary-fixed rounded-full filter blur-[80px] -translate-x-1/2 translate-y-1/2" />
+				</div>
+				<div class="relative z-10 max-w-[1200px] mx-auto px-6 text-center">
+					{has(d.cta_title) && (
+						<h2 class="font-h1 text-h1 mb-6" {...e.cta_title}>
+							{d.cta_title}
+						</h2>
+					)}
+					{has(d.cta_description) && (
+						<p class="font-body-lg text-body-lg opacity-80 mb-10 max-w-2xl mx-auto" {...e.cta_description}>
+							{d.cta_description}
+						</p>
+					)}
+					{(has(d.cta_primary_label) || has(d.cta_secondary_label)) && (
+						<div class="flex flex-col md:flex-row gap-4 justify-center">
+							{has(d.cta_primary_label) && (
+								<a
+									href={d.cta_primary_url?.trim() || "#"}
+									class="inline-flex bg-secondary-container text-on-secondary-container px-10 py-4 rounded-lg font-bold text-lg hover:brightness-110 transition-all justify-center"
+									{...e.cta_primary_label}
+								>
+									{d.cta_primary_label}
+								</a>
+							)}
+							{has(d.cta_secondary_label) && (
+								<a
+									href={d.cta_secondary_url?.trim() || "#"}
+									class="inline-flex border border-white/20 bg-white/5 backdrop-blur-sm text-white px-10 py-4 rounded-lg font-medium text-lg hover:bg-white/10 transition-all justify-center"
+									{...e.cta_secondary_label}
+								>
+									{d.cta_secondary_label}
+								</a>
+							)}
+						</div>
+					)}
+				</div>
+			</section>
+		)
+	}
+</main>

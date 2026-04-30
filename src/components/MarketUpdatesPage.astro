@@ -1,0 +1,743 @@
+---
+/**
+ * หน้ารายงานภาวะตลาด — หัวข้อ/ความน่าเชื่อถือจาก market_updates_page (singleton)
+ * เนื้อหารายวันจาก market_updates — ฟิลด์ market_calendar_day (YYYY-MM-DD) บังคับและห้ามซ้ำใน CMS
+ */
+import {
+	getEmDashCollection,
+	getEmDashEntry,
+	getRequestContext,
+	getSeoMeta,
+	getSiteSettings,
+} from "emdash";
+import type { CacheHint, ContentEntry, MediaValue } from "emdash";
+import { createPublicPageContext } from "emdash/page";
+import { Image, PortableText } from "emdash/ui";
+import type { MarketUpdate } from "../../emdash-env";
+import FadvisorStitchPage from "./FadvisorStitchPage.astro";
+import { cmsBool } from "../utils/cms-boolean";
+import { resolveBlogSiteIdentity } from "../utils/site-identity";
+
+type EditBag = { [k: string]: unknown };
+
+type MarketUpdatesPageData = {
+	page_title?: string;
+	page_subtitle?: string;
+	show_trust_badges?: unknown;
+	trust_badges?: TrustBadgeRow[];
+	latest_badge_label?: string;
+	summary_section_title?: string;
+	summary_section_icon?: string;
+	sentiment_section_title?: string;
+	sentiment_label?: string;
+	sentiment_icon?: string;
+	gainers_section_title?: string;
+	losers_section_title?: string;
+	gainers_view_all_label?: string;
+	gainers_view_all_href?: string;
+	losers_view_all_label?: string;
+	losers_view_all_href?: string;
+};
+
+interface Props {
+	/** slug หรือ ULID ของรายการรายวัน — ถ้าไม่ส่ง = แสดงวันล่าสุด */
+	entrySlugOrId?: string;
+	canonicalPath?: string;
+}
+
+type IndexRepeaterRow = {
+	name?: string;
+	value?: number;
+	change?: string;
+};
+
+type StockRepeaterRow = {
+	symbol?: string;
+	company_name?: string;
+	price?: string;
+	change?: string;
+};
+
+type TrustBadgeRow = {
+	/** ถ้ามีรูป — แสดงแทนชื่อไอคอน Material */
+	icon_image?: MediaValue | null;
+	icon?: string;
+	label?: string;
+};
+
+/** ฟิลด์รูป EmDash อาจมีแค่ id/meta — ไม่มี src ที่ top-level */
+function hasEmDashMedia(img: unknown): boolean {
+	if (img == null) return false;
+	if (typeof img === "string") return img.trim() !== "";
+	if (typeof img !== "object") return false;
+	const o = img as Record<string, unknown>;
+	if (typeof o.src === "string" && o.src.trim() !== "") return true;
+	if (typeof o.previewUrl === "string" && o.previewUrl.trim() !== "") return true;
+	if (typeof o.id === "string" && o.id.trim() !== "") return true;
+	const meta = o.meta;
+	if (meta != null && typeof meta === "object") {
+		const sk = (meta as Record<string, unknown>).storageKey;
+		if (typeof sk === "string" && sk.trim() !== "") return true;
+	}
+	return false;
+}
+
+type MarketUpdateUi = MarketUpdate;
+
+function mergeHints(...hints: CacheHint[]): CacheHint {
+	const tagSet = new Set<string>();
+	let lastModified: Date | undefined;
+	for (const h of hints) {
+		for (const t of h.tags ?? []) tagSet.add(t);
+		if (h.lastModified && (!lastModified || h.lastModified > lastModified)) {
+			lastModified = h.lastModified;
+		}
+	}
+	return { tags: tagSet.size ? [...tagSet] : undefined, lastModified };
+}
+
+function has(s: string | undefined | null): boolean {
+	return typeof s === "string" && s.trim() !== "";
+}
+
+/** ค่าเดียวกับฟิลด์ select ใน seed — แมปเป็นข้อความไทย + Material Symbol ใน UI */
+const MARKET_SENTIMENT_OPTIONS = [
+	"Bullish",
+	"Bearish",
+	"Neutral",
+	"Volatile",
+	"Cautious",
+] as const;
+type MarketSentimentOption = (typeof MARKET_SENTIMENT_OPTIONS)[number];
+
+const MARKET_SENTIMENT_UI: Record<
+	MarketSentimentOption,
+	{ label: string; icon: string }
+> = {
+	Bullish: { label: "Bullish (เชิงบวก)", icon: "trending_up" },
+	Bearish: { label: "Bearish (เชิงลบ)", icon: "trending_down" },
+	Neutral: { label: "Neutral (ทรงตัว)", icon: "trending_flat" },
+	Volatile: { label: "Volatile (ผันผวน)", icon: "waves" },
+	Cautious: { label: "Cautious (ระมัดระวัง)", icon: "shield" },
+};
+
+/** ถ้าไม่เลือกใน CMS → ไม่แสดงกล่อง Sentiment (ไม่มีค่าเริ่มต้น) */
+function parseMarketSentiment(raw: unknown): MarketSentimentOption | null {
+	if (typeof raw === "string" && MARKET_SENTIMENT_OPTIONS.includes(raw as MarketSentimentOption)) {
+		return raw as MarketSentimentOption;
+	}
+	return null;
+}
+
+function parseRepeater<T>(raw: unknown): T[] {
+	if (!Array.isArray(raw)) return [];
+	return raw as T[];
+}
+
+/** Parse daily index change e.g. "+0.8%", "-1.6%", "0%" → direction */
+function classifyIndexChange(change: string | undefined): "up" | "down" | "flat" {
+	const t = (change ?? "").trim();
+	if (!t || t === "—" || t === "–" || t === "-") return "flat";
+	const digits = t.replace(/%/g, "").replace(/\s/g, "");
+	const n = Number.parseFloat(digits);
+	if (!Number.isFinite(n)) return "flat";
+	if (Math.abs(n) < 1e-4) return "flat";
+	return n > 0 ? "up" : "down";
+}
+
+function formatIndexValue(value: unknown): string {
+	if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+	return value.toLocaleString("en-US", {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2,
+	});
+}
+
+/** ฟิลด์เป็น datetime ในแอดมิน (datetime-local) — ใช้เฉพาะส่วนวันที่ YYYY-MM-DD สำหรับเรียงและปฏิทิน */
+function calendarDayOnly(raw: string | undefined | null): string {
+	if (!has(raw)) return "";
+	const m = raw!.trim().match(/^(\d{4}-\d{2}-\d{2})/);
+	return m ? m[1]! : "";
+}
+
+function dayKeyFromData(data: MarketUpdate): string {
+	return calendarDayOnly((data as MarketUpdateUi).market_calendar_day);
+}
+
+function dayKeySortMs(dayKey: string): number {
+	if (!has(dayKey)) return 0;
+	const t = Date.parse(`${dayKey.trim()}T12:00:00Z`);
+	return Number.isNaN(t) ? 0 : t;
+}
+
+function dedupeByCalendarDay(list: ContentEntry<MarketUpdate>[]): ContentEntry<MarketUpdate>[] {
+	const map = new Map<string, ContentEntry<MarketUpdate>>();
+	const sorted = [...list].sort((a, b) => {
+		const db = dayKeySortMs(dayKeyFromData(b.data)) - dayKeySortMs(dayKeyFromData(a.data));
+		if (db !== 0) return db;
+		const tb =
+			b.data.updatedAt instanceof Date
+				? b.data.updatedAt.getTime()
+				: new Date(b.data.updatedAt).getTime();
+		const ta =
+			a.data.updatedAt instanceof Date
+				? a.data.updatedAt.getTime()
+				: new Date(a.data.updatedAt).getTime();
+		return tb - ta;
+	});
+	for (const e of sorted) {
+		const k = dayKeyFromData(e.data);
+		if (!has(k)) continue;
+		if (!map.has(k)) map.set(k, e);
+	}
+	return [...map.values()].sort(
+		(a, b) => dayKeySortMs(dayKeyFromData(a.data)) - dayKeySortMs(dayKeyFromData(b.data)),
+	);
+}
+
+/** แสดงวันที่ไทยจาก YYYY-MM-DD หรือค่า datetime เต็มจากฟิลด์ market_calendar_day */
+function formatDayKeyThai(raw: string): string {
+	const dayKey = calendarDayOnly(raw);
+	if (!dayKey) return "";
+	const d = new Date(`${dayKey}T12:00:00Z`);
+	if (Number.isNaN(d.getTime())) return "";
+	return d.toLocaleDateString("th-TH", {
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+	});
+}
+
+function formatDisplayDate(data: MarketUpdateUi): string {
+	return formatDayKeyThai(data.market_calendar_day ?? "");
+}
+
+const { entrySlugOrId, canonicalPath: canonicalPathProp } = Astro.props as Props;
+
+const { entry: chromeEntry, cacheHint: chromeHint } = await getEmDashEntry("market_updates_page", "main");
+
+const { entries: rawList, cacheHint: listHint } = await getEmDashCollection("market_updates", {
+	status: "published",
+	limit: 500,
+});
+
+const previewCtx = getRequestContext()?.preview;
+let rawMerged = rawList as ContentEntry<MarketUpdate>[];
+
+/** ดราฟท์ที่กำลัง preview ไม่มีในรายการ published — รวมเข้า timeline เพื่อให้ prev/next และปฏิทินทำงาน */
+let previewFocusedEntry: ContentEntry<MarketUpdate> | null = null;
+let previewFocusedHint: CacheHint | undefined;
+if (previewCtx?.collection === "market_updates") {
+	const { entry: pvEntry, cacheHint: pvHint } = await getEmDashEntry("market_updates", previewCtx.id);
+	if (pvEntry) {
+		const p = pvEntry as ContentEntry<MarketUpdate>;
+		previewFocusedEntry = p;
+		previewFocusedHint = pvHint;
+		const pid = (p.data as MarketUpdateUi).id ?? "";
+		const dup = rawMerged.some(
+			(e) => e.id === p.id || ((e.data as MarketUpdateUi).id && (e.data as MarketUpdateUi).id === pid),
+		);
+		if (!dup) {
+			rawMerged = [...rawMerged, p];
+		}
+	}
+}
+const withDayKey = rawMerged.filter((e) => dayKeySortMs(dayKeyFromData(e.data)) > 0);
+const timelineAsc = dedupeByCalendarDay(withDayKey);
+
+if (timelineAsc.length === 0) {
+	throw new Error("market-updates-gate: timeline empty — redirect should run in src/pages/*");
+}
+
+const entriesDesc = [...timelineAsc].sort(
+	(a, b) => dayKeySortMs(dayKeyFromData(b.data)) - dayKeySortMs(dayKeyFromData(a.data)),
+);
+
+let entry: ContentEntry<MarketUpdate> | null = null;
+let entryLoadHint: CacheHint | undefined;
+
+if (has(entrySlugOrId)) {
+	const { entry: one, cacheHint: oneHint } = await getEmDashEntry("market_updates", entrySlugOrId!);
+	entry = one as ContentEntry<MarketUpdate> | null;
+	entryLoadHint = oneHint;
+} else if (previewFocusedEntry) {
+	/** `/market-updates?_preview=…` ไม่มี slug ใน path — ต้องโชว์รายการตาม token ไม่ใช่แค่ “ล่าสุดที่ publish” */
+	entry = previewFocusedEntry;
+	entryLoadHint = previewFocusedHint ?? listHint;
+} else {
+	entry = entriesDesc[0] as ContentEntry<MarketUpdate>;
+	entryLoadHint = listHint;
+}
+
+if (!entry) {
+	throw new Error("market-updates-gate: no entry — redirect should run in src/pages/*");
+}
+
+const mergedHint = mergeHints(
+	chromeHint ?? {},
+	listHint ?? {},
+	entryLoadHint ?? {},
+);
+Astro.cache.set(mergedHint);
+
+const d = entry.data as MarketUpdateUi;
+const pe = entry.edit as unknown as Record<string, EditBag>;
+const chrome = (chromeEntry?.data ?? {}) as MarketUpdatesPageData;
+const chromeEdit = (chromeEntry?.edit ?? {}) as unknown as Record<string, EditBag | undefined>;
+
+const asc = timelineAsc;
+const newest = timelineAsc[timelineAsc.length - 1]!;
+const isViewingLatest = entry.id === newest?.id;
+const navIdx = asc.findIndex((e) => e.id === entry.id);
+const prevEntry = navIdx > 0 ? asc[navIdx - 1]! : null;
+const nextEntry = navIdx >= 0 && navIdx < asc.length - 1 ? asc[navIdx + 1]! : null;
+
+const slugByDate: Record<string, string> = {};
+for (const e of asc) {
+	const k = dayKeyFromData(e.data);
+	if (has(k)) slugByDate[k] = e.id;
+}
+
+const currentDateKey = dayKeyFromData(d);
+const dateKeys = Object.keys(slugByDate).sort();
+const minDateKey = dateKeys[0] ?? currentDateKey;
+const maxDateKey = dateKeys[dateKeys.length - 1] ?? currentDateKey;
+
+const canonicalPath =
+	canonicalPathProp ??
+	(isViewingLatest && !has(entrySlugOrId) ? "/market-updates" : `/market-updates/${entry.id}`);
+
+const { siteTitle } = resolveBlogSiteIdentity(await getSiteSettings());
+const seo = getSeoMeta(entry, {
+	siteTitle,
+	siteUrl: Astro.url.origin,
+	path: canonicalPath,
+});
+
+const stitchHeadPage = createPublicPageContext({
+	Astro,
+	kind: "content",
+	pageType: "website",
+	title: seo.title,
+	pageTitle: seo.ogTitle,
+	description: seo.description,
+	canonical: seo.canonical,
+	image: seo.ogImage,
+	content: {
+		collection: "market_updates",
+		id: d.id,
+		slug: entry.id,
+	},
+	seo: { ogImage: seo.ogImage, robots: seo.robots },
+	siteName: siteTitle,
+	siteUrl: Astro.url.origin,
+});
+
+const pageTitle = seo.title;
+
+const displayTitle = has(chrome.page_title) ? chrome.page_title!.trim() : d.title;
+const displaySubtitle = has(chrome.page_subtitle) ? chrome.page_subtitle!.trim() : "";
+
+const showTrustChrome = chromeEntry != null ? cmsBool(chrome.show_trust_badges, true) : false;
+const rawTrustBadges: TrustBadgeRow[] = parseRepeater<TrustBadgeRow>(chrome.trust_badges);
+const trustBadges = rawTrustBadges.filter(
+	(b) => has(b.label) && (hasEmDashMedia(b.icon_image) || has(b.icon)),
+);
+
+const latestLabel = has(chrome.latest_badge_label) ? chrome.latest_badge_label!.trim() : "Latest";
+
+const dateShown = formatDisplayDate(d);
+
+const summaryTitle = has(chrome.summary_section_title)
+	? chrome.summary_section_title!.trim()
+	: "Market Summary";
+const summaryIcon = has(chrome.summary_section_icon) ? chrome.summary_section_icon!.trim() : "summarize";
+const sentimentHeading = has(chrome.sentiment_section_title)
+	? chrome.sentiment_section_title!.trim()
+	: "Market Sentiment";
+
+const sentimentKey = parseMarketSentiment(d.market_sentiment);
+const sentimentUi = sentimentKey ? MARKET_SENTIMENT_UI[sentimentKey] : null;
+const sentimentLabel = sentimentUi?.label ?? "";
+const sentimentIcon = sentimentUi?.icon ?? "";
+const showSentimentCard = sentimentKey != null;
+
+const gainersTitle = has(chrome.gainers_section_title)
+	? chrome.gainers_section_title!.trim()
+	: "Top Gainers (SET)";
+const losersTitle = has(chrome.losers_section_title)
+	? chrome.losers_section_title!.trim()
+	: "Top Losers (SET)";
+
+const gainersViewLabel = has(chrome.gainers_view_all_label) ? chrome.gainers_view_all_label!.trim() : "";
+const gainersViewHref = has(chrome.gainers_view_all_href) ? chrome.gainers_view_all_href!.trim() : "";
+const losersViewLabel = has(chrome.losers_view_all_label) ? chrome.losers_view_all_label!.trim() : "";
+const losersViewHref = has(chrome.losers_view_all_href) ? chrome.losers_view_all_href!.trim() : "";
+
+const indices = parseRepeater<IndexRepeaterRow>(d.indices_data);
+const gainers = parseRepeater<StockRepeaterRow>(d.top_gainers);
+const losers = parseRepeater<StockRepeaterRow>(d.top_losers);
+
+const prevHref = prevEntry ? `/market-updates/${encodeURIComponent(prevEntry.id)}` : null;
+	const nextHref = nextEntry ? `/market-updates/${encodeURIComponent(nextEntry.id)}` : null;
+---
+
+<FadvisorStitchPage title={pageTitle} bodyClass="bg-background text-on-background" page={stitchHeadPage}>
+	<main class="pt-32 pb-xxl px-6 lg:px-12 max-w-[1200px] mx-auto">
+		<div class="mb-xl flex flex-col gap-2">
+			<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+			<div>
+				<h1
+					class="font-h1 text-h1 text-primary-container mb-1"
+					{...(chromeEdit.page_title ?? pe.title ?? {})}
+				>
+					{displayTitle}
+				</h1>
+				{
+					displaySubtitle && (
+						<p class="text-on-surface-variant font-body-md" {...(chromeEdit.page_subtitle ?? pe.page_subtitle ?? {})}>
+							{displaySubtitle}
+						</p>
+					)
+				}
+			</div>
+
+			<div
+				class="flex w-fit max-w-full min-w-0 flex-nowrap items-center gap-1.5 sm:gap-2 md:gap-3 bg-white p-2 rounded-xl border border-outline-variant/30 shadow-sm md:ml-auto"
+				id="mu-date-toolbar"
+			>
+				{
+					prevHref ? (
+						<a
+							class="shrink-0 p-1.5 sm:p-2 hover:bg-surface-container-low rounded-lg transition-colors inline-flex"
+							href={prevHref}
+							aria-label="วันก่อนหน้า"
+						>
+							<span class="material-symbols-outlined text-on-surface-variant">chevron_left</span>
+						</a>
+					) : (
+						<span
+							class="shrink-0 p-1.5 sm:p-2 rounded-lg inline-flex opacity-35 cursor-not-allowed"
+							aria-disabled="true"
+							title="ไม่มีรายงานก่อนหน้านี้"
+						>
+							<span class="material-symbols-outlined text-on-surface-variant">chevron_left</span>
+						</span>
+					)
+				}
+				<div class="flex items-center gap-1.5 border-x border-outline-variant/20 px-2 sm:px-3 md:px-4 min-h-[44px]">
+					<span class="material-symbols-outlined shrink-0 text-primary-container text-[18px] sm:text-[20px]">calendar_month</span>
+					<span
+						class="font-bold text-sm leading-tight text-primary-container tabular-nums sm:text-base whitespace-nowrap"
+						{...(pe.market_calendar_day ?? {})}
+					>
+						{dateShown || "—"}
+					</span>
+					{
+						isViewingLatest && latestLabel && (
+							<span
+								class="hidden md:inline-flex shrink-0 text-xs bg-secondary-container text-secondary font-bold px-2 py-0.5 rounded ml-1 uppercase tracking-wide"
+							>
+								{latestLabel}
+							</span>
+						)
+					}
+				</div>
+				{
+					nextHref ? (
+						<a
+							class="shrink-0 p-1.5 sm:p-2 hover:bg-surface-container-low rounded-lg transition-colors inline-flex text-on-surface-variant"
+							href={nextHref}
+							aria-label="วันถัดไป"
+						>
+							<span class="material-symbols-outlined">chevron_right</span>
+						</a>
+					) : (
+						<span
+							class="shrink-0 p-1.5 sm:p-2 rounded-lg inline-flex opacity-35 cursor-not-allowed text-outline"
+							aria-disabled="true"
+							title="รายงานล่าสุดแล้ว"
+						>
+							<span class="material-symbols-outlined">chevron_right</span>
+						</span>
+					)
+				}
+				<div class="relative ml-0 flex shrink-0 items-center">
+					<button
+						type="button"
+						id="mu-cal-trigger"
+						class="bg-surface-container-high p-2 rounded-lg hover:bg-primary-container hover:text-white transition-all inline-flex"
+						aria-label="เลือกวันที่"
+					>
+						<span class="material-symbols-outlined text-[20px]">event</span>
+					</button>
+					<input
+						type="date"
+						id="mu-cal-input"
+						class="absolute opacity-0 w-[1px] h-[1px] bottom-0 right-0 pointer-events-none"
+						min={minDateKey}
+						max={maxDateKey}
+						value={currentDateKey}
+						tabindex={-1}
+						aria-hidden="true"
+					/>
+				</div>
+			</div>
+			</div>
+			<p
+				id="mu-no-data-msg"
+				class="hidden text-center font-body-md text-on-surface-variant md:text-right md:self-end"
+				role="status"
+				aria-live="polite"
+			>
+				ไม่มีข้อมูลในวันที่เลือก
+			</p>
+		</div>
+
+		<div class="bg-primary-container text-white p-lg rounded-2xl mb-xl flex flex-col md:flex-row justify-between items-center gap-6 luminous-elevation">
+			<div class="flex-1">
+				<h2 class="font-h3 text-h3 mb-2 flex items-center gap-2">
+					<span class="material-symbols-outlined text-secondary-container">{summaryIcon}</span>
+					<span {...(chromeEdit.summary_section_title ?? {})}>{summaryTitle}</span>
+				</h2>
+				<div
+					class="text-slate-300 font-body-md leading-relaxed market-summary-pt"
+					{...(pe.market_summary ?? {})}
+				>
+					{
+						d.market_summary && d.market_summary.length > 0 ? (
+							<PortableText value={d.market_summary} />
+						) : (
+							<p>—</p>
+						)
+					}
+				</div>
+			</div>
+			{
+				showSentimentCard && (
+					<div class="bg-white/10 backdrop-blur-sm p-lg rounded-xl border border-white/10 min-w-[260px]">
+						<p class="text-slate-400 font-label-sm uppercase tracking-widest mb-1" {...(chromeEdit.sentiment_section_title ?? {})}>
+							{sentimentHeading}
+						</p>
+						<div class="flex items-center gap-3" {...(pe.market_sentiment ?? {})}>
+							<span
+								class="material-symbols-outlined text-secondary-container text-3xl"
+								style="font-variation-settings: 'FILL' 1;"
+								aria-hidden="true"
+							>
+								{sentimentIcon}
+							</span>
+							<span class="text-2xl font-bold text-secondary-container">{sentimentLabel}</span>
+						</div>
+					</div>
+				)
+			}
+		</div>
+
+		<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-md mb-xl">
+			{
+				indices.map((row) => {
+					const name = row.name ?? "";
+					const dir = classifyIndexChange(row.change);
+					const changeTone =
+						dir === "up"
+							? "text-emerald-700"
+							: dir === "down"
+								? "text-error"
+								: "text-secondary";
+					const changeIcon =
+						dir === "up" ? "trending_up" : dir === "down" ? "trending_down" : "trending_flat";
+					return (
+						<div class="bg-white p-lg rounded-xl terminal-border luminous-elevation transition-all">
+							<div class="flex justify-between items-start mb-4">
+								<span class="font-label-sm text-label-sm font-bold text-primary-container">{name}</span>
+								<span class:list={["font-medium text-sm flex items-center gap-0.5", changeTone]}>
+									<span class="material-symbols-outlined text-base leading-none" aria-hidden="true">
+										{changeIcon}
+									</span>
+									{row.change ?? ""}
+								</span>
+							</div>
+							<div class="font-h2 text-h2 text-primary-container">
+								{formatIndexValue(row.value)}
+							</div>
+						</div>
+					);
+				})
+			}
+		</div>
+
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-xl">
+			<div class="space-y-md">
+				<div class="bg-white rounded-xl terminal-border luminous-elevation overflow-hidden">
+					<div class="p-lg border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-lowest">
+						<div class="flex items-center gap-3">
+							<div class="p-2 rounded-lg bg-emerald-600/15 text-emerald-700">
+								<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
+									trending_up
+								</span>
+							</div>
+							<h3 class="font-h3 text-h3 text-primary-container" {...(chromeEdit.gainers_section_title ?? {})}>
+								{gainersTitle}
+							</h3>
+						</div>
+						{
+							gainersViewLabel &&
+								(gainersViewHref ? (
+									<a
+										class="text-xs font-bold text-primary-container hover:underline uppercase tracking-widest"
+										href={gainersViewHref}
+										{...(chromeEdit.gainers_view_all_label ?? {})}
+									>
+										{gainersViewLabel}
+									</a>
+								) : (
+									<span
+										class="text-xs font-bold text-primary-container uppercase tracking-widest opacity-70"
+										{...(chromeEdit.gainers_view_all_label ?? {})}
+									>
+										{gainersViewLabel}
+									</span>
+								))
+						}
+					</div>
+					<div class="divide-y divide-outline-variant/10">
+						{
+							gainers.map((row) => (
+								<div class="p-lg flex justify-between items-center hover:bg-surface-container-low transition-colors">
+									<div>
+										<p class="font-bold text-primary-container text-lg">{row.symbol ?? ""}</p>
+										<p class="text-xs text-on-surface-variant font-medium">{row.company_name ?? ""}</p>
+									</div>
+									<div class="text-right">
+										<p class="font-bold text-primary-container text-lg">{row.price ?? ""}</p>
+										<p class="font-bold text-sm text-emerald-700 tabular-nums">{row.change ?? ""}</p>
+									</div>
+								</div>
+							))
+						}
+					</div>
+				</div>
+			</div>
+
+			<div class="space-y-md">
+				<div class="bg-white rounded-xl terminal-border luminous-elevation overflow-hidden">
+					<div class="p-lg border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-lowest">
+						<div class="flex items-center gap-3">
+							<div class="p-2 bg-error-container/20 rounded-lg text-error">
+								<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
+									trending_down
+								</span>
+							</div>
+							<h3 class="font-h3 text-h3 text-primary-container" {...(chromeEdit.losers_section_title ?? {})}>
+								{losersTitle}
+							</h3>
+						</div>
+						{
+							losersViewLabel &&
+								(losersViewHref ? (
+									<a
+										class="text-xs font-bold text-primary-container hover:underline uppercase tracking-widest"
+										href={losersViewHref}
+										{...(chromeEdit.losers_view_all_label ?? {})}
+									>
+										{losersViewLabel}
+									</a>
+								) : (
+									<span
+										class="text-xs font-bold text-primary-container uppercase tracking-widest opacity-70"
+										{...(chromeEdit.losers_view_all_label ?? {})}
+									>
+										{losersViewLabel}
+									</span>
+								))
+						}
+					</div>
+					<div class="divide-y divide-outline-variant/10">
+						{
+							losers.map((row) => (
+								<div class="p-lg flex justify-between items-center hover:bg-surface-container-low transition-colors">
+									<div>
+										<p class="font-bold text-primary-container text-lg">{row.symbol ?? ""}</p>
+										<p class="text-xs text-on-surface-variant font-medium">{row.company_name ?? ""}</p>
+									</div>
+									<div class="text-right">
+										<p class="font-bold text-primary-container text-lg">{row.price ?? ""}</p>
+										<p class="text-error font-bold text-sm">{row.change ?? ""}</p>
+									</div>
+								</div>
+							))
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{
+			showTrustChrome && trustBadges.length > 0 && (
+				<div class="mt-xxl pt-xl border-t border-outline-variant/20 flex flex-wrap justify-center gap-x-14 gap-y-6 md:gap-x-20 items-center opacity-85 grayscale hover:grayscale-0 transition-all">
+					{trustBadges.map((b) => (
+						<div class="flex items-center gap-2.5 max-w-[240px]">
+							{
+								hasEmDashMedia(b.icon_image) ? (
+									<Image
+										image={b.icon_image as MediaValue}
+										class="h-[22px] w-[22px] shrink-0 object-contain"
+										alt={(b.icon_image as MediaValue | undefined)?.alt?.trim() || b.label || ""}
+									/>
+								) : (
+									<span
+										class="material-symbols-outlined text-secondary shrink-0 text-[22px]"
+										style="font-variation-settings: 'FILL' 1;"
+									>
+										{b.icon}
+									</span>
+								)
+							}
+							<span class="font-label-sm text-label-sm uppercase font-bold tracking-widest text-on-surface-variant leading-snug">
+								{b.label}
+							</span>
+						</div>
+					))}
+				</div>
+			)
+		}
+	</main>
+</FadvisorStitchPage>
+
+<script is:inline define:vars={{ slugByDate, calendarResetDate: currentDateKey }}>
+	const trigger = document.getElementById("mu-cal-trigger");
+	const input = document.getElementById("mu-cal-input");
+	const emptyMsg = document.getElementById("mu-no-data-msg");
+	if (trigger && input && input instanceof HTMLInputElement) {
+		trigger.addEventListener("click", () => {
+			emptyMsg?.classList.add("hidden");
+			if (typeof input.showPicker === "function") {
+				input.showPicker();
+			} else {
+				input.focus();
+				input.click();
+			}
+		});
+		input.addEventListener("change", () => {
+			const v = input.value;
+			const slug = slugByDate[v];
+			if (slug) {
+				emptyMsg?.classList.add("hidden");
+				window.location.href = `/market-updates/${encodeURIComponent(slug)}`;
+			} else if (v) {
+				emptyMsg?.classList.remove("hidden");
+				input.value = calendarResetDate;
+			}
+		});
+	}
+</script>
+
+<style is:global>
+	.market-summary-pt :global(p) {
+		margin: 0;
+	}
+	.market-summary-pt :global(p + p) {
+		margin-top: 0.5em;
+	}
+</style>

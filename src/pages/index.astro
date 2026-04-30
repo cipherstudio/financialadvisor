@@ -1,0 +1,82 @@
+---
+import { getEmDashCollection, getEmDashEntry } from "emdash";
+import FadvisorStitchPage from "../components/FadvisorStitchPage.astro";
+import HomeSection1 from "../components/HomeSection1.astro";
+import HomeSection2Services from "../components/HomeSection2Services.astro";
+import HomeSection3Advisors from "../components/HomeSection3Advisors.astro";
+import HomeSectionKnowledge from "../components/HomeSectionKnowledge.astro";
+import HomeSectionTestimonials from "../components/HomeSectionTestimonials.astro";
+import HomeSectionFaq from "../components/HomeSectionFaq.astro";
+import HomeSectionFinalCta from "../components/HomeSectionFinalCta.astro";
+
+const { entry: homeEntry, cacheHint: homeHint } = await getEmDashEntry("home_page", "main");
+const { entries: serviceEntries, cacheHint: servicesHint } = await getEmDashCollection("services", {
+	status: "published",
+	orderBy: { order: "asc" },
+	limit: 100,
+});
+const { entries: advisorEntries, cacheHint: advisorsHint } = await getEmDashCollection("advisors", {
+	status: "published",
+	orderBy: { published_at: "desc" },
+	limit: 100,
+});
+const { entries: latestPosts, cacheHint: latestPostsHint } = await getEmDashCollection("posts", {
+	status: "published",
+	orderBy: { published_at: "desc" },
+	limit: 3,
+});
+const { entries: testimonialEntries, cacheHint: testimonialsHint } = await getEmDashCollection("testimonials", {
+	status: "published",
+	orderBy: { published_at: "desc" },
+	limit: 100,
+});
+Astro.cache.set(homeHint);
+Astro.cache.set(servicesHint);
+Astro.cache.set(advisorsHint);
+Astro.cache.set(latestPostsHint);
+Astro.cache.set(testimonialsHint);
+
+const sectionOn = (b: unknown, defaultValue = false): boolean => {
+	if (b === true || b === 1) return true;
+	if (b === false || b === 0) return false;
+	if (b == null) return defaultValue;
+	if (typeof b === "string") {
+		const t = b.trim().toLowerCase();
+		if (t === "0" || t === "false") return false;
+		if (t === "1" || t === "true") return true;
+	}
+	return defaultValue;
+};
+
+const featuredTestimonials = testimonialEntries.filter((e) => sectionOn(e.data.is_featured, false));
+
+const { entries: faqEntriesAll, cacheHint: faqsHint } = await getEmDashCollection("faqs", {
+	status: "published",
+	orderBy: { order: "asc" },
+	limit: 200,
+});
+Astro.cache.set(faqsHint);
+
+const featuredFaqs = faqEntriesAll.filter((e) => sectionOn(e.data.is_feature, false));
+
+const pageTitle =
+	homeEntry &&
+	typeof homeEntry.data.page_title === "string" &&
+	homeEntry.data.page_title.trim() !== ""
+		? homeEntry.data.page_title.trim()
+		: "FinancialAdvisorThailand";
+---
+
+<FadvisorStitchPage title={pageTitle} bodyClass="bg-surface text-on-surface antialiased">
+	<main class="pt-20">
+		{homeEntry && <HomeSection1 page={homeEntry} />}
+		{homeEntry && <HomeSection2Services page={homeEntry} serviceEntries={serviceEntries} />}
+		{homeEntry && <HomeSection3Advisors page={homeEntry} advisorEntries={advisorEntries} />}
+		{homeEntry && <HomeSectionKnowledge page={homeEntry} latestPostEntries={latestPosts} />}
+		{homeEntry && (
+			<HomeSectionTestimonials page={homeEntry} featuredEntries={featuredTestimonials} />
+		)}
+		{homeEntry && <HomeSectionFaq page={homeEntry} featuredFaqEntries={featuredFaqs} />}
+		{homeEntry && <HomeSectionFinalCta page={homeEntry} />}
+	</main>
+</FadvisorStitchPage>

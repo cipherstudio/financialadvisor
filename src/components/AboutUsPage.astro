@@ -1,0 +1,19 @@
+---
+import { getEmDashEntry } from "emdash";
+import FadvisorStitchPage from "./FadvisorStitchPage.astro";
+import AboutUsContent from "./AboutUsContent.astro";
+
+/** slug หรือ ULID ของ entry ในคอลเลกชัน about_us (หน้า /about-us ใช้ "main") */
+interface Props {
+	entryId: string;
+}
+
+const { entryId } = Astro.props;
+const { entry, cacheHint } = await getEmDashEntry("about_us", entryId);
+Astro.cache.set(cacheHint);
+const pageTitle = entry.data.page_title ?? "เกี่ยวกับเรา | FinancialAdvisorThailand";
+---
+
+<FadvisorStitchPage title={pageTitle} bodyClass="bg-surface text-on-surface">
+	<AboutUsContent entry={entry} />
+</FadvisorStitchPage>

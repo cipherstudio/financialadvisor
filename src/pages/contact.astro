@@ -1,0 +1,11 @@
+---
+import { getEmDashEntry } from "emdash";
+import ContactPage from "../components/ContactPage.astro";
+
+const { entry: contactPageEntry } = await getEmDashEntry("contact_page", "main");
+if (!contactPageEntry) {
+	return Astro.redirect("/404");
+}
+---
+
+<ContactPage />

@@ -1,0 +1,4 @@
+---
+/** EmDash preview URL เริ่มต้น: `/services_page/{id}?_preview=…` — ส่งต่อไปหน้าสาธารณะ `/services` */
+return Astro.redirect(`/services${Astro.url.search || ""}`);
+---

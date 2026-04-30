@@ -1,0 +1,504 @@
+---
+import { getEmDashEntry } from "emdash";
+import { Image } from "emdash/ui";
+import type { ContactPage } from "../../emdash-env";
+import { HONEYPOT_FIELD } from "../emdash-plugins/form-security.ts";
+import FadvisorStitchPage from "./FadvisorStitchPage.astro";
+
+const { entry, cacheHint } = await getEmDashEntry("contact_page", "main");
+Astro.cache.set(cacheHint);
+
+const d = entry.data as ContactPage;
+const pageTitle = d.page_title?.trim() || "ติดต่อเรา | FinancialAdvisorThailand";
+
+const subjectBlock = d.form_subject_options || "";
+const subjectLines = subjectBlock
+	.split("\n")
+	.map((l: string) => l.trim())
+	.filter((l: string) => l.length > 0);
+const subjectPlaceholder = subjectLines[0] || "เลือกหัวข้อการปรึกษา";
+const subjectOptions = subjectLines.slice(1);
+const showPhoneCard = d.show_phone_card !== false;
+const showEmailCard = d.show_email_card !== false;
+const showLineCard = d.show_line_card !== false;
+const showOfficeDetails = d.show_office_details !== false;
+const showOfficeHours = d.show_office_hours !== false;
+const showMapSection = d.show_map_section !== false;
+const showTrustSection = d.show_trust_section !== false;
+const visibleCardCount = [showPhoneCard, showEmailCard, showLineCard].filter(Boolean).length;
+
+const sundayClosed =
+	(d.hours_sunday_hours || "").includes("ปิด") || (d.hours_sunday_hours || "").toLowerCase().includes("close");
+
+const recaptchaSiteKey =
+	typeof import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY === "string"
+		? import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY.trim()
+		: "";
+---
+
+<FadvisorStitchPage title={pageTitle} bodyClass="bg-surface text-on-surface antialiased">
+	<main class="pt-20">
+		<!-- Hero -->
+		<section class="relative h-[400px] flex items-center justify-center overflow-hidden">
+			<div class="absolute inset-0 bg-primary-container z-0">
+				{
+					d.hero_image?.src ? (
+						<Image
+							class="w-full h-full object-cover opacity-30"
+							image={d.hero_image}
+						/>
+					) : (
+						<div class="w-full h-full bg-primary-container" />
+					)
+				}
+			</div>
+			<div class="relative z-10 text-center max-w-[800px] px-6">
+				<h1 class="font-display text-display text-white mb-4">{d.hero_title}</h1>
+				{
+					d.hero_subtitle && (
+						<p class="font-body-lg text-on-primary-container">{d.hero_subtitle}</p>
+					)
+				}
+			</div>
+		</section>
+
+		<!-- Bento -->
+		<section class="mx-auto px-6 -mt-20 relative z-20">
+			<div
+				class:list={[
+					"grid gap-lg mx-auto",
+					visibleCardCount <= 1 && "grid-cols-1 max-w-[380px]",
+					visibleCardCount === 2 && "grid-cols-1 md:grid-cols-2 max-w-[820px]",
+					visibleCardCount >= 3 && "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-[1200px]",
+				]}
+			>
+				{
+					showPhoneCard && (
+						<div class="bg-white p-lg rounded-xl luminous-shadow border-t-4 border-secondary transition-all luminous-shadow-hover flex flex-col items-center text-center">
+							<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center mb-md">
+								<span class="material-symbols-outlined text-on-secondary-fixed text-2xl"
+									>support_agent</span
+								>
+							</div>
+							<h3 class="font-h3 text-primary mb-sm font-semibold">{d.phone_card_title}</h3>
+							{
+								d.phone_card_description && (
+									<p class="font-body-md text-on-surface-variant mb-md">{d.phone_card_description}</p>
+								)
+							}
+							<a class="font-h2 text-secondary font-bold" href={d.phone_href || "#"}>{d.phone_number}</a>
+						</div>
+					)
+				}
+
+				{
+					showEmailCard && (
+						<div class="bg-white p-lg rounded-xl luminous-shadow border-t-4 border-secondary transition-all luminous-shadow-hover flex flex-col items-center text-center">
+							<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center mb-md">
+								<span class="material-symbols-outlined text-on-secondary-fixed text-2xl">mail</span>
+							</div>
+							<h3 class="font-h3 text-primary mb-sm font-semibold">{d.email_card_title}</h3>
+							{
+								d.email_card_description && (
+									<p class="font-body-md text-on-surface-variant mb-md">{d.email_card_description}</p>
+								)
+							}
+							<a
+								class="font-h3 text-secondary font-bold break-all"
+								href={d.email_href || `mailto:${d.email_address || ""}`}>{d.email_address}</a
+							>
+						</div>
+					)
+				}
+
+				{
+					showLineCard && (
+						<div class="bg-white p-lg rounded-xl luminous-shadow border-t-4 border-secondary transition-all luminous-shadow-hover flex flex-col items-center text-center">
+							<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center mb-md">
+								<span class="material-symbols-outlined text-on-secondary-fixed text-2xl"
+									>chat_bubble</span
+								>
+							</div>
+							<h3 class="font-h3 text-primary mb-sm font-semibold">{d.line_card_title}</h3>
+							{
+								d.line_card_description && (
+									<p class="font-body-md text-on-surface-variant mb-md">{d.line_card_description}</p>
+								)
+							}
+							<a
+								class="font-h2 text-secondary font-bold"
+								href={d.line_link_href || "#"}
+								target="_blank"
+								rel="noopener noreferrer">{d.line_link_label}</a
+							>
+						</div>
+					)
+				}
+			</div>
+		</section>
+
+		<!-- Form + office -->
+		<section class="max-w-[1200px] mx-auto px-6 py-xxl grid grid-cols-1 lg:grid-cols-2 gap-xxl">
+			<div class="space-y-lg">
+				<div>
+					<h2 class="font-h1 text-primary mb-md font-bold">{d.form_title}</h2>
+					{
+						d.form_description && (
+							<p class="font-body-md text-on-surface-variant">{d.form_description}</p>
+						)
+					}
+				</div>
+				<form
+					class="relative space-y-md bg-white p-lg rounded-xl luminous-shadow border border-outline-variant/30"
+					id="contact-form"
+					data-api="/_emdash/api/plugins/fadvisor-contact/submit"
+					data-recaptcha-site-key={recaptchaSiteKey}
+					data-recaptcha-action="contact_submit"
+					data-honeypot-field={HONEYPOT_FIELD}
+				>
+					<div
+						class="absolute -left-[9999px] h-px w-px overflow-hidden opacity-0 pointer-events-none"
+						aria-hidden="true"
+					>
+						<label for="cf-hp-fax">Fax</label>
+						<input
+							type="text"
+							id="cf-hp-fax"
+							name={HONEYPOT_FIELD}
+							tabindex={-1}
+							autocomplete="off"
+						/>
+					</div>
+					<div id="contact-form-message" class="hidden rounded-lg px-md py-sm text-sm" aria-live="polite" />
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+						<div class="space-y-xs">
+							<label class="font-label-sm text-primary" for="cf-name">ชื่อ-นามสกุล</label>
+							<input
+								class="w-full px-md py-sm rounded-lg border border-outline-variant focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 outline-none transition-all"
+								id="cf-name"
+								name="full_name"
+								placeholder="ระบุชื่อของคุณ"
+								type="text"
+								required
+							/>
+						</div>
+						<div class="space-y-xs">
+							<label class="font-label-sm text-primary" for="cf-phone">เบอร์โทรศัพท์</label>
+							<input
+								class="w-full px-md py-sm rounded-lg border border-outline-variant focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 outline-none transition-all"
+								id="cf-phone"
+								name="phone"
+								placeholder="08X-XXX-XXXX"
+								type="tel"
+							/>
+						</div>
+					</div>
+					<div class="space-y-xs">
+						<label class="font-label-sm text-primary" for="cf-email">อีเมล</label>
+						<input
+							class="w-full px-md py-sm rounded-lg border border-outline-variant focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 outline-none transition-all"
+							id="cf-email"
+							name="email"
+							placeholder="example@mail.com"
+							type="email"
+							required
+						/>
+					</div>
+					<div class="space-y-xs">
+						<label class="font-label-sm text-primary" for="cf-subject">หัวข้อที่ต้องการปรึกษา</label>
+						<select
+							class="w-full px-md py-sm rounded-lg border border-outline-variant focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 outline-none transition-all bg-white"
+							id="cf-subject"
+							name="subject"
+							required
+						>
+							<option value="">{subjectPlaceholder}</option>
+							{subjectOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
+						</select>
+					</div>
+					<div class="space-y-xs">
+						<label class="font-label-sm text-primary" for="cf-message">รายละเอียดเพิ่มเติม</label>
+						<textarea
+							class="w-full px-md py-sm rounded-lg border border-outline-variant focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 outline-none transition-all"
+							id="cf-message"
+							name="message"
+							placeholder="พิมพ์ข้อความของคุณที่นี่..."
+							rows="4"
+						/>
+					</div>
+					<div class="flex items-start space-x-sm pt-sm">
+						<input
+							class="mt-1 rounded border-outline-variant text-secondary focus:ring-secondary"
+							id="cf-privacy"
+							name="privacy"
+							type="checkbox"
+							required
+						/>
+						<label class="font-label-sm text-on-surface-variant" for="cf-privacy"
+							>{d.form_privacy_text}</label
+						>
+					</div>
+					<div class="pt-md">
+						<button
+							class="w-full bg-primary text-white font-h2 text-h2 py-4 rounded-lg shadow-lg hover:bg-primary-container transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center space-x-sm"
+							id="cf-submit"
+							type="submit"
+						>
+							<span>{d.form_button_label}</span>
+							<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">send</span>
+						</button>
+					</div>
+				</form>
+			</div>
+
+			<div class="space-y-xl">
+				{
+					(showOfficeDetails || showOfficeHours) && (
+						<div class="space-y-md">
+							{
+								showOfficeDetails && (
+									<>
+										<h2 class="font-h2 text-primary font-bold">{d.office_title}</h2>
+										<div class="flex items-start space-x-md">
+											<span class="material-symbols-outlined text-secondary mt-1">location_on</span>
+											<div>
+												{
+													d.office_address_line1 && (
+														<p class="font-body-md text-on-surface font-semibold">{d.office_address_line1}</p>
+													)
+												}
+												{
+													d.office_address_line2 && (
+														<p class="font-body-md text-on-surface-variant whitespace-pre-line">
+															{d.office_address_line2}
+														</p>
+													)
+												}
+											</div>
+										</div>
+									</>
+								)
+							}
+							{
+								showOfficeHours && (
+									<div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant/30">
+										<h4 class="font-h3 text-primary mb-md flex items-center space-x-sm">
+											<span class="material-symbols-outlined">schedule</span>
+											<span>{d.hours_heading}</span>
+										</h4>
+										<div class="space-y-sm">
+											<div class="flex justify-between border-b border-outline-variant/20 pb-xs">
+												<span class="font-body-md">{d.hours_weekday_label}</span>
+												<span class="font-body-md font-semibold text-primary">{d.hours_weekday_hours}</span>
+											</div>
+											<div class="flex justify-between border-b border-outline-variant/20 pb-xs">
+												<span class="font-body-md">{d.hours_saturday_label}</span>
+												<span class="font-body-md font-semibold text-primary">{d.hours_saturday_hours}</span>
+											</div>
+											<div class="flex justify-between">
+												<span class="font-body-md">{d.hours_sunday_label}</span>
+												<span
+													class:list={[
+														"font-body-md font-semibold",
+														sundayClosed ? "text-error" : "text-primary",
+													]}>{d.hours_sunday_hours}</span
+												>
+											</div>
+										</div>
+									</div>
+								)
+							}
+						</div>
+					)
+				}
+
+				{
+					showMapSection && (d.map_image?.id || d.map_image?.src) && (
+						<div class="w-full aspect-video rounded-xl overflow-hidden luminous-shadow group relative">
+							<Image
+								class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+								image={d.map_image}
+								style="width: 100%; height: 100%; object-fit: cover; object-position: center;"
+							/>
+							{
+								d.map_link_url && (
+									<div class="absolute inset-x-0 bottom-0 p-md flex justify-center">
+										<a
+											class="bg-white/95 backdrop-blur px-lg py-sm rounded-full text-primary font-bold flex items-center space-x-sm shadow"
+											href={d.map_link_url}
+											rel="noopener noreferrer"
+											target="_blank"
+										>
+											<span class="material-symbols-outlined">directions</span>
+											<span>ดูเส้นทางบน Google Maps</span>
+										</a>
+									</div>
+								)
+							}
+						</div>
+					)
+				}
+
+				{
+					showTrustSection && (
+						<div class="flex items-center space-x-md p-md bg-secondary-fixed/30 rounded-lg">
+							<span
+								class="material-symbols-outlined text-secondary text-4xl"
+								style="font-variation-settings: 'FILL' 1">verified_user</span
+							>
+							<div>
+								{
+									d.trust_title && (
+										<p class="font-label-sm text-primary uppercase font-bold">{d.trust_title}</p>
+									)
+								}
+								{
+									d.trust_text && (
+										<p class="font-body-md text-on-secondary-fixed-variant">{d.trust_text}</p>
+									)
+								}
+							</div>
+						</div>
+					)
+				}
+			</div>
+		</section>
+	</main>
+</FadvisorStitchPage>
+
+{
+	recaptchaSiteKey ? (
+		<script
+			async
+			defer
+			src={`https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(recaptchaSiteKey)}`}
+		/>
+	) : null
+}
+
+<script>
+	const form = document.getElementById("contact-form") as HTMLFormElement | null;
+	const msg = document.getElementById("contact-form-message");
+	const submitBtn = document.getElementById("cf-submit") as HTMLButtonElement | null;
+	const recaptchaSiteKey = (form?.dataset.recaptchaSiteKey ?? "").trim();
+	const recaptchaAction = (form?.dataset.recaptchaAction ?? "contact_submit").trim();
+	const honeypotField = (form?.dataset.honeypotField ?? "company_fax").trim();
+
+	function showMessage(kind: "ok" | "err", text: string) {
+		if (!msg) return;
+		msg.classList.remove("hidden", "bg-green-100", "text-green-800", "bg-red-100", "text-red-800");
+		if (kind === "ok") {
+			msg.classList.add("bg-green-100", "text-green-800");
+		} else {
+			msg.classList.add("bg-red-100", "text-red-800");
+		}
+		msg.textContent = text;
+	}
+
+	function getRecaptchaToken(): Promise<string> {
+		if (!recaptchaSiteKey) return Promise.resolve("");
+		const w = window as unknown as {
+			grecaptcha?: {
+				ready: (cb: () => void) => void;
+				execute: (siteKey: string, opts: { action: string }) => Promise<string>;
+			};
+		};
+		const g = w.grecaptcha;
+		if (!g) return Promise.resolve("");
+		return new Promise((resolve) => {
+			g.ready(() => {
+				g.execute(recaptchaSiteKey, { action: recaptchaAction })
+					.then(resolve)
+					.catch(() => resolve(""));
+			});
+		});
+	}
+
+	if (form && msg) {
+		form.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			const api = form.getAttribute("data-api");
+			if (!api || !submitBtn) return;
+
+			const fd = new FormData(form);
+			const subject = (fd.get("subject") as string) || "";
+			if (!subject.trim()) {
+				showMessage("err", "กรุณาเลือกหัวข้อการปรึกษา");
+				return;
+			}
+			const privacy = form.querySelector<HTMLInputElement>("#cf-privacy");
+			if (!privacy?.checked) {
+				showMessage("err", "กรุณายอมรับนโยบายความเป็นส่วนตัว");
+				return;
+			}
+
+			const recaptcha_token = await getRecaptchaToken();
+			if (recaptchaSiteKey && !recaptcha_token) {
+				showMessage("err", "ระบบยืนยันตัวตนไม่พร้อม กรุณารีเฟรชหน้าแล้วลองอีกครั้ง");
+				return;
+			}
+
+			const body = {
+				full_name: String(fd.get("full_name") || "").trim(),
+				phone: String(fd.get("phone") || "").trim(),
+				email: String(fd.get("email") || "").trim(),
+				subject: subject.trim(),
+				message: String(fd.get("message") || "").trim(),
+				privacy_consent: fd.get("privacy") === "on",
+				[honeypotField]: String(fd.get(honeypotField) || ""),
+				recaptcha_token,
+			};
+
+			submitBtn.disabled = true;
+			msg.classList.add("hidden");
+			try {
+				const res = await fetch(api, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(body),
+				});
+				const json = (await res.json().catch(() => ({}))) as {
+					data?: { success?: boolean; emailSkipped?: boolean; notificationsSent?: number };
+					error?: { code?: string; message?: string };
+				};
+
+				if (!res.ok) {
+					const code = json.error?.code;
+					if (code === "RATE_LIMITED" || res.status === 429) {
+						showMessage("err", "ส่งบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่");
+						return;
+					}
+					const err =
+						json.error?.message || json.error?.code || "ส่งไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+					showMessage("err", err);
+					return;
+				}
+
+				const data = json.data;
+				if (data?.success) {
+					let t = "ส่งข้อมูลเรียบร้อยแล้ว ขอบคุณค่ะ";
+					if (data.emailSkipped) {
+						t +=
+							" (ยังไม่มีการส่งอีเมลแจ้งเตือน: ตั้งอีเมลรับแจ้งเตือนในปลั๊กอิน หรือตั้ง Email provider ที่หลังบ้าน)";
+					} else if ((data.notificationsSent ?? 0) > 0) {
+						t += " (ส่งอีเมลแจ้งเตือนแล้ว)";
+					}
+					showMessage("ok", t);
+					form.reset();
+				} else {
+					showMessage("err", "ส่งไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+				}
+			} catch {
+				showMessage("err", "เครือข่ายขัดข้อง กรุณาลองอีกครั้ง");
+			} finally {
+				submitBtn.disabled = false;
+			}
+		});
+	}
+</script>
+
+<style is:global>
+	.stitch-fadvisor-main :global(a[href^="http"]):hover {
+		opacity: 0.92;
+	}
+</style>

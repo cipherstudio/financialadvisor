@@ -1,0 +1,59 @@
+{
+	"name": "fadvisorth",
+	"version": "0.0.3",
+	"private": true,
+	"type": "module",
+	"engines": {
+		"node": ">=22.12.0"
+	},
+	"emdash": {
+		"seed": "seed/seed.json"
+	},
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"start": "node ./dist/server/entry.mjs",
+		"bootstrap": "emdash init && emdash seed",
+		"seed": "emdash seed && node scripts/clear-emdash-manifest-cache.mjs",
+		"seed:schema": "emdash seed --on-conflict update --no-content && node scripts/clear-emdash-manifest-cache.mjs",
+		"emdash:check-collections": "node scripts/check-emdash-collections.mjs",
+		"emdash:clear-manifest-cache": "node scripts/clear-emdash-manifest-cache.mjs",
+		"emdash:reorder-our-advisors-fields": "node scripts/reorder-our-advisors-page-fields.mjs",
+		"emdash:reorder-investment-articles-fields": "node scripts/reorder-investment-articles-page-fields.mjs",
+		"emdash:reorder-market-updates-fields": "node scripts/reorder-market-updates-fields.mjs",
+		"emdash:migrate-market-calendar-datetime": "node scripts/migrate-market-calendar-day-field-type.mjs",
+		"emdash:strip-taxonomies-from-revisions": "node scripts/strip-taxonomies-from-post-revisions.mjs",
+		"emdash:migrate-advisors-role-field": "node scripts/migrate-advisors-title-to-role-title.mjs",
+		"emdash:repair-form-fts": "node scripts/repair-form-submission-fts.mjs",
+		"emdash:rebuild-fts": "node scripts/rebuild-fts.mjs",
+		"emdash:disable-pages-fts": "node scripts/disable-pages-fts.mjs",
+		"emdash:reset-db": "node scripts/reset-emdash-db.mjs",
+		"typecheck": "astro check",
+		"fadvisor:stitch": "node scripts/extract-fadvisor-stitch.mjs"
+	},
+	"dependencies": {
+		"@astrojs/node": "^10.0.0",
+		"@astrojs/react": "^5.0.0",
+		"@emdash-cms/plugin-audit-log": "^0.1.1",
+		"astro": "^6.0.1",
+		"better-sqlite3": "^12.8.0",
+		"emdash": "^0.6.0",
+		"react": "19.2.4",
+		"react-dom": "19.2.4"
+	},
+	"devDependencies": {
+		"@astrojs/check": "^0.9.7",
+		"cheerio": "1.0.0-rc.12"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"better-sqlite3",
+			"esbuild"
+		],
+		"patchedDependencies": {
+			"@emdash-cms/admin@0.6.0": "patches/@emdash-cms__admin@0.6.0.patch",
+			"emdash@0.6.0": "patches/emdash@0.6.0.patch"
+		}
+	}
+}

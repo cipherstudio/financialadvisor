@@ -1,0 +1,59 @@
+---
+import { getEmDashCollection, getEmDashEntry } from "emdash";
+import FadvisorStitchPage from "./FadvisorStitchPage.astro";
+import ServicesContent from "./ServicesContent.astro";
+
+interface Props {
+	previewServiceId?: string;
+}
+
+const { previewServiceId } = Astro.props as Props;
+
+const { entry: page, cacheHint: pageHint } = await getEmDashEntry("services_page", "main");
+
+const { entries, cacheHint: servicesHint } = await getEmDashCollection("services", {
+	status: "published",
+	orderBy: { order: "asc" },
+	limit: 100,
+});
+
+const serviceEntries = [...entries];
+
+if (previewServiceId) {
+	const { entry: previewService } = await getEmDashEntry("services", previewServiceId);
+	if (previewService) {
+		const previewData = previewService.data as { id?: string };
+		const previewDbId = previewData.id ?? "";
+		const replaceIndex = serviceEntries.findIndex((item) => {
+			const data = item.data as { id?: string };
+			return (
+				(previewDbId && data.id === previewDbId) ||
+				item.id === previewService.id ||
+				item.id === previewServiceId
+			);
+		});
+		if (replaceIndex >= 0) {
+			serviceEntries[replaceIndex] = previewService;
+		} else {
+			serviceEntries.unshift(previewService);
+		}
+		serviceEntries.sort((a, b) => {
+			const ao = typeof a.data.order === "number" ? a.data.order : Number.MAX_SAFE_INTEGER;
+			const bo = typeof b.data.order === "number" ? b.data.order : Number.MAX_SAFE_INTEGER;
+			return ao - bo;
+		});
+	}
+}
+
+Astro.cache.set(pageHint);
+Astro.cache.set(servicesHint);
+
+const pageTitle =
+	typeof page.data.page_title === "string" && page.data.page_title.trim() !== ""
+		? page.data.page_title.trim()
+		: "บริการของเรา | FinancialAdvisorThailand";
+---
+
+<FadvisorStitchPage title={pageTitle} bodyClass="bg-background text-on-background">
+	<ServicesContent page={page} serviceEntries={serviceEntries} />
+</FadvisorStitchPage>

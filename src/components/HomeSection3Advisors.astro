@@ -1,0 +1,101 @@
+---
+import type { ContentEntry } from "emdash";
+import type { Advisor, Home } from "../../emdash-env";
+import AdvisorShowcaseCard from "./AdvisorShowcaseCard.astro";
+import SectionHeadingBar from "./SectionHeadingBar.astro";
+
+interface Props {
+	page: { data: Home };
+	advisorEntries: ContentEntry<Advisor>[];
+}
+
+const { page, advisorEntries } = Astro.props;
+const d = page.data;
+
+const has = (s: string | undefined | null) => typeof s === "string" && s.trim() !== "";
+
+const sectionOn = (b: unknown, defaultValue = false): boolean => {
+	if (b === true || b === 1) return true;
+	if (b === false || b === 0) return false;
+	if (b == null) return defaultValue;
+	if (typeof b === "string") {
+		const t = b.trim().toLowerCase();
+		if (t === "0" || t === "false") return false;
+		if (t === "1" || t === "true") return true;
+	}
+	return defaultValue;
+};
+
+const featuredAdvisors = advisorEntries.filter((e) => sectionOn(e.data.is_featured, false));
+
+const preferredAdvisorOrder = [
+	"dr-witwat-lerp-phanit",
+	"rinrada-sawatdet",
+	"attapol-kijjamnong",
+	"chonlada-panya-loet",
+];
+
+const sortedFeatured = [...featuredAdvisors].sort((a, b) => {
+	const ia = preferredAdvisorOrder.indexOf(a.id);
+	const ib = preferredAdvisorOrder.indexOf(b.id);
+	if (ia === -1 && ib === -1) return a.id.localeCompare(b.id);
+	if (ia === -1) return 1;
+	if (ib === -1) return -1;
+	return ia - ib;
+});
+
+const hasHeaderContent =
+	has(d.advisors_section_title) ||
+	has(d.advisors_section_description) ||
+	has(d.advisors_section_link_label) ||
+	has(d.advisors_section_link_href);
+
+const sectionEnabled = sectionOn(d.advisors_section_show, true);
+const showSection = sectionEnabled && (sortedFeatured.length > 0 || hasHeaderContent);
+
+const sectionTitle = has(d.advisors_section_title)
+	? d.advisors_section_title!.trim()
+	: showSection
+		? "ทีมที่ปรึกษาผู้เชี่ยวชาญ"
+		: "";
+
+const explicitLinkHref = has(d.advisors_section_link_href) ? d.advisors_section_link_href!.trim() : "";
+const linkHref =
+	explicitLinkHref !== ""
+		? explicitLinkHref
+		: showSection
+			? "/our-advisors"
+			: undefined;
+
+const linkLabel = has(d.advisors_section_link_label)
+	? d.advisors_section_link_label!.trim()
+	: "ดูทีมที่ปรึกษาทั้งหมด";
+---
+
+{
+	showSection && (
+		<section class="py-xxl bg-surface-container-low">
+			<div class="max-w-7xl mx-auto px-8">
+				<SectionHeadingBar
+					title={sectionTitle}
+					description={
+						has(d.advisors_section_description) ? d.advisors_section_description!.trim() : undefined
+					}
+					linkHref={linkHref}
+					linkLabel={linkLabel}
+				/>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+					{sortedFeatured.length === 0 ? (
+						<p class="text-on-surface-variant col-span-full text-center font-body-md">
+							ยังไม่มีที่ปรึกษาที่เลือก “แสดงในหน้าแรก” — เปิดใช้ที่แก้ไขรายการใน Advisors
+						</p>
+					) : (
+						sortedFeatured.map((entry) => (
+							<AdvisorShowcaseCard entry={entry} showViewProfile={false} />
+						))
+					)}
+				</div>
+			</div>
+		</section>
+	)
+}

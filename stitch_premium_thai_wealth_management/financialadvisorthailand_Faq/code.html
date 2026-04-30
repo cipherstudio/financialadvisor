@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html class="light" lang="th"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>คำถามที่พบบ่อย | FinancialAdvisorThailand</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#0a1f44",
+                        "outline-variant": "#c5c6cf",
+                        "on-primary-fixed": "#041a3f",
+                        "on-primary-container": "#7687b2",
+                        "secondary-fixed-dim": "#e9c349",
+                        "inverse-surface": "#2e3132",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#6b88c1",
+                        "on-secondary-container": "#745c00",
+                        "on-secondary-fixed": "#241a00",
+                        "surface-bright": "#f8f9fa",
+                        "surface-variant": "#e1e3e4",
+                        "tertiary-fixed": "#d8e2ff",
+                        "on-tertiary-fixed": "#001a41",
+                        "on-tertiary": "#ffffff",
+                        "surface": "#f8f9fa",
+                        "secondary": "#735c00",
+                        "tertiary-container": "#001f4a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#574500",
+                        "secondary-fixed": "#ffe088",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#acc7ff",
+                        "on-tertiary-fixed-variant": "#28467b",
+                        "surface-container-highest": "#e1e3e4",
+                        "outline": "#75777f",
+                        "surface-dim": "#d9dadb",
+                        "surface-container": "#edeeef",
+                        "inverse-on-surface": "#f0f1f2",
+                        "surface-tint": "#4c5e86",
+                        "surface-container-low": "#f3f4f5",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#d9e2ff",
+                        "on-error": "#ffffff",
+                        "background": "#f8f9fa",
+                        "on-background": "#191c1d",
+                        "on-primary-fixed-variant": "#34466d",
+                        "surface-container-high": "#e7e8e9",
+                        "inverse-primary": "#b4c6f4",
+                        "tertiary": "#00081d",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#b4c6f4",
+                        "on-surface": "#191c1d",
+                        "primary": "#00081e",
+                        "on-surface-variant": "#44464e",
+                        "secondary-container": "#fed65b",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "unit": "8px",
+                        "gutter": "24px",
+                        "xl": "40px",
+                        "xxl": "64px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "container-max": "1200px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "display": ["IBM Plex Sans Thai"],
+                        "h1": ["IBM Plex Sans Thai"],
+                        "label-sm": ["IBM Plex Sans Thai"],
+                        "h3": ["IBM Plex Sans Thai"],
+                        "h2": ["IBM Plex Sans Thai"],
+                        "body-md": ["IBM Plex Sans Thai"],
+                        "body-lg": ["IBM Plex Sans Thai"]
+                    },
+                    "fontSize": {
+                        "display": ["48px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "h1": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "label-sm": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                        "h2": ["24px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-item:focus-within .accordion-content {
+            max-height: 500px;
+        }
+        .accordion-item:focus-within .chevron {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)]">
+<div class="max-w-[1200px] mx-auto flex justify-between items-center px-6 h-20">
+<div class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50 font-display">
+                FinancialAdvisorThailand
+            </div>
+<nav class="hidden md:flex items-center space-x-8 font-sans antialiased text-sm font-medium">
+<a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all duration-300" href="#">หน้าแรก</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all duration-300" href="#">บริการ</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all duration-300" href="#">พอร์ตการลงทุน</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all duration-300" href="#">บทวิเคราะห์</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all duration-300" href="#">เกี่ยวกับเรา</a>
+</nav>
+<button class="bg-primary px-6 py-2.5 rounded-lg text-white font-label-sm hover:opacity-90 active:scale-95 transition-all shadow-sm">
+                ปรึกษาเรา
+            </button>
+</div>
+</header>
+<main class="pt-32 pb-xxl">
+<!-- Hero Search Section -->
+<section class="max-w-[1200px] mx-auto px-6 mb-xxl text-center">
+<h1 class="font-display text-display text-primary mb-md">ศูนย์ความช่วยเหลือและคำถามที่พบบ่อย</h1>
+<p class="text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-xl">
+                ค้นหาคำตอบสำหรับข้อสงสัยของคุณเกี่ยวกับการวางแผนการเงินและการลงทุน เพื่อการตัดสินใจที่มั่นคงและยั่งยืน
+            </p>
+<div class="relative max-w-2xl mx-auto">
+<span class="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-16 pr-6 py-5 bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary-container focus:border-primary-container transition-all shadow-sm font-body-md" placeholder="พิมพ์คำถามที่คุณต้องการค้นหา..." type="text"/>
+</div>
+</section>
+<!-- FAQ Content Grid -->
+<section class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-xl">
+<!-- Category Navigation -->
+<aside class="lg:col-span-3 space-y-sm">
+<h3 class="font-h3 text-primary mb-md px-2">หมวดหมู่</h3>
+<button class="w-full flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-label-sm transition-all shadow-sm">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+                    การวางแผนการเงิน
+                </button>
+<button class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white text-on-surface-variant rounded-lg font-label-sm transition-all">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+                    กลยุทธ์การลงทุน
+                </button>
+<button class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white text-on-surface-variant rounded-lg font-label-sm transition-all">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+                    ความปลอดภัยและภาษี
+                </button>
+<button class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white text-on-surface-variant rounded-lg font-label-sm transition-all">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+                    บริการลูกค้า
+                </button>
+</aside>
+<!-- FAQ Accordion -->
+<div class="lg:col-span-9 space-y-md">
+<!-- FAQ Item 1 -->
+<div class="accordion-item bg-white rounded-xl border border-outline-variant hover:shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] transition-all overflow-hidden" tabindex="0">
+<div class="p-6 flex justify-between items-center cursor-pointer group">
+<h4 class="font-h3 text-primary group-hover:text-secondary transition-colors">ขั้นตอนการเริ่มต้นรับคำปรึกษาต้องทำอย่างไร?</h4>
+<span class="material-symbols-outlined chevron transition-transform text-outline">expand_more</span>
+</div>
+<div class="accordion-content border-t border-slate-50">
+<div class="p-6 text-body-md text-on-surface-variant leading-relaxed bg-slate-50/50">
+                            คุณสามารถเริ่มต้นได้ง่ายๆ โดยการนัดหมายผ่านปุ่ม "ปรึกษาเรา" บนหน้าเว็บไซต์ ทีมงานผู้เชี่ยวชาญจะติดต่อกลับภายใน 24 ชั่วโมงเพื่อประเมินสถานภาพทางการเงินเบื้องต้น และนัดหมายพูดคุยในรายละเอียดที่สำนักงานหรือผ่านช่องทางออนไลน์ตามที่คุณสะดวก
+                        </div>
+</div>
+</div>
+<!-- FAQ Item 2 -->
+<div class="accordion-item bg-white rounded-xl border border-outline-variant hover:shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] transition-all overflow-hidden" tabindex="0">
+<div class="p-6 flex justify-between items-center cursor-pointer group">
+<h4 class="font-h3 text-primary group-hover:text-secondary transition-colors">เงินลงทุนขั้นต่ำสำหรับการวางแผนพอร์ตโฟลิโอคือเท่าไหร่?</h4>
+<span class="material-symbols-outlined chevron transition-transform text-outline">expand_more</span>
+</div>
+<div class="accordion-content border-t border-slate-50">
+<div class="p-6 text-body-md text-on-surface-variant leading-relaxed bg-slate-50/50">
+                            เรามีการออกแบบแผนการเงินที่หลากหลายเพื่อรองรับความต้องการที่แตกต่าง สำหรับการวางแผนพอร์ตโฟลิโอส่วนบุคคลระดับมาตรฐานเริ่มต้นที่ 500,000 บาท อย่างไรก็ตาม สำหรับการวางแผนการเงินพื้นฐาน เรายินดีให้คำปรึกษาโดยไม่จำกัดวงเงินขั้นต่ำ
+                        </div>
+</div>
+</div>
+<!-- FAQ Item 3 -->
+<div class="accordion-item bg-white rounded-xl border border-outline-variant border-t-4 border-t-secondary-fixed-dim hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all overflow-hidden" tabindex="0">
+<div class="p-6 flex justify-between items-center cursor-pointer group">
+<div class="flex items-center gap-3">
+<h4 class="font-h3 text-primary group-hover:text-secondary transition-colors">มีการรับประกันผลตอบแทนจากการลงทุนหรือไม่?</h4>
+<span class="bg-secondary-fixed text-on-secondary-fixed text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">ยอดนิยม</span>
+</div>
+<span class="material-symbols-outlined chevron transition-transform text-outline">expand_more</span>
+</div>
+<div class="accordion-content border-t border-slate-50">
+<div class="p-6 text-body-md text-on-surface-variant leading-relaxed bg-slate-50/50">
+                            ตามมาตรฐานสากลและกฎระเบียบของ ก.ล.ต. ไม่สามารถรับประกันผลตอบแทนที่แน่นอนได้เนื่องจากสภาวะตลาดมีความผันผวน แต่เรามุ่งเน้นการจัดการความเสี่ยง (Risk Management) และการกระจายการลงทุนที่เหมาะสมกับเป้าหมายของคุณ เพื่อโอกาสในการสร้างผลตอบแทนที่ยั่งยืนในระยะยาว
+                        </div>
+</div>
+</div>
+<!-- FAQ Item 4 -->
+<div class="accordion-item bg-white rounded-xl border border-outline-variant hover:shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] transition-all overflow-hidden" tabindex="0">
+<div class="p-6 flex justify-between items-center cursor-pointer group">
+<h4 class="font-h3 text-primary group-hover:text-secondary transition-colors">ค่าธรรมเนียมการบริหารจัดการคิดอย่างไร?</h4>
+<span class="material-symbols-outlined chevron transition-transform text-outline">expand_more</span>
+</div>
+<div class="accordion-content border-t border-slate-50">
+<div class="p-6 text-body-md text-on-surface-variant leading-relaxed bg-slate-50/50">
+                            โครงสร้างค่าธรรมเนียมของเรามีความโปร่งใส โดยแบ่งเป็น 2 ส่วนหลักคือ ค่าธรรมเนียมการวางแผน (Flat Fee) และค่าธรรมเนียมการบริหารพอร์ต (AUM-based fee) ซึ่งจะมีการแจ้งให้ทราบอย่างชัดเจนในสัญญาบริการก่อนเริ่มดำเนินการ
+                        </div>
+</div>
+</div>
+<!-- FAQ Item 5 -->
+<div class="accordion-item bg-white rounded-xl border border-outline-variant hover:shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] transition-all overflow-hidden" tabindex="0">
+<div class="p-6 flex justify-between items-center cursor-pointer group">
+<h4 class="font-h3 text-primary group-hover:text-secondary transition-colors">สามารถปรับเปลี่ยนแผนการเงินระหว่างทางได้หรือไม่?</h4>
+<span class="material-symbols-outlined chevron transition-transform text-outline">expand_more</span>
+</div>
+<div class="accordion-content border-t border-slate-50">
+<div class="p-6 text-body-md text-on-surface-variant leading-relaxed bg-slate-50/50">
+                            แน่นอน แผนการเงินไม่ใช่สิ่งที่คงที่ เราแนะนำให้มีการทบทวนแผนอย่างน้อยปีละ 1 ครั้ง หรือเมื่อสถานภาพชีวิตของคุณมีการเปลี่ยนแปลงสำคัญ เช่น การแต่งงาน การซื้อที่อยู่อาศัย หรือการเปลี่ยนสายงาน ทีมที่ปรึกษาจะคอยช่วยเหลือในการปรับจูนแผนให้เหมาะสมเสมอ
+                        </div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="max-w-[1200px] mx-auto px-6 mt-xxl">
+<div class="bg-primary-container rounded-3xl p-12 text-center relative overflow-hidden">
+<div class="absolute inset-0 opacity-10" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC0jNol_U3Lulb8j2SFjG-Z4nKqAMA21DlhBISk-ojbFdEBT3QYckTLbXg0d3y8_WluhIsfGrBWLfZD0k8i41Zh2acl-YXfgKehsXR9ft0aZvDMttFjMxACRX4oOtgjCvvdiukiO68h5wtz2rXDMiCiD6lGNnyWJOBrEkSRi2jg3QuP32k3gmmaglN6Al7m68f7UsD0jIvMaWHx-1uSXWvVH6MT6rUst2QSvUxcZ7mhrE2SpMddG73mdYmzPB33LuLNFatbTqg8sBY');"></div>
+<div class="relative z-10">
+<h2 class="font-display text-h1 text-white mb-md">ไม่พบคำตอบที่คุณต้องการใช่หรือไม่?</h2>
+<p class="text-body-lg text-on-primary-container mb-xl max-w-xl mx-auto">
+                        ทีมงานผู้เชี่ยวชาญของเราพร้อมให้คำปรึกษาและไขข้อสงสัยทุกประการเกี่ยวกับการเงินของคุณ
+                    </p>
+<div class="flex flex-col sm:flex-row gap-md justify-center">
+<button class="bg-secondary-fixed text-on-secondary-fixed px-8 py-4 rounded-xl font-label-sm hover:opacity-90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+                            ส่งอีเมลหาเรา
+                        </button>
+<button class="bg-transparent border border-on-primary-container text-white px-8 py-4 rounded-xl font-label-sm hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+                            02-XXX-XXXX
+                        </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+<div class="max-w-[1200px] mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="col-span-1 md:col-span-1">
+<div class="text-lg font-bold text-slate-900 dark:text-white mb-6">
+                    FinancialAdvisorThailand
+                </div>
+<p class="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400">
+                    ยกระดับมาตรฐานการวางแผนการเงินไทยสู่ระดับสากล ด้วยความรู้และความซื่อสัตย์ในวิชาชีพ
+                </p>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 dark:text-white mb-6">บริการของเรา</h4>
+<ul class="space-y-4 text-sm font-light text-slate-500 dark:text-slate-400">
+<li class="hover:text-amber-500 transition-colors cursor-pointer">วางแผนเกษียณอายุ</li>
+<li class="hover:text-amber-500 transition-colors cursor-pointer">จัดการภาษี</li>
+<li class="hover:text-amber-500 transition-colors cursor-pointer">วางแผนมรดก</li>
+<li class="hover:text-amber-500 transition-colors cursor-pointer">กองทุนส่วนบุคคล</li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 dark:text-white mb-6">ข้อมูลเพิ่มเติม</h4>
+<ul class="space-y-4 text-sm font-light text-slate-500 dark:text-slate-400">
+<li class="hover:text-amber-500 transition-colors cursor-pointer">นโยบายความเป็นส่วนตัว</li>
+<li class="hover:text-amber-500 transition-colors cursor-pointer">ข้อกำหนดการใช้งาน</li>
+<li class="hover:text-amber-500 transition-colors cursor-pointer">ความปลอดภัย</li>
+<li class="hover:text-amber-500 transition-colors cursor-pointer">แผนผังเว็บไซต์</li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 dark:text-white mb-6">ติดตามเรา</h4>
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-secondary-fixed transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">public</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-secondary-fixed transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center hover:bg-secondary-fixed transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">group</span>
+</div>
+</div>
+</div>
+</div>
+<div class="max-w-[1200px] mx-auto px-6 py-8 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-sm font-light text-slate-500 dark:text-slate-400">
+                © 2024 FinancialAdvisorThailand. สงวนลิขสิทธิ์.
+            </p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-600 dark:text-amber-400 text-[20px]">verified_user</span>
+<span class="text-xs font-medium text-slate-600 dark:text-slate-400">สมาชิกสมาคมนักวางแผนการเงินไทย (TFPA)</span>
+</div>
+</div>
+</footer>
+</body></html>

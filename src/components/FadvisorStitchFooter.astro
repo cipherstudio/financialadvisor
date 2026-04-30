@@ -1,0 +1,231 @@
+---
+import { extractPlainText, getMenu, getSiteSettings, getWidgetArea } from "emdash";
+import { Image, PortableText } from "emdash/ui";
+import type { Menu } from "emdash";
+import { siteLogoForImage } from "../utils/site-logo-for-image";
+import {
+	extractFooterLogoMediaId,
+	getImageByMediaId,
+	looksLikeHtml,
+	normalizeHtmlishText,
+} from "../utils/footer-marketing";
+
+const [
+	settings,
+	footerArea,
+	menuSitemap,
+	menuResources,
+	menuCompliance,
+	menuSocial,
+] = await Promise.all([
+	getSiteSettings(),
+	getWidgetArea("fadvisor_footer"),
+	getMenu("footer_sitemap"),
+	getMenu("footer_resources"),
+	getMenu("footer_compliance"),
+	getMenu("footer_social"),
+]);
+
+const title = settings.title || "FinancialAdvisorThailand";
+const logo = settings.logo;
+const contentWidgets =
+	footerArea?.widgets.filter((w) => w.type === "content" && w.content?.length) ?? [];
+
+function byTitle(name: string) {
+	return contentWidgets.find((w) => (w.title || "").trim().toLowerCase() === name);
+}
+/** Logo widget: friendly titles first, then legacy `footer_logo_media_id`. */
+function byFooterLogoTitle() {
+	const names = new Set(
+		["footer_logo", "logo_footer", "footer_logo_image", "footer_logo_media_id"].map((n) => n),
+	);
+	return contentWidgets.find((w) => names.has((w.title || "").trim().toLowerCase()));
+}
+const introWidget = byTitle("intro") ?? contentWidgets[0];
+const legalLeftWidget = byTitle("legal_left_html") ?? contentWidgets[1];
+const legalRightWidget = byTitle("legal_right_html") ?? contentWidgets[2];
+/** Only widgets titled footer_logo / footer_logo_media_id — never guess by index. */
+const footerLogoWidget = byFooterLogoTitle();
+const headingSitemapWidget = byTitle("heading_sitemap");
+const headingResourcesWidget = byTitle("heading_resources");
+const headingComplianceWidget = byTitle("heading_compliance");
+
+const introBlocks = introWidget?.content;
+const copyrightLeftBlocks = legalLeftWidget?.content;
+const copyrightRightBlocks = legalRightWidget?.content;
+
+const footerLogoMediaId = extractFooterLogoMediaId(footerLogoWidget?.content);
+const footerBrandImage =
+	(await getImageByMediaId(footerLogoMediaId, logo?.alt || title)) ?? siteLogoForImage(logo);
+const brandImageAlt = logo?.alt || title;
+
+const legalLeftRaw = normalizeHtmlishText(extractPlainText((copyrightLeftBlocks ?? []) as any));
+const legalRightRaw = normalizeHtmlishText(extractPlainText((copyrightRightBlocks ?? []) as any));
+const legalLeftHtml = looksLikeHtml(legalLeftRaw) ? legalLeftRaw : undefined;
+const legalRightHtml = looksLikeHtml(legalRightRaw) ? legalRightRaw : undefined;
+
+const headingSitemap = normalizeHtmlishText(
+	extractPlainText((headingSitemapWidget?.content ?? []) as any),
+);
+const headingResources = normalizeHtmlishText(
+	extractPlainText((headingResourcesWidget?.content ?? []) as any),
+);
+const headingCompliance = normalizeHtmlishText(
+	extractPlainText((headingComplianceWidget?.content ?? []) as any),
+);
+
+const socialIcons = ["public", "mail", "assured_workload"] as const;
+
+const columns: Array<{ menu: Menu | null; heading?: string; colClass: string }> = [
+	{ menu: menuSitemap, heading: headingSitemap, colClass: "md:col-span-2" },
+	{
+		menu: menuResources,
+		heading: headingResources,
+		colClass: "md:col-span-2",
+	},
+	{
+		menu: menuCompliance,
+		heading: headingCompliance,
+		colClass: "md:col-span-3",
+	},
+];
+---
+
+<footer
+	class="fadvisor-footer w-full border-t border-gray-100 bg-white text-primary font-body-md text-sm"
+>
+	<div class="max-w-7xl mx-auto px-8 py-20">
+		<div class="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-gutter">
+			<div class="md:col-span-5 space-y-lg">
+				<div class="fadvisor-footer-brand">
+					{
+						footerBrandImage ? (
+							<a href="/" class="inline-block max-w-full">
+								<Image
+									image={footerBrandImage}
+									class="max-h-[60px] h-auto w-auto max-w-[min(100%,280px)] object-contain object-left"
+									priority
+									alt={brandImageAlt}
+								/>
+							</a>
+						) : (
+							<a
+								href="/"
+								class="text-xl font-bold tracking-tight uppercase font-display text-primary"
+							>
+								{title}
+							</a>
+						)
+					}
+				</div>
+				{
+					introBlocks ? (
+						<div class="fadvisor-footer-intro text-on-surface-variant leading-relaxed max-w-md">
+							<PortableText value={introBlocks} />
+						</div>
+					) : (
+						<p class="text-on-surface-variant leading-relaxed max-w-md">
+							แก้ไขข้อความนี้ได้ที่แอดมิน EmDash → Widgets → พื้นที่ &quot;Marketing footer
+							(FAdvisor)&quot; → วิดเจ็ตเนื้อหาแรก
+						</p>
+					)
+				}
+				{
+					menuSocial && menuSocial.items.length > 0 && (
+						<div class="flex gap-md">
+							{menuSocial.items.map((item, i) => (
+								<a
+									class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary hover:bg-secondary-fixed transition-colors"
+									href={item.url}
+									target={item.target}
+									rel={
+										item.target === "_blank" ? "noopener noreferrer" : undefined
+									}
+									title={item.titleAttr || item.label}
+								>
+									<span class="material-symbols-outlined text-lg">
+										{socialIcons[i % socialIcons.length]}
+									</span>
+								</a>
+							))}
+						</div>
+					)
+				}
+			</div>
+			{
+				columns.map(({ menu, heading, colClass }) =>
+					menu && menu.items.length > 0 ? (
+						<div class:list={["space-y-md", colClass]}>
+							{
+								heading ? (
+									<h4 class="font-bold text-[12px] tracking-widest text-secondary">
+										{heading}
+									</h4>
+								) : null
+							}
+							<nav class="flex flex-col space-y-3">
+								{menu.items.map((item) => (
+									<a
+										class="text-on-surface-variant hover:text-secondary transition-colors"
+										href={item.url}
+										target={item.target}
+										title={item.titleAttr}
+										rel={
+											item.target === "_blank" ? "noopener noreferrer" : undefined
+										}
+									>
+										{item.label}
+									</a>
+								))}
+							</nav>
+						</div>
+					) : null
+				)
+			}
+		</div>
+		<div
+			class="mt-20 pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-md"
+		>
+			{
+				legalLeftHtml ? (
+					<div
+						class="fadvisor-footer-legal fadvisor-footer-legal-html text-on-surface-variant/60 text-xs text-center md:text-left"
+						set:html={legalLeftHtml}
+					/>
+				) : copyrightLeftBlocks ? (
+					<div class="fadvisor-footer-legal text-on-surface-variant/60 text-xs text-center md:text-left">
+						<PortableText value={copyrightLeftBlocks} />
+					</div>
+				) : (
+					<p class="text-on-surface-variant/60 text-xs">
+						© {new Date().getFullYear()} {title}
+					</p>
+				)
+			}
+			{
+				legalRightHtml ? (
+					<div
+						class="fadvisor-footer-legal fadvisor-footer-legal-html text-on-surface-variant/60 text-xs text-center md:text-right"
+						set:html={legalRightHtml}
+					/>
+				) : copyrightRightBlocks ? (
+					<div class="fadvisor-footer-legal text-on-surface-variant/60 text-xs text-center md:text-right">
+						<PortableText value={copyrightRightBlocks} />
+					</div>
+				) : null
+			}
+		</div>
+	</div>
+</footer>
+
+<style is:global>
+	.fadvisor-footer-intro :where(p) {
+		margin: 0;
+	}
+	.fadvisor-footer-legal :where(p) {
+		margin: 0;
+	}
+	.fadvisor-footer-legal-html :where(p) {
+		margin: 0;
+	}
+</style>

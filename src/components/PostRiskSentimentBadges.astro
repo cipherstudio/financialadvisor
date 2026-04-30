@@ -1,0 +1,60 @@
+---
+/**
+ * Risk / market sentiment pills — same styling as investment article cards (listing).
+ */
+interface Props {
+	risk?: string | null | undefined;
+	sentiment?: string | null | undefined;
+	/** Classes for the flex wrapper around both badges (layout + gap). */
+	class?: string;
+}
+
+const { risk = "", sentiment = "", class: className = "inline-flex flex-wrap gap-1" } = Astro.props;
+
+const riskToneMap: Record<string, string> = {
+	Low: "text-emerald-700 bg-emerald-50",
+	Medium: "text-amber-700 bg-amber-50",
+	High: "text-red-700 bg-red-50",
+	"Very High": "text-rose-700 bg-rose-50",
+};
+
+const sentimentToneMap: Record<string, string> = {
+	Bullish: "text-emerald-700 bg-emerald-100",
+	Bearish: "text-red-700 bg-red-100",
+	Neutral: "text-slate-700 bg-slate-100",
+	Volatile: "text-orange-700 bg-orange-100",
+	Cautious: "text-amber-700 bg-amber-100",
+};
+
+const baseBadge =
+	"text-[11px] font-semibold px-1.5 py-0.5 rounded inline-flex items-center gap-0.5 bg-white/95 backdrop-blur-sm";
+
+const show = Boolean(risk?.trim()) || Boolean(sentiment?.trim());
+---
+
+{
+	show && (
+		<div class={className}>
+			{risk?.trim() && (
+				<span
+					class:list={[baseBadge, riskToneMap[risk.trim()] ?? "text-slate-700"]}
+				>
+					<span class="material-symbols-outlined text-[12px]" aria-hidden="true">
+						warning
+					</span>
+					{risk.trim()}
+				</span>
+			)}
+			{sentiment?.trim() && (
+				<span
+					class:list={[baseBadge, sentimentToneMap[sentiment.trim()] ?? "text-slate-700"]}
+				>
+					<span class="material-symbols-outlined text-[12px]" aria-hidden="true">
+						trending_up
+					</span>
+					{sentiment.trim()}
+				</span>
+			)}
+		</div>
+	)
+}

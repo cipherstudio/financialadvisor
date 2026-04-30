@@ -1,0 +1,4 @@
+---
+/** EmDash preview เริ่มต้น: `/home_page/{id}?_preview=…` — ส่งต่อไปหน้าแรก `/` (เก็บ query) */
+return Astro.redirect(`/${Astro.url.search || ""}`);
+---

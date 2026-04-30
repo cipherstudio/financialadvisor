@@ -1,0 +1,135 @@
+---
+import type { MediaValue } from "emdash";
+import { Image } from "emdash/ui";
+import type { Home } from "../../emdash-env";
+
+interface Props {
+	page: { data: Home };
+}
+
+const { page } = Astro.props;
+const d = page.data;
+
+const has = (s: string | undefined | null) => typeof s === "string" && s.trim() !== "";
+
+const sectionOn = (b: unknown, defaultValue = true): boolean => {
+	if (b === true || b === 1) return true;
+	if (b === false || b === 0) return false;
+	if (b == null) return defaultValue;
+	if (typeof b === "string") {
+		const t = b.trim().toLowerCase();
+		if (t === "0" || t === "false") return false;
+		if (t === "1" || t === "true") return true;
+	}
+	return defaultValue;
+};
+
+const hasEmDashMedia = (img: unknown): img is MediaValue => {
+	if (img == null) return false;
+	if (typeof img === "string") return img.trim() !== "";
+	if (typeof img !== "object") return false;
+	const o = img as Record<string, unknown>;
+	if (typeof o.src === "string" && o.src.trim() !== "") return true;
+	if (typeof o.previewUrl === "string" && o.previewUrl.trim() !== "") return true;
+	if (typeof o.id === "string" && o.id.trim() !== "") return true;
+	const meta = o.meta;
+	if (meta != null && typeof meta === "object") {
+		const sk = (meta as Record<string, unknown>).storageKey;
+		if (typeof sk === "string" && sk.trim() !== "") return true;
+	}
+	return false;
+};
+
+function mediaForEmDashImage(im: MediaValue): MediaValue {
+	const isLocal = im.provider === "local" || im.provider == null;
+	if (isLocal) return { ...im, src: undefined };
+	return im;
+}
+
+const sectionEnabled = sectionOn(d.final_cta_section_show, true);
+const hasBg = hasEmDashMedia(d.final_cta_background_image);
+const overlayOn = sectionOn(d.final_cta_overlay, true);
+
+/** 0–100; default 20 — only affects the background image layer */
+function bgOpacityPercent(raw: unknown): number {
+	const n = typeof raw === "number" ? raw : Number(raw);
+	if (Number.isNaN(n)) return 20;
+	return Math.min(100, Math.max(0, Math.round(n)));
+}
+
+const bgImageOpacityPct = bgOpacityPercent(d.final_cta_background_opacity);
+/** เมื่อเปิด overlay ใช้โทนแบรนด์น้ำเงิน; ปิด overlay ใช้พื้นหลังเข้มกลางๆ ไม่ใส่ bg-primary-container */
+const containerToneClass = overlayOn ? "bg-primary-container" : "bg-slate-950";
+
+const showPrimary = has(d.final_cta_primary_label) && has(d.final_cta_primary_url);
+const showSecondary = has(d.final_cta_secondary_label) && has(d.final_cta_secondary_url);
+const showDesc = has(d.final_cta_description);
+const showLine1 = has(d.final_cta_headline_line1);
+const showLine2 = has(d.final_cta_headline_line2);
+const showHeadline = showLine1 || showLine2;
+
+const hasAnyContent = showHeadline || showDesc || showPrimary || showSecondary;
+const showSection = sectionEnabled && hasAnyContent;
+---
+
+{
+	showSection && (
+		<section class="py-xxl relative overflow-hidden">
+			<div class="max-w-7xl mx-auto px-6 md:px-8">
+				<div class:list={["relative rounded-[40px] overflow-hidden p-12 md:p-24 text-center", containerToneClass]}>
+					{
+						hasBg && (
+							<div class="absolute inset-0 z-0">
+								<Image
+									class="w-full h-full object-cover"
+									style={`opacity: ${bgImageOpacityPct / 100}`}
+									image={mediaForEmDashImage(d.final_cta_background_image!)}
+									alt={d.final_cta_background_image?.alt?.trim() || ""}
+								/>
+								{overlayOn && (
+									<div class="absolute inset-0 bg-gradient-to-tr from-primary via-primary/80 to-transparent" />
+								)}
+							</div>
+						)
+					}
+					{!hasBg && overlayOn && (
+						<div class="absolute inset-0 z-0 bg-gradient-to-tr from-primary via-primary/80 to-transparent" />
+					)}
+
+					<div class="relative z-10 max-w-3xl mx-auto">
+						{showHeadline && (
+							<h2 class="font-display text-4xl md:text-display text-white mb-lg leading-tight">
+								{showLine1 && <>{d.final_cta_headline_line1!.trim()}</>}
+								{showLine1 && showLine2 && <br />}
+								{showLine2 && <span class="text-secondary-fixed">{d.final_cta_headline_line2!.trim()}</span>}
+							</h2>
+						)}
+						{showDesc && (
+							<p class="font-body-lg text-white/80 mb-xl text-lg md:text-xl">{d.final_cta_description!.trim()}</p>
+						)}
+						{(showPrimary || showSecondary) && (
+							<div class="flex flex-col sm:flex-row justify-center gap-md">
+								{showPrimary && (
+									<a
+										class="inline-flex items-center justify-center bg-secondary-container text-on-secondary-container px-10 py-5 rounded-2xl font-bold hover:bg-secondary-fixed transition-colors text-xl"
+										href={d.final_cta_primary_url!.trim()}
+									>
+										{d.final_cta_primary_label!.trim()}
+									</a>
+								)}
+								{showSecondary && (
+									<a
+										class="inline-flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 text-white px-10 py-5 rounded-2xl font-h2 hover:bg-white/20 transition-colors text-xl"
+										href={d.final_cta_secondary_url!.trim()}
+									>
+										{d.final_cta_secondary_label!.trim()}
+									</a>
+								)}
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
+		</section>
+	)
+}

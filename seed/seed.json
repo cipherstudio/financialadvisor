@@ -1,0 +1,2470 @@
+{
+	"$schema": "https://emdashcms.com/seed.schema.json",
+	"version": "1",
+	"meta": {
+		"name": "Blog Starter",
+		"description": "A blog with posts and pages",
+		"author": "EmDash"
+	},
+	"settings": {
+		"title": "FinancialAdvisorThailand",
+		"tagline": "Institutional wealth advisory for Thailand"
+	},
+	"collections": [
+		{
+			"slug": "posts",
+			"label": "Posts",
+			"labelSingular": "Post",
+			"urlPattern": "/investment-articles/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"search",
+				"seo"
+			],
+			"commentsEnabled": true,
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "featured_image",
+					"label": "Featured Image",
+					"type": "image"
+				},
+				{
+					"slug": "content",
+					"label": "Content",
+					"type": "portableText",
+					"searchable": true
+				},
+				{
+					"slug": "excerpt",
+					"label": "Excerpt",
+					"type": "text"
+				},
+				{
+					"slug": "market_sentiment",
+					"label": "Market Sentiment",
+					"type": "select",
+					"validation": {
+						"options": [
+							"Bullish",
+							"Bearish",
+							"Neutral",
+							"Volatile",
+							"Cautious"
+						]
+					}
+				},
+				{
+					"slug": "risk_level",
+					"label": "Risk Level",
+					"type": "select",
+					"validation": {
+						"options": [
+							"Low",
+							"Medium",
+							"High",
+							"Very High"
+						]
+					}
+				}
+			]
+		},
+		{
+			"slug": "pages",
+			"label": "Pages",
+			"labelSingular": "Page",
+			"urlPattern": "/pages/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview"
+			],
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": false
+				},
+				{
+					"slug": "content",
+					"label": "Content",
+					"type": "portableText",
+					"searchable": false
+				}
+			]
+		},
+		{
+			"slug": "advisors",
+			"label": "Advisor",
+			"labelSingular": "Advisor",
+			"description": "รายชื่อการ์ดในหน้า /our-advisors แก้คนละรายการ",
+			"urlPattern": "/advisors/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "name",
+					"label": "Name",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "role_title",
+					"label": "Title (optional)",
+					"type": "string"
+				},
+				{
+					"slug": "bio",
+					"label": "Bio",
+					"type": "portableText"
+				},
+				{
+					"slug": "photo",
+					"label": "Photo",
+					"type": "image"
+				},
+				{
+					"slug": "certifications",
+					"label": "Certifications",
+					"type": "text"
+				},
+				{
+					"slug": "specialties",
+					"label": "Specialties",
+					"type": "multiSelect",
+					"validation": {
+						"options": [
+							"Retirement Planning",
+							"Tax Planning",
+							"Wealth Management",
+							"Insurance",
+							"Mutual Funds",
+							"Stocks",
+							"Crypto",
+							"Estate Planning",
+							"Corporate Finance"
+						]
+					}
+				},
+				{
+					"slug": "email",
+					"label": "Email",
+					"type": "string"
+				},
+				{
+					"slug": "phone",
+					"label": "Phone",
+					"type": "string"
+				},
+				{
+					"slug": "social_links",
+					"label": "Social Links",
+					"type": "repeater",
+					"validation": {
+						"subFields": [
+							{
+								"slug": "platform",
+								"type": "select",
+								"label": "Platform",
+								"required": true,
+								"options": [
+									"Facebook",
+									"Instagram",
+									"X",
+									"TikTok",
+									"LinkedIn",
+									"Line",
+									"YouTube",
+									"Threads",
+									"Pinterest"
+								]
+							},
+							{
+								"slug": "url",
+								"type": "string",
+								"label": "Url"
+							}
+						]
+					}
+				},
+				{
+					"slug": "is_featured",
+					"label": "Is Featured",
+					"type": "boolean"
+				}
+			]
+		},
+		{
+			"slug": "our_advisors_page",
+			"label": "Advisor Page",
+			"labelSingular": "Advisor Page",
+			"description": "แก้ย่อหน้า Hero แถบล่าง (รูป+ข้อความต่อราย) และหัวข้อเหนือตารางการ์ด (การ์ดแต่ละคนไปแก้ที่ 'Advisor')",
+			"urlPattern": "/_cms/our-advisors/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "page_title",
+					"label": "Title (แถบเบราว์เซอร์)",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "hero_badge",
+					"label": "Hero: แถบหัวข้อย่อย (badge)",
+					"type": "string"
+				},
+				{
+					"slug": "hero_title",
+					"label": "Hero: หัวข้อหลัก",
+					"type": "string"
+				},
+				{
+					"slug": "hero_subtitle",
+					"label": "Hero: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "grid_section_title",
+					"label": "หัวข้อเหนือตารางการ์ด (กลุ่มที่ปรึกษา) — ไม่บังคับ",
+					"type": "string"
+				},
+				{
+					"slug": "grid_section_intro",
+					"label": "คำอธิบายใต้หัวข้อ (เหนือการ์ด) — ไม่บังคับ",
+					"type": "text"
+				},
+				{
+					"slug": "show_trust_section",
+					"label": "แสดงแถวความน่าเชื่อถือ (ท้ายหน้า)",
+					"type": "boolean"
+				},
+				{
+					"slug": "trust_items",
+					"label": "แถวความน่าเชื่อถือ (รูป + ข้อความ)",
+					"type": "repeater",
+					"validation": {
+						"subFields": [
+							{
+								"slug": "image",
+								"type": "image",
+								"label": "รูป (แนะนำสี่เหลี่ยมจัตุรัสหรือใกล้เคียง)"
+							},
+							{
+								"slug": "label",
+								"type": "string",
+								"label": "ข้อความ"
+							}
+						]
+					}
+				},
+				{
+					"slug": "specialties_section_heading",
+					"label": "หัวข้อแถบ 'ความเชี่ยวชาญ' ในแต่ละการ์ด (ค่าเดียวกันทุกการ์ด)",
+					"type": "string"
+				}
+			]
+		},
+		{
+			"slug": "services",
+			"label": "Services",
+			"labelSingular": "Service",
+			"urlPattern": "/services/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "name",
+					"label": "Name",
+					"type": "string",
+					"required": true
+				},
+				{
+					"slug": "description",
+					"label": "Description",
+					"type": "portableText"
+				},
+				{
+					"slug": "icon",
+					"label": "Icon",
+					"type": "image"
+				},
+				{
+					"slug": "pricing_line",
+					"label": "บรรทัดราคา/เงื่อนไข (ไอคอนเงิน) (optional)",
+					"type": "string"
+				},
+				{
+					"slug": "duration",
+					"label": "Duration",
+					"type": "string"
+				},
+				{
+					"slug": "feature_lines",
+					"label": "รายการจุดเด่น (หนึ่งบรรทัดต่อหนึ่งข้อ)",
+					"type": "text"
+				},
+				{
+					"slug": "cta_text",
+					"label": "Cta Text",
+					"type": "string"
+				},
+				{
+					"slug": "order",
+					"label": "ลำดับการแสดง",
+					"type": "integer"
+				},
+				{
+					"slug": "is_recommended",
+					"label": "บริการแนะนำ (ป้ายและโทนไอคอน)",
+					"type": "boolean"
+				},
+				{
+					"slug": "recommended_badge_label",
+					"label": "ข้อความป้ายแนะนำ",
+					"type": "string"
+				},
+				{
+					"slug": "icon_symbol",
+					"label": "ชื่อไอคอน Material Symbols (เมื่อไม่มีรูปที่อัปโหลด) (optional) — ตัวอย่างที่ใช้ในหน้าบริการ: (payments, account_balance, monitoring, receipt_long, family_restroom, query_stats)",
+					"type": "string"
+				},
+				{
+					"slug": "is_feature",
+					"label": "แสดงในหน้าแรก (Featured)",
+					"type": "boolean"
+				}
+			]
+		},
+		{
+			"slug": "market_updates_page",
+			"label": "Market Updates Page",
+			"labelSingular": "Market updates page",
+			"description": "หัวข้อหน้า ป้าย LATEST หัวข้อการ์ดสรุป/Sentiment/Gainers/Losers ปุ่มดูทั้งหมด และแถบความน่าเชื่อถือ — แก้ที่นี่ครั้งเดียว ใช้ทุกวันรายงานเหมือนกัน",
+			"urlPattern": "/_cms/market-updates-page/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "page_title",
+					"label": "หัวข้อหลัก (บรรทัดใหญ่)",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "page_subtitle",
+					"label": "หัวข้อรอง",
+					"type": "string"
+				},
+				{
+					"slug": "show_trust_badges",
+					"label": "แสดงแถบความน่าเชื่อถือด้านล่าง",
+					"type": "boolean"
+				},
+				{
+					"slug": "trust_badges",
+					"label": "แถบความน่าเชื่อถือ (รูปหรือไอคอน Material + ข้อความ)",
+					"type": "repeater",
+					"validation": {
+						"subFields": [
+							{
+								"slug": "icon_image",
+								"type": "image",
+								"label": "รูป/ไอคอนอัปโหลด (optional — ถ้ามีจะใช้แทนชื่อไอคอนด้านล่าง)"
+							},
+							{
+								"slug": "icon",
+								"type": "string",
+								"label": "ชื่อไอคอน Material (เมื่อไม่ใช้รูปด้านบน เช่น verified_user)"
+							},
+							{
+								"slug": "label",
+								"type": "string",
+								"label": "ข้อความ",
+								"required": true
+							}
+						]
+					}
+				},
+				{
+					"slug": "latest_badge_label",
+					"label": "ข้อความป้าย LATEST (เมื่อดูรายงานวันล่าสุด)",
+					"type": "string"
+				},
+				{
+					"slug": "summary_section_title",
+					"label": "การ์ดสรุป: หัวข้อ (เช่น Market Summary)",
+					"type": "string"
+				},
+				{
+					"slug": "summary_section_icon",
+					"label": "การ์ดสรุป: ไอคอน Material (เช่น summarize)",
+					"type": "string"
+				},
+				{
+					"slug": "sentiment_section_title",
+					"label": "กล่อง Sentiment: หัวข้อย่อย",
+					"type": "string"
+				},
+				{
+					"slug": "gainers_section_title",
+					"label": "หัวข้อตาราง Top Gainers",
+					"type": "string"
+				},
+				{
+					"slug": "losers_section_title",
+					"label": "หัวข้อตาราง Top Losers",
+					"type": "string"
+				},
+				{
+					"slug": "gainers_view_all_label",
+					"label": "Top Gainers: ข้อความปุ่มดูทั้งหมด",
+					"type": "string"
+				},
+				{
+					"slug": "gainers_view_all_href",
+					"label": "Top Gainers: ลิงก์ปุ่มดูทั้งหมด",
+					"type": "string"
+				},
+				{
+					"slug": "losers_view_all_label",
+					"label": "Top Losers: ข้อความปุ่มดูทั้งหมด",
+					"type": "string"
+				},
+				{
+					"slug": "losers_view_all_href",
+					"label": "Top Losers: ลิงก์ปุ่มดูทั้งหมด",
+					"type": "string"
+				}
+			]
+		},
+		{
+			"slug": "market_updates",
+			"label": "Market Updates",
+			"labelSingular": "Market Update",
+			"description": "รายงานรายวัน: วันที่ตลาด ชื่อรายงาน ดัชนี หุ้น Gainers/Losers สรุปภาวะตลาด และ Sentiment แบบเลือกจากรายการ — หัวข้อ UI ส่วนใหญ่อยู่ที่ Market Updates Page",
+			"urlPattern": "/market-updates/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"search",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "market_calendar_day",
+					"label": "วันที่ตลาด — เลือกจากปฏิทิน (ห้ามซ้ำวันเดียวกัน)",
+					"type": "datetime",
+					"required": true,
+					"unique": true
+				},
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "indices_data",
+					"label": "Indices Data",
+					"type": "repeater",
+					"validation": {
+						"subFields": [
+							{
+								"slug": "name",
+								"type": "string",
+								"label": "Name",
+								"required": true
+							},
+							{
+								"slug": "value",
+								"type": "number",
+								"label": "value"
+							},
+							{
+								"slug": "change",
+								"type": "string",
+								"label": "change"
+							}
+						]
+					}
+				},
+				{
+					"slug": "top_gainers",
+					"label": "Top Gainers",
+					"type": "repeater",
+					"validation": {
+						"subFields": [
+							{
+								"slug": "symbol",
+								"type": "string",
+								"label": "Symbol",
+								"required": true
+							},
+							{
+								"slug": "company_name",
+								"type": "string",
+								"label": "ชื่อบริษัท"
+							},
+							{
+								"slug": "price",
+								"type": "string",
+								"label": "ราคา"
+							},
+							{
+								"slug": "change",
+								"type": "string",
+								"label": "Change"
+							}
+						]
+					}
+				},
+				{
+					"slug": "top_losers",
+					"label": "Top Losers",
+					"type": "repeater",
+					"validation": {
+						"subFields": [
+							{
+								"slug": "symbol",
+								"type": "string",
+								"label": "Symbol",
+								"required": true
+							},
+							{
+								"slug": "company_name",
+								"type": "string",
+								"label": "ชื่อบริษัท"
+							},
+							{
+								"slug": "price",
+								"type": "string",
+								"label": "ราคา"
+							},
+							{
+								"slug": "change",
+								"type": "string",
+								"label": "Change"
+							}
+						]
+					}
+				},
+				{
+					"slug": "market_summary",
+					"label": "การ์ดสรุป: เนื้อหา (Market Summary)",
+					"type": "portableText"
+				},
+				{
+					"slug": "market_sentiment",
+					"label": "ภาวะ Sentiment ของวัน (แสดงข้อความและไอคอนตามตัวเลือก)",
+					"type": "select",
+					"validation": {
+						"options": ["Bullish", "Bearish", "Neutral", "Volatile", "Cautious"]
+					}
+				}
+			]
+		},
+		{
+			"slug": "testimonials",
+			"label": "Testimonials",
+			"labelSingular": "Testimonial",
+			"urlPattern": "/testimonials/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Client Name",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "client_title",
+					"label": "Client Title",
+					"type": "string"
+				},
+				{
+					"slug": "photo",
+					"label": "Photo",
+					"type": "image"
+				},
+				{
+					"slug": "content",
+					"label": "Content",
+					"type": "portableText"
+				},
+				{
+					"slug": "rating",
+					"label": "Rating",
+					"type": "integer",
+					"required": true
+				},
+				{
+					"slug": "service_used",
+					"label": "Service Used",
+					"type": "portableText"
+				},
+				{
+					"slug": "is_featured",
+					"label": "แสดงในหน้าแรก",
+					"type": "boolean"
+				}
+			]
+		},
+		{
+			"slug": "testimonials_page",
+			"label": "Testimonial page",
+			"labelSingular": "Testimonial page",
+			"description": "หัวข้อ Hero, สถิติความน่าเชื่อถือ, แถบพาร์ทเนอร์, แบนเนอร์ CTA — รีวิวแต่ละรายการแก้ที่ content type Testimonials",
+			"urlPattern": "/_cms/testimonials-page/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "page_title",
+					"label": "Title (แถบเบราว์เซอร์)",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "hero_badge",
+					"label": "Hero: แถบย่อย (คำ + ไอคอน verified คงที่)",
+					"type": "string"
+				},
+				{
+					"slug": "hero_title",
+					"label": "Hero: หัวข้อหลัก",
+					"type": "string"
+				},
+				{
+					"slug": "hero_description",
+					"label": "Hero: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "show_stats_section",
+					"label": "แสดงส่วนสถิติ/ไฮไลต์ (กล่องน้ำเงิน)",
+					"type": "boolean"
+				},
+				{
+					"slug": "stats_background_image",
+					"label": "ส่วนสถิติ: รูปพื้นหลัง (ไม่บังคับ — ทับด้วยโทนโปร่ง)",
+					"type": "image"
+				},
+				{
+					"slug": "stats_heading",
+					"label": "ส่วนสถิติ: หัวข้อหลัก",
+					"type": "string"
+				},
+				{
+					"slug": "stats_subtitle",
+					"label": "ส่วนสถิติ: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "stat_1_value",
+					"label": "สถิติ 1: ตัวเลข/ข้อความ",
+					"type": "string"
+				},
+				{
+					"slug": "stat_1_label",
+					"label": "สถิติ 1: คำอธิบาย",
+					"type": "string"
+				},
+				{
+					"slug": "stat_2_value",
+					"label": "สถิติ 2: ตัวเลข/ข้อความ",
+					"type": "string"
+				},
+				{
+					"slug": "stat_2_label",
+					"label": "สถิติ 2: คำอธิบาย",
+					"type": "string"
+				},
+				{
+					"slug": "stat_3_value",
+					"label": "สถิติ 3: ตัวเลข/ข้อความ",
+					"type": "string"
+				},
+				{
+					"slug": "stat_3_label",
+					"label": "สถิติ 3: คำอธิบาย",
+					"type": "string"
+				},
+				{
+					"slug": "show_partners_section",
+					"label": "แสดงแถบ \"พาร์ทเนอร์\" (ไอคอนนำทางคงที่)",
+					"type": "boolean"
+				},
+				{
+					"slug": "partners_heading",
+					"label": "พาร์ทเนอร์: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "partner_logos",
+					"label": "พาร์ทเนอร์: โลโก้ (อัปโหลดได้หลายรายการ)",
+					"type": "repeater",
+					"validation": {
+						"subFields": [
+							{
+								"slug": "logo",
+								"type": "image",
+								"label": "โลโก้"
+							},
+							{
+								"slug": "alt",
+								"type": "string",
+								"label": "Alt text (optional)"
+							},
+							{
+								"slug": "url",
+								"type": "string",
+								"label": "ลิงก์ (optional)"
+							}
+						]
+					}
+				},
+				{
+					"slug": "show_cta_section",
+					"label": "แสดงแบนเนอร์ CTA ล่าง",
+					"type": "boolean"
+				},
+				{
+					"slug": "cta_title",
+					"label": "CTA: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "cta_description",
+					"label": "CTA: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "cta_primary_label",
+					"label": "CTA: ปุ่มหลัก (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "cta_primary_href",
+					"label": "CTA: ปุ่มหลัก (URL)",
+					"type": "string"
+				},
+				{
+					"slug": "cta_secondary_label",
+					"label": "CTA: ปุ่มรอง (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "cta_secondary_href",
+					"label": "CTA: ปุ่มรอง (URL)",
+					"type": "string"
+				}
+			]
+		},
+		{
+			"slug": "investment_articles_page",
+			"label": "Investment Articles Page",
+			"labelSingular": "Investment Articles Page",
+			"description": "ตั้งค่าหน้า /investment-articles และเทมเพลตบทความ /investment-articles/{slug} โดยรายการบทความดึงจาก content type Posts",
+			"urlPattern": "/_cms/investment-articles/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "page_title",
+					"label": "Title (แถบเบราว์เซอร์)",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "hero_title",
+					"label": "Hero: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "hero_description",
+					"label": "Hero: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "show_category_filters",
+					"label": "แสดงปุ่มตัวกรองหมวดหมู่",
+					"type": "boolean"
+				},
+				{
+					"slug": "empty_state_title",
+					"label": "ข้อความเมื่อยังไม่มีบทความ (หัวข้อ)",
+					"type": "string"
+				},
+				{
+					"slug": "empty_state_description",
+					"label": "ข้อความเมื่อยังไม่มีบทความ (รายละเอียด)",
+					"type": "text"
+				},
+				{
+					"slug": "show_cta_section",
+					"label": "แสดงกล่อง CTA ด้านล่างหน้ารวมบทความ",
+					"type": "boolean"
+				},
+				{
+					"slug": "cta_title",
+					"label": "CTA บนหน้ารวมบทความ: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "cta_description",
+					"label": "CTA บนหน้ารวมบทความ: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "cta_button_label",
+					"label": "CTA บนหน้ารวมบทความ: ข้อความปุ่ม",
+					"type": "string"
+				},
+				{
+					"slug": "cta_button_href",
+					"label": "CTA บนหน้ารวมบทความ: URL ปุ่ม",
+					"type": "string"
+				},
+				{
+					"slug": "detail_back_label",
+					"label": "หน้ารายละเอียด: ข้อความปุ่มกลับ",
+					"type": "string"
+				},
+				{
+					"slug": "detail_back_href",
+					"label": "หน้ารายละเอียด: URL ปุ่มกลับ",
+					"type": "string"
+				},
+				{
+					"slug": "detail_sidebar_author_label",
+					"label": "หน้ารายละเอียด: ข้อความบรรทัดเล็กเหนือชื่อผู้เขียน (ค่าเริ่มต้น: ทีมผู้เชี่ยวชาญ)",
+					"type": "string"
+				},
+				{
+					"slug": "detail_sidebar_author_title",
+					"label": "หน้ารายละเอียด: ชื่อผู้เขียน/หน่วยงานหลักในแถบข้าง (เว้นว่างให้ใช้ชื่อจาก byline ของบทความ หรือ FinancialAdvisorThailand)",
+					"type": "string"
+				},
+				{
+					"slug": "detail_sidebar_author_subtitle",
+					"label": "หน้ารายละเอียด: คำบรรยายใต้ชื่อในแถบข้าง (ค่าเริ่มต้น: Wealth Advisory Team)",
+					"type": "string"
+				},
+				{
+					"slug": "show_detail_cta_section",
+					"label": "แสดงกล่อง CTA ในหน้ารายละเอียดบทความ",
+					"type": "boolean"
+				},
+				{
+					"slug": "detail_cta_title",
+					"label": "หน้ารายละเอียด: หัวข้อ CTA",
+					"type": "string"
+				},
+				{
+					"slug": "detail_cta_description",
+					"label": "หน้ารายละเอียด: คำอธิบาย CTA",
+					"type": "text"
+				},
+				{
+					"slug": "detail_cta_button_label",
+					"label": "หน้ารายละเอียด: ข้อความปุ่ม CTA",
+					"type": "string"
+				},
+				{
+					"slug": "detail_cta_button_href",
+					"label": "หน้ารายละเอียด: URL ปุ่ม CTA",
+					"type": "string"
+				},
+				{
+					"slug": "detail_related_eyebrow",
+					"label": "หน้ารายละเอียด: ข้อความเล็กเหนือหัวข้อบทความที่เกี่ยวข้อง (เว้นว่างเพื่อไม่แสดง)",
+					"type": "string"
+				},
+				{
+					"slug": "detail_related_heading",
+					"label": "หน้ารายละเอียด: หัวข้อบทความที่เกี่ยวข้อง",
+					"type": "string"
+				},
+				{
+					"slug": "detail_related_link_label",
+					"label": "หน้ารายละเอียด: ข้อความลิงก์ไปหน้ารวมบทความ (ค่าเริ่มต้น: ทั้งหมด)",
+					"type": "string"
+				}
+			]
+		},
+		{
+			"slug": "faqs",
+			"label": "Faqs",
+			"labelSingular": "Faq",
+			"urlPattern": "/faqs/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"search"
+			],
+			"commentsEnabled": false,
+			"hasSeo": false,
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Question",
+					"type": "string",
+					"required": true,
+					"searchable": true,
+					"translatable": true
+				},
+				{
+					"slug": "answer",
+					"label": "Answer",
+					"type": "portableText",
+					"required": false,
+					"searchable": true,
+					"translatable": true
+				},
+				{
+					"slug": "order",
+					"label": "Order",
+					"type": "integer",
+					"searchable": false,
+					"translatable": true
+				},
+				{
+					"slug": "is_popular",
+					"label": "ยอดนิยม (แสดงป้าย)",
+					"type": "boolean",
+					"searchable": false,
+					"translatable": true
+				},
+				{
+					"slug": "is_feature",
+					"label": "แสดงในหน้าแรก",
+					"type": "boolean",
+					"searchable": false,
+					"translatable": true
+				}
+			]
+		},
+		{
+			"slug": "faq_page",
+			"label": "FAQ page",
+			"labelSingular": "FAQ page",
+			"urlPattern": "/_cms/faq/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "page_title",
+					"label": "Title (แถบเบราว์เซอร์)",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "hero_title",
+					"label": "Hero: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "hero_description",
+					"label": "Hero: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "search_placeholder",
+					"label": "Placeholder ช่องค้นหา",
+					"type": "string"
+				},
+				{
+					"slug": "categories_heading",
+					"label": "หัวข้อคอลัมน์ \"หมวดหมู่\"",
+					"type": "string"
+				},
+				{
+					"slug": "popular_badge_label",
+					"label": "ข้อความป้าย \"ยอดนิยม\"",
+					"type": "string"
+				},
+				{
+					"slug": "sidebar_categories",
+					"label": "แถบหมวดหมู่ (ไอคอนอัปโหลด, ป้าย, slug ตรงกับ FAQ category)",
+					"type": "repeater",
+					"validation": {
+						"subFields": [
+							{
+								"slug": "icon_image",
+								"type": "image",
+								"label": "ไอคอน (อัปโหลด SVG หรือ PNG จากเครื่อง)"
+							},
+							{
+								"slug": "label",
+								"type": "string",
+								"label": "ข้อความบนปุ่ม",
+								"required": true
+							},
+							{
+								"slug": "term_slug",
+								"type": "string",
+								"label": "รหัสหมวด (slug ตรงกับ FAQ category)",
+								"required": true
+							}
+						]
+					}
+				},
+				{
+					"slug": "show_cta",
+					"label": "แสดง CTA ล่างสุด",
+					"type": "boolean"
+				},
+				{
+					"slug": "cta_title",
+					"label": "CTA: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "cta_description",
+					"label": "CTA: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "cta_background_image",
+					"label": "CTA: รูปพื้นหลัง",
+					"type": "image"
+				},
+				{
+					"slug": "cta_primary_label",
+					"label": "CTA: ปุ่มแรก (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "cta_primary_url",
+					"label": "CTA: ลิงก์ปุ่มแรก",
+					"type": "string"
+				},
+				{
+					"slug": "cta_secondary_label",
+					"label": "CTA: ปุ่มสอง (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "cta_secondary_url",
+					"label": "CTA: ลิงก์ปุ่มสอง",
+					"type": "string"
+				}
+			]
+		},
+		{
+			"slug": "services_page",
+			"label": "Service Page",
+			"labelSingular": "Service Page",
+			"urlPattern": "/_cms/services-page/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "page_title",
+					"label": "Title (แถบเบราว์เซอร์)",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "hero_eyebrow",
+					"label": "Hero: ข้อความบน (eyebrow)",
+					"type": "string"
+				},
+				{
+					"slug": "hero_title",
+					"label": "Hero: หัวข้อหลัก",
+					"type": "string"
+				},
+				{
+					"slug": "hero_description",
+					"label": "Hero: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "show_bottom_cta",
+					"label": "แสดงแบนเนอร์ CTA ล่างสุด",
+					"type": "boolean"
+				},
+				{
+					"slug": "bottom_cta_title",
+					"label": "CTA ล่าง: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "bottom_cta_description",
+					"label": "CTA ล่าง: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "bottom_cta_button_label",
+					"label": "CTA ล่าง: ข้อความปุ่ม",
+					"type": "string"
+				},
+				{
+					"slug": "bottom_cta_button_url",
+					"label": "CTA ล่าง: ลิงก์ปุ่ม",
+					"type": "string"
+				}
+			]
+		},
+		{
+			"slug": "home_page",
+			"label": "Home",
+			"labelSingular": "Home",
+			"description": "เนื้อหาหน้าแรก: Hero, แถบความน่าเชื่อถือ, Section บริการ, Section ที่ปรึกษา, Section คลังความรู้, Section รีวิว, Section FAQ (รายการที่ติ๊กแสดงในหน้าแรก)",
+			"urlPattern": "/_cms/home/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "page_title",
+					"label": "Title (แถบเบราว์เซอร์)",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "hero_section_show",
+					"label": "แสดง Hero และแถบความน่าเชื่อถือ",
+					"type": "boolean"
+				},
+				{
+					"slug": "hero_badge",
+					"label": "Hero: แถบหัวข้อย่อย (badge)",
+					"type": "string"
+				},
+				{
+					"slug": "hero_headline_line1",
+					"label": "Hero: หัวข้อหลัก (บรรทัด 1)",
+					"type": "string"
+				},
+				{
+					"slug": "hero_headline_line2",
+					"label": "Hero: หัวข้อหลัก (บรรทัด 2 — สีเน้น)",
+					"type": "string"
+				},
+				{
+					"slug": "hero_description",
+					"label": "Hero: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "cta_primary_label",
+					"label": "Hero: ปุ่มหลัก (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "cta_primary_url",
+					"label": "Hero: ปุ่มหลัก (ลิงก์)",
+					"type": "string"
+				},
+				{
+					"slug": "cta_secondary_label",
+					"label": "Hero: ปุ่มรอง (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "cta_secondary_url",
+					"label": "Hero: ปุ่มรอง (ลิงก์)",
+					"type": "string"
+				},
+				{
+					"slug": "hero_image",
+					"label": "Hero: รูปใหญ่ด้านขวา",
+					"type": "image"
+				},
+				{
+					"slug": "sec_show",
+					"label": "SEC: แสดงการ์ดลอย",
+					"type": "boolean"
+				},
+				{
+					"slug": "sec_title",
+					"label": "SEC: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "sec_description",
+					"label": "SEC: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "sec_icon",
+					"label": "SEC: ไอคอน (รูปหรือ SVG)",
+					"type": "image"
+				},
+				{
+					"slug": "trust_1_line1",
+					"label": "แถบล่าง ช่อง 1: บรรทัดบน (เช่น EN)",
+					"type": "string"
+				},
+				{
+					"slug": "trust_1_line2",
+					"label": "แถบล่าง ช่อง 1: บรรทัดล่าง (เช่น TH)",
+					"type": "string"
+				},
+				{
+					"slug": "trust_1_icon",
+					"label": "แถบล่าง ช่อง 1: ไอคอน",
+					"type": "image"
+				},
+				{
+					"slug": "trust_2_line1",
+					"label": "แถบล่าง ช่อง 2: บรรทัดบน",
+					"type": "string"
+				},
+				{
+					"slug": "trust_2_line2",
+					"label": "แถบล่าง ช่อง 2: บรรทัดล่าง",
+					"type": "string"
+				},
+				{
+					"slug": "trust_2_icon",
+					"label": "แถบล่าง ช่อง 2: ไอคอน",
+					"type": "image"
+				},
+				{
+					"slug": "trust_3_line1",
+					"label": "แถบล่าง ช่อง 3: บรรทัดบน",
+					"type": "string"
+				},
+				{
+					"slug": "trust_3_line2",
+					"label": "แถบล่าง ช่อง 3: บรรทัดล่าง",
+					"type": "string"
+				},
+				{
+					"slug": "trust_3_icon",
+					"label": "แถบล่าง ช่อง 3: ไอคอน",
+					"type": "image"
+				},
+				{
+					"slug": "trust_4_line1",
+					"label": "แถบล่าง ช่อง 4: บรรทัดบน",
+					"type": "string"
+				},
+				{
+					"slug": "trust_4_line2",
+					"label": "แถบล่าง ช่อง 4: บรรทัดล่าง",
+					"type": "string"
+				},
+				{
+					"slug": "trust_4_icon",
+					"label": "แถบล่าง ช่อง 4: ไอคอน",
+					"type": "image"
+				},
+				{
+					"slug": "services_section_show",
+					"label": "แสดง Section บริการ",
+					"type": "boolean"
+				},
+				{
+					"slug": "services_section_title",
+					"label": "Section บริการ: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "services_section_description",
+					"label": "Section บริการ: คำอธิบาย (ว่าง = ไม่แสดง)",
+					"type": "text"
+				},
+				{
+					"slug": "services_section_link_label",
+					"label": "Section บริการ: ข้อความลิงก์",
+					"type": "string"
+				},
+				{
+					"slug": "services_section_link_href",
+					"label": "Section บริการ: URL ลิงก์",
+					"type": "string"
+				},
+				{
+					"slug": "advisors_section_show",
+					"label": "แสดง Section ที่ปรึกษา",
+					"type": "boolean"
+				},
+				{
+					"slug": "advisors_section_title",
+					"label": "Section ที่ปรึกษา: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "advisors_section_description",
+					"label": "Section ที่ปรึกษา: คำอธิบาย (ว่าง = ไม่แสดง)",
+					"type": "text"
+				},
+				{
+					"slug": "advisors_section_link_label",
+					"label": "Section ที่ปรึกษา: ข้อความลิงก์",
+					"type": "string"
+				},
+				{
+					"slug": "advisors_section_link_href",
+					"label": "Section ที่ปรึกษา: URL ลิงก์",
+					"type": "string"
+				},
+				{
+					"slug": "knowledge_section_show",
+					"label": "แสดง Section คลังความรู้",
+					"type": "boolean"
+				},
+				{
+					"slug": "knowledge_section_title",
+					"label": "Section คลังความรู้: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "knowledge_section_description",
+					"label": "Section คลังความรู้: คำอธิบาย (ว่าง = ไม่แสดง)",
+					"type": "text"
+				},
+				{
+					"slug": "knowledge_section_link_label",
+					"label": "Section คลังความรู้: ข้อความลิงก์",
+					"type": "string"
+				},
+				{
+					"slug": "knowledge_section_link_href",
+					"label": "Section คลังความรู้: URL ลิงก์",
+					"type": "string"
+				},
+				{
+					"slug": "testimonials_section_show",
+					"label": "แสดง Section รีวิวลูกค้า",
+					"type": "boolean"
+				},
+				{
+					"slug": "testimonials_section_title",
+					"label": "Section รีวิวลูกค้า: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "testimonials_section_description",
+					"label": "Section รีวิวลูกค้า: คำอธิบาย (ว่าง = ไม่แสดง)",
+					"type": "text"
+				},
+				{
+					"slug": "faq_section_show",
+					"label": "แสดง Section คำถามที่พบบ่อย",
+					"type": "boolean"
+				},
+				{
+					"slug": "faq_section_title",
+					"label": "Section คำถามที่พบบ่อย: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "final_cta_section_show",
+					"label": "แสดงแบนเนอร์ CTA ล่างสุด",
+					"type": "boolean"
+				},
+				{
+					"slug": "final_cta_background_image",
+					"label": "CTA ล่าง: รูปพื้นหลัง",
+					"type": "image"
+				},
+				{
+					"slug": "final_cta_overlay",
+					"label": "CTA ล่าง: ใช้เลเยอร์โทนน้ำเงิน + พื้นหลังแบรนด์ (ปิด = พื้นหลังเทาเข้ม ไม่ใช้สี primary-container)",
+					"type": "boolean"
+				},
+				{
+					"slug": "final_cta_background_opacity",
+					"label": "CTA ล่าง: ความทึบของรูปพื้นหลัง (0–100)",
+					"type": "integer"
+				},
+				{
+					"slug": "final_cta_headline_line1",
+					"label": "CTA ล่าง: หัวข้อบรรทัด 1 (สีขาว)",
+					"type": "string"
+				},
+				{
+					"slug": "final_cta_headline_line2",
+					"label": "CTA ล่าง: หัวข้อบรรทัด 2 (สีทอง)",
+					"type": "string"
+				},
+				{
+					"slug": "final_cta_description",
+					"label": "CTA ล่าง: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "final_cta_primary_label",
+					"label": "CTA ล่าง: ปุ่มหลัก (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "final_cta_primary_url",
+					"label": "CTA ล่าง: ปุ่มหลัก (ลิงก์)",
+					"type": "string"
+				},
+				{
+					"slug": "final_cta_secondary_label",
+					"label": "CTA ล่าง: ปุ่มรอง (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "final_cta_secondary_url",
+					"label": "CTA ล่าง: ปุ่มรอง (ลิงก์)",
+					"type": "string"
+				}
+			]
+		},
+		{
+			"slug": "contact_page",
+			"label": "Contact page",
+			"labelSingular": "Contact page",
+			"urlPattern": "/_cms/contact/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "page_title",
+					"label": "Title (แถบเบราว์เซอร์)",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "hero_image",
+					"label": "Hero: รูปพื้นหลัง",
+					"type": "image"
+				},
+				{
+					"slug": "hero_title",
+					"label": "Hero: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "hero_subtitle",
+					"label": "Hero: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "show_phone_card",
+					"label": "การ์ดโทร: แสดงหรือไม่",
+					"type": "boolean"
+				},
+				{
+					"slug": "phone_card_title",
+					"label": "การ์ดโทร: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "phone_card_description",
+					"label": "การ์ดโทร: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "phone_number",
+					"label": "การ์ดโทร: เบอร์ (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "phone_href",
+					"label": "การ์ดโทร: ลิงก์ (เช่น tel:+6621234567)",
+					"type": "string"
+				},
+				{
+					"slug": "show_email_card",
+					"label": "การ์ดอีเมล: แสดงหรือไม่",
+					"type": "boolean"
+				},
+				{
+					"slug": "email_card_title",
+					"label": "การ์ดอีเมล: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "email_card_description",
+					"label": "การ์ดอีเมล: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "email_address",
+					"label": "การ์ดอีเมล: ที่อยู่ (แสดง)",
+					"type": "string"
+				},
+				{
+					"slug": "email_href",
+					"label": "การ์ดอีเมล: ลิงก์ (เช่น mailto:info@...)",
+					"type": "string"
+				},
+				{
+					"slug": "show_line_card",
+					"label": "การ์ด LINE: แสดงหรือไม่",
+					"type": "boolean"
+				},
+				{
+					"slug": "line_card_title",
+					"label": "การ์ด LINE: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "line_card_description",
+					"label": "การ์ด LINE: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "line_link_label",
+					"label": "การ์ด LINE: ข้อความลิงก์ (แสดง)",
+					"type": "string"
+				},
+				{
+					"slug": "line_link_href",
+					"label": "การ์ด LINE: URL",
+					"type": "string"
+				},
+				{
+					"slug": "form_title",
+					"label": "ฟอร์ม: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "form_description",
+					"label": "ฟอร์ม: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "form_subject_options",
+					"label": "ฟอร์ม: ตัวเลือกหัวข้อ (บรรทัดละ 1; บรรทัดแรก = ตัวเลือก placeholder ใน select)",
+					"type": "text"
+				},
+				{
+					"slug": "form_privacy_text",
+					"label": "ฟอร์ม: ข้อความยินยอม (ข้าง checkbox)",
+					"type": "text"
+				},
+				{
+					"slug": "form_button_label",
+					"label": "ฟอร์ม: ข้อความปุ่มส่ง",
+					"type": "string"
+				},
+				{
+					"slug": "notification_emails",
+					"label": "ฟอร์ม: อีเมลผู้รับแจ้งเตือน (บรรทัดละ 1 อีเมล หรือคั่นด้วย , ;)",
+					"type": "text"
+				},
+				{
+					"slug": "notification_subject",
+					"label": "ฟอร์ม: หัวข้ออีเมลแจ้งเตือน",
+					"type": "string"
+				},
+				{
+					"slug": "show_office_details",
+					"label": "สำนักงาน: แสดงส่วนที่อยู่หรือไม่",
+					"type": "boolean"
+				},
+				{
+					"slug": "office_title",
+					"label": "สำนักงาน: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "office_address_line1",
+					"label": "สำนักงาน: บรรทัดที่ 1",
+					"type": "string"
+				},
+				{
+					"slug": "office_address_line2",
+					"label": "สำนักงาน: บรรทัดที่ 2",
+					"type": "text"
+				},
+				{
+					"slug": "show_office_hours",
+					"label": "เวลาทำการ: แสดงส่วนนี้หรือไม่",
+					"type": "boolean"
+				},
+				{
+					"slug": "hours_heading",
+					"label": "เวลาทำการ: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "hours_weekday_label",
+					"label": "เวลา: ป้าย จ-ศ",
+					"type": "string"
+				},
+				{
+					"slug": "hours_weekday_hours",
+					"label": "เวลา: เวลา จ-ศ",
+					"type": "string"
+				},
+				{
+					"slug": "hours_saturday_label",
+					"label": "เวลา: ป้าย เสาร์",
+					"type": "string"
+				},
+				{
+					"slug": "hours_saturday_hours",
+					"label": "เวลา: เวลา เสาร์",
+					"type": "string"
+				},
+				{
+					"slug": "hours_sunday_label",
+					"label": "เวลา: ป้าย อา/วันหยุด",
+					"type": "string"
+				},
+				{
+					"slug": "hours_sunday_hours",
+					"label": "เวลา: ข้อความ อา/วันหยุด (เช่น ปิดทำการ)",
+					"type": "string"
+				},
+				{
+					"slug": "show_map_section",
+					"label": "แผนที่: แสดงส่วนนี้หรือไม่",
+					"type": "boolean"
+				},
+				{
+					"slug": "map_image",
+					"label": "แผนที่: รูป",
+					"type": "image"
+				},
+				{
+					"slug": "map_link_url",
+					"label": "แผนที่: ลิงก์ Google Maps",
+					"type": "string"
+				},
+				{
+					"slug": "map_alt",
+					"label": "แผนที่: alt รูป",
+					"type": "string"
+				},
+				{
+					"slug": "show_trust_section",
+					"label": "กล่องความน่าเชื่อถือ: แสดงส่วนนี้หรือไม่",
+					"type": "boolean"
+				},
+				{
+					"slug": "trust_title",
+					"label": "กล่องความน่าเชื่อถือ: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "trust_text",
+					"label": "กล่องความน่าเชื่อถือ: คำอธิบาย",
+					"type": "text"
+				}
+			]
+		},
+		{
+			"slug": "contact_submissions",
+			"label": "Contact form",
+			"labelSingular": "Contact form submission",
+			"urlPattern": "/_cms/contact-messages/{slug}",
+			"supports": [
+				"drafts"
+			],
+			"commentsEnabled": false,
+			"hasSeo": false,
+			"fields": [
+				{
+					"slug": "title",
+					"label": "รายการ (สรุป)",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "full_name",
+					"label": "ชื่อ-นามสกุล",
+					"type": "string",
+					"required": true
+				},
+				{
+					"slug": "phone",
+					"label": "เบอร์โทร",
+					"type": "string"
+				},
+				{
+					"slug": "email",
+					"label": "อีเมล",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "subject",
+					"label": "หัวข้อที่ปรึกษา",
+					"type": "string"
+				},
+				{
+					"slug": "message",
+					"label": "รายละเอียด",
+					"type": "text"
+				},
+				{
+					"slug": "privacy_consent",
+					"label": "ยินยอมเก็บข้อมูล",
+					"type": "boolean"
+				}
+			]
+		},
+		{
+			"slug": "book_consultation_page",
+			"label": "Book consultation page",
+			"labelSingular": "Book consultation page",
+			"urlPattern": "/_cms/book-consultation/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "page_title",
+					"label": "Title (แถบเบราว์เซอร์)",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "trust_badge_label",
+					"label": "แถบด้านบน (ข้อความข้างไอคอน)",
+					"type": "string"
+				},
+				{
+					"slug": "intro_title",
+					"label": "หัวข้อหลัก (คอลัมน์ซ้าย)",
+					"type": "string"
+				},
+				{
+					"slug": "intro_subtitle",
+					"label": "คำอธิบายใต้หัวข้อ",
+					"type": "text"
+				},
+				{
+					"slug": "show_feature_1",
+					"label": "จุดเด่น 1: แสดง",
+					"type": "boolean"
+				},
+				{
+					"slug": "feature_1_icon",
+					"label": "จุดเด่น 1: ชื่อไอคอน Material Symbols (optional) — ตัวอย่าง: shield_with_heart, verified_user, workspace_premium",
+					"type": "string"
+				},
+				{
+					"slug": "feature_1_title",
+					"label": "จุดเด่น 1: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "feature_1_body",
+					"label": "จุดเด่น 1: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "show_feature_2",
+					"label": "จุดเด่น 2: แสดง",
+					"type": "boolean"
+				},
+				{
+					"slug": "feature_2_icon",
+					"label": "จุดเด่น 2: ชื่อไอคอน Material Symbols (optional) — ตัวอย่าง: workspace_premium, shield_with_heart, savings",
+					"type": "string"
+				},
+				{
+					"slug": "feature_2_title",
+					"label": "จุดเด่น 2: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "feature_2_body",
+					"label": "จุดเด่น 2: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "form_title",
+					"label": "ฟอร์ม: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "form_description",
+					"label": "ฟอร์ม: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "service_field_label",
+					"label": "ฟอร์ม: ป้ายช่องบริการที่สนใจ",
+					"type": "string"
+				},
+				{
+					"slug": "form_time_slot_options",
+					"label": "ฟอร์ม: ตัวเลือกช่วงเวลา (บรรทัดแรก = placeholder ใน select; ถัดไปแต่ละบรรทัด = ตัวเลือก)",
+					"type": "text"
+				},
+				{
+					"slug": "form_message_placeholder",
+					"label": "ฟอร์ม: placeholder ช่องข้อความเพิ่มเติม",
+					"type": "string"
+				},
+				{
+					"slug": "form_privacy_text",
+					"label": "ฟอร์ม: ข้อความยินยอม (ข้าง checkbox)",
+					"type": "text"
+				},
+				{
+					"slug": "form_button_label",
+					"label": "ฟอร์ม: ข้อความปุ่มส่ง",
+					"type": "string"
+				},
+				{
+					"slug": "form_submit_note",
+					"label": "ฟอร์ม: ข้อความใต้ปุ่ม (เช่น ติดต่อกลับภายใน 24 ชม.)",
+					"type": "text"
+				},
+				{
+					"slug": "notification_emails",
+					"label": "ฟอร์ม: อีเมลผู้รับแจ้งเตือน (บรรทัดละ 1 อีเมล หรือคั่นด้วย , ;)",
+					"type": "text"
+				},
+				{
+					"slug": "notification_subject",
+					"label": "ฟอร์ม: หัวข้ออีเมลแจ้งเตือน (รองรับ {full_name} {email} {service_name} {preferred_date} {preferred_time} {id} {title})",
+					"type": "string"
+				},
+				{
+					"slug": "show_brand_logos",
+					"label": "แสดงแถวโลโก้ด้านล่างฟอร์ม",
+					"type": "boolean"
+				},
+				{
+					"slug": "brand_logo_1",
+					"label": "โลโก้ 1 (optional)",
+					"type": "image"
+				},
+				{
+					"slug": "brand_logo_2",
+					"label": "โลโก้ 2 (optional)",
+					"type": "image"
+				},
+				{
+					"slug": "brand_logo_3",
+					"label": "โลโก้ 3 (optional)",
+					"type": "image"
+				},
+				{
+					"slug": "brand_logo_4",
+					"label": "โลโก้ 4 (optional)",
+					"type": "image"
+				}
+			]
+		},
+		{
+			"slug": "book_consultation_submissions",
+			"label": "Book consultation form",
+			"labelSingular": "Book consultation submission",
+			"urlPattern": "/_cms/book-consultation-messages/{slug}",
+			"supports": [
+				"drafts"
+			],
+			"commentsEnabled": false,
+			"hasSeo": false,
+			"fields": [
+				{
+					"slug": "title",
+					"label": "รายการ (สรุป)",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "full_name",
+					"label": "ชื่อ-นามสกุล",
+					"type": "string",
+					"required": true
+				},
+				{
+					"slug": "phone",
+					"label": "เบอร์โทร",
+					"type": "string"
+				},
+				{
+					"slug": "email",
+					"label": "อีเมล",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "service_slug",
+					"label": "บริการ (slug)",
+					"type": "string"
+				},
+				{
+					"slug": "service_name",
+					"label": "บริการ (ชื่อแสดง)",
+					"type": "string"
+				},
+				{
+					"slug": "preferred_date",
+					"label": "วันที่สะดวก",
+					"type": "string"
+				},
+				{
+					"slug": "preferred_time",
+					"label": "ช่วงเวลา",
+					"type": "string"
+				},
+				{
+					"slug": "message",
+					"label": "ข้อความเพิ่มเติม",
+					"type": "text"
+				},
+				{
+					"slug": "privacy_consent",
+					"label": "ยินยอมเก็บข้อมูล",
+					"type": "boolean"
+				}
+			]
+		},
+		{
+			"slug": "about_us",
+			"label": "About Us",
+			"labelSingular": "About Us",
+			"urlPattern": "/_cms/about/{slug}",
+			"supports": [
+				"drafts",
+				"revisions",
+				"preview",
+				"seo"
+			],
+			"commentsEnabled": false,
+			"fields": [
+				{
+					"slug": "page_title",
+					"label": "Title (แถบเบราว์เซอร์)",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "show_hero",
+					"label": "แสดงส่วน Hero",
+					"type": "boolean"
+				},
+				{
+					"slug": "hero_badge",
+					"label": "Hero: แถบหัวข้อย่อย (badge)",
+					"type": "string"
+				},
+				{
+					"slug": "hero_title",
+					"label": "Hero: หัวข้อหลัก",
+					"type": "string"
+				},
+				{
+					"slug": "hero_description",
+					"label": "Hero: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "hero_image",
+					"label": "Hero: รูปพื้นหลัง",
+					"type": "image"
+				},
+				{
+					"slug": "hero_primary_label",
+					"label": "Hero: ปุ่มหลัก (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "hero_primary_url",
+					"label": "Hero: ลิงก์ปุ่มหลัก",
+					"type": "string"
+				},
+				{
+					"slug": "hero_secondary_label",
+					"label": "Hero: ปุ่มรอง (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "hero_secondary_url",
+					"label": "Hero: ลิงก์ปุ่มรอง",
+					"type": "string"
+				},
+				{
+					"slug": "show_legacy",
+					"label": "แสดงส่วนประวัติและสถิติ",
+					"type": "boolean"
+				},
+				{
+					"slug": "legacy_heading",
+					"label": "ประวัติ: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "legacy_paragraph_1",
+					"label": "ประวัติ: ย่อหน้า 1",
+					"type": "text"
+				},
+				{
+					"slug": "legacy_paragraph_2",
+					"label": "ประวัติ: ย่อหน้า 2",
+					"type": "text"
+				},
+				{
+					"slug": "stat_1_value",
+					"label": "สถิติ 1: ตัวเลข",
+					"type": "string"
+				},
+				{
+					"slug": "stat_1_label",
+					"label": "สถิติ 1: คำอธิบาย",
+					"type": "string"
+				},
+				{
+					"slug": "stat_2_value",
+					"label": "สถิติ 2: ตัวเลข",
+					"type": "string"
+				},
+				{
+					"slug": "stat_2_label",
+					"label": "สถิติ 2: คำอธิบาย",
+					"type": "string"
+				},
+				{
+					"slug": "legacy_side_image",
+					"label": "ประวัติ: รูปข้างขวา",
+					"type": "image"
+				},
+				{
+					"slug": "legacy_badge_icon",
+					"label": "กล่องกำกับ: ชื่อไอคอน (Material)",
+					"type": "string"
+				},
+				{
+					"slug": "legacy_badge_text",
+					"label": "กล่องกำกับ: ข้อความ",
+					"type": "text"
+				},
+				{
+					"slug": "show_mission",
+					"label": "แสดงส่วนวิสัยทัศน์/พันธกิจ",
+					"type": "boolean"
+				},
+				{
+					"slug": "mission_section_title",
+					"label": "มิสชัน: หัวข้อ section",
+					"type": "string"
+				},
+				{
+					"slug": "mission_section_subtitle",
+					"label": "มิสชัน: คำอธิบายใต้หัวข้อ",
+					"type": "text"
+				},
+				{
+					"slug": "vision_icon",
+					"label": "วิสัยทัศน์: ไอคอน (Material)",
+					"type": "string"
+				},
+				{
+					"slug": "vision_title",
+					"label": "วิสัยทัศน์: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "vision_text",
+					"label": "วิสัยทัศน์: เนื้อหา",
+					"type": "text"
+				},
+				{
+					"slug": "mission_block_icon",
+					"label": "พันธกิจ: ไอคอน (Material)",
+					"type": "string"
+				},
+				{
+					"slug": "mission_block_title",
+					"label": "พันธกิจ: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "mission_block_text",
+					"label": "พันธกิจ: เนื้อหา",
+					"type": "text"
+				},
+				{
+					"slug": "show_values",
+					"label": "แสดงส่วนค่านิยม",
+					"type": "boolean"
+				},
+				{
+					"slug": "values_heading",
+					"label": "ค่านิยม: หัวข้อหลัก",
+					"type": "string"
+				},
+				{
+					"slug": "core_values",
+					"label": "ค่านิยม: รายการ",
+					"type": "repeater",
+					"validation": {
+						"subFields": [
+							{
+								"slug": "icon",
+								"type": "string",
+								"label": "ไอคอน (Material)",
+								"required": true
+							},
+							{
+								"slug": "title",
+								"type": "string",
+								"label": "หัวข้อ",
+								"required": true
+							},
+							{
+								"slug": "text",
+								"type": "text",
+								"label": "รายละเอียด"
+							}
+						]
+					}
+				},
+				{
+					"slug": "show_cta",
+					"label": "แสดงส่วน CTA ล่างสุด",
+					"type": "boolean"
+				},
+				{
+					"slug": "cta_title",
+					"label": "CTA: หัวข้อ",
+					"type": "string"
+				},
+				{
+					"slug": "cta_description",
+					"label": "CTA: คำอธิบาย",
+					"type": "text"
+				},
+				{
+					"slug": "cta_primary_label",
+					"label": "CTA: ปุ่มหลัก (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "cta_primary_url",
+					"label": "CTA: ลิงก์ปุ่มหลัก",
+					"type": "string"
+				},
+				{
+					"slug": "cta_secondary_label",
+					"label": "CTA: ปุ่มรอง (ข้อความ)",
+					"type": "string"
+				},
+				{
+					"slug": "cta_secondary_url",
+					"label": "CTA: ลิงก์ปุ่มรอง",
+					"type": "string"
+				}
+			]
+		}
+	],
+	"taxonomies": [
+		{
+			"name": "category",
+			"label": "Categories",
+			"labelSingular": "Category",
+			"hierarchical": true,
+			"collections": [
+				"posts"
+			],
+			"terms": [
+				{
+					"slug": "development",
+					"label": "Development"
+				},
+				{
+					"slug": "design",
+					"label": "Design"
+				},
+				{
+					"slug": "notes",
+					"label": "Notes"
+				}
+			]
+		},
+		{
+			"name": "faq_category",
+			"label": "FAQ Categories",
+			"labelSingular": "FAQ Category",
+			"hierarchical": true,
+			"collections": [
+				"faqs"
+			],
+			"terms": [
+				{
+					"slug": "financial_planning",
+					"label": "การวางแผนการเงิน"
+				},
+				{
+					"slug": "investment_strategy",
+					"label": "กลยุทธ์การลงทุน"
+				},
+				{
+					"slug": "security_tax",
+					"label": "ความปลอดภัยและภาษี"
+				},
+				{
+					"slug": "customer_service",
+					"label": "บริการลูกค้า"
+				}
+			]
+		},
+		{
+			"name": "tag",
+			"label": "Tags",
+			"labelSingular": "Tag",
+			"hierarchical": false,
+			"collections": [
+				"posts"
+			],
+			"terms": [
+				{
+					"slug": "mutual-funds",
+					"label": "กองทุนรวม"
+				},
+				{
+					"slug": "international-stocks",
+					"label": "หุ้นต่างประเทศ"
+				},
+				{
+					"slug": "tax-planning",
+					"label": "วางแผนภาษี"
+				},
+				{
+					"slug": "real-estate",
+					"label": "อสังหาริมทรัพย์"
+				},
+				{
+					"slug": "investment-strategy",
+					"label": "Investment Strategy"
+				},
+				{
+					"slug": "wealth-management",
+					"label": "Wealth Management"
+				}
+			]
+		}
+	],
+	"bylines": [
+		{
+			"id": "byline-editorial",
+			"slug": "emdash-editorial",
+			"displayName": "EmDash Editorial"
+		},
+		{
+			"id": "byline-guest",
+			"slug": "guest-contributor",
+			"displayName": "Guest Contributor",
+			"isGuest": true
+		}
+	],
+	"menus": [
+		{
+			"name": "primary",
+			"label": "01 — Main nav (header)",
+			"items": []
+		},
+		{
+			"name": "footer_sitemap",
+			"label": "SITEMAP",
+			"items": []
+		},
+		{
+			"name": "footer_resources",
+			"label": "RESOURCES",
+			"items": []
+		},
+		{
+			"name": "footer_compliance",
+			"label": "COMPLIANCE",
+			"items": []
+		},
+		{
+			"name": "footer_social",
+			"label": "Social & trust",
+			"items": []
+		}
+	],
+	"widgetAreas": [
+		{
+			"name": "sidebar",
+			"label": "Sidebar",
+			"description": "Widget area displayed on single post pages",
+			"widgets": [
+				{
+					"type": "component",
+					"componentId": "core:search",
+					"title": "Search"
+				},
+				{
+					"type": "component",
+					"componentId": "core:categories",
+					"title": "Categories"
+				},
+				{
+					"type": "component",
+					"componentId": "core:tags",
+					"title": "Tags"
+				},
+				{
+					"type": "component",
+					"componentId": "core:recent-posts",
+					"title": "Recent Posts",
+					"settings": {
+						"count": 5,
+						"showDate": true
+					}
+				},
+				{
+					"type": "component",
+					"componentId": "core:archives",
+					"title": "Archives",
+					"settings": {
+						"type": "monthly",
+						"limit": 6
+					}
+				}
+			]
+		},
+		{
+			"name": "footer",
+			"label": "Footer",
+			"description": "Widget area displayed in the site footer",
+			"widgets": [
+				{
+					"type": "content",
+					"title": "About",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": ""
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"sections": [
+		{
+			"slug": "newsletter-signup",
+			"title": "newsletter-signup",
+			"description": "",
+			"keywords": [],
+			"source": "theme",
+			"content": []
+		},
+		{
+			"slug": "about-author",
+			"title": "about-author",
+			"description": "",
+			"keywords": [],
+			"source": "theme",
+			"content": []
+		}
+	],
+	"content": {
+		"posts": [],
+		"pages": [],
+		"advisors": [],
+		"our_advisors_page": [],
+		"services": [],
+		"market_updates_page": [],
+		"market_updates": [],
+		"testimonials": [],
+		"testimonials_page": [],
+		"investment_articles_page": [],
+		"faqs": [],
+		"faq_page": [],
+		"services_page": [],
+		"home_page": [],
+		"contact_page": [],
+		"contact_submissions": [],
+		"book_consultation_page": [],
+		"book_consultation_submissions": [],
+		"about_us": []
+	}
+}

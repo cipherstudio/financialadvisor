@@ -1,0 +1,484 @@
+---
+import { getEmDashCollection, getEmDashEntry } from "emdash";
+import { Image } from "emdash/ui";
+import type { BookConsultationPage, Service } from "../../emdash-env";
+import { HONEYPOT_FIELD } from "../emdash-plugins/form-security.ts";
+import FadvisorStitchPage from "./FadvisorStitchPage.astro";
+
+const { entry: page, cacheHint: pageHint } = await getEmDashEntry("book_consultation_page", "main");
+
+const { entries: serviceEntries, cacheHint: servicesHint } = await getEmDashCollection("services", {
+	status: "published",
+	orderBy: { order: "asc" },
+	limit: 100,
+});
+
+Astro.cache.set(pageHint);
+Astro.cache.set(servicesHint);
+
+const d = page.data as BookConsultationPage;
+const pageTitle = d.page_title?.trim() || "จองปรึกษา | FinancialAdvisorThailand";
+
+const timeBlock = d.form_time_slot_options || "";
+const timeLines = timeBlock
+	.split("\n")
+	.map((l: string) => l.trim())
+	.filter((l: string) => l.length > 0);
+const timePlaceholder = timeLines[0] || "เลือกช่วงเวลา";
+const timeOptions =
+	timeLines.length > 1 ? timeLines.slice(1) : ["ช่วงเช้า (09:00 - 12:00)", "ช่วงบ่าย (13:00 - 17:00)"];
+
+const showFeature1 = d.show_feature_1 !== false;
+const showFeature2 = d.show_feature_2 !== false;
+const showBrandLogos = d.show_brand_logos === true;
+
+const paramService = Astro.url.searchParams.get("service")?.trim() || "";
+const serviceList = serviceEntries.filter((e) => e.id);
+const paramMatches = paramService && serviceList.some((s) => s.id === paramService);
+
+function hasLogo(img: unknown): boolean {
+	if (img == null || typeof img !== "object") return false;
+	const o = img as Record<string, unknown>;
+	if (typeof o.src === "string" && o.src.trim() !== "") return true;
+	if (typeof o.id === "string" && o.id.trim() !== "") return true;
+	return false;
+}
+
+const brandLogos = [d.brand_logo_1, d.brand_logo_2, d.brand_logo_3, d.brand_logo_4].filter(hasLogo);
+
+const recaptchaSiteKey =
+	typeof import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY === "string"
+		? import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY.trim()
+		: "";
+---
+
+<FadvisorStitchPage title={pageTitle} bodyClass="bg-surface text-on-background antialiased">
+	<main class="pt-32 pb-xxl px-6">
+		<div class="max-w-[1200px] mx-auto grid md:grid-cols-12 gap-xl items-start">
+			<div class="md:col-span-5 lg:col-span-4 space-y-md">
+				{
+					d.trust_badge_label && (
+						<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-sm">
+							<span class="material-symbols-outlined text-[18px]">verified_user</span>
+							<span>{d.trust_badge_label}</span>
+						</div>
+					)
+				}
+				{
+					d.intro_title && (
+						<h1 class="font-h1 text-h1 text-primary-container">{d.intro_title}</h1>
+					)
+				}
+				{
+					d.intro_subtitle && (
+						<p class="font-body-lg text-body-lg text-on-surface-variant">{d.intro_subtitle}</p>
+					)
+				}
+				<div class="pt-lg space-y-md">
+					{
+						showFeature1 &&
+							(d.feature_1_title || d.feature_1_body) && (
+								<div class="flex items-start gap-md">
+									<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container flex-shrink-0">
+										<span class="material-symbols-outlined">
+											{d.feature_1_icon?.trim() || "info"}
+										</span>
+									</div>
+									<div>
+										{
+											d.feature_1_title && (
+												<h3 class="font-h3 text-h3 text-primary-container">{d.feature_1_title}</h3>
+											)
+										}
+										{
+											d.feature_1_body && (
+												<p class="font-body-md text-body-md text-on-surface-variant">{d.feature_1_body}</p>
+											)
+										}
+									</div>
+								</div>
+							)
+					}
+					{
+						showFeature2 &&
+							(d.feature_2_title || d.feature_2_body) && (
+								<div class="flex items-start gap-md">
+									<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container flex-shrink-0">
+										<span class="material-symbols-outlined">
+											{d.feature_2_icon?.trim() || "info"}
+										</span>
+									</div>
+									<div>
+										{
+											d.feature_2_title && (
+												<h3 class="font-h3 text-h3 text-primary-container">{d.feature_2_title}</h3>
+											)
+										}
+										{
+											d.feature_2_body && (
+												<p class="font-body-md text-body-md text-on-surface-variant">{d.feature_2_body}</p>
+											)
+										}
+									</div>
+								</div>
+							)
+					}
+				</div>
+			</div>
+
+			<div class="md:col-span-7 lg:col-span-8">
+				<div
+					class="bg-surface-container-lowest p-lg md:p-xl rounded-xl shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05),0_2px_4px_-1px_rgba(10,31,68,0.03)] border border-outline-variant relative overflow-hidden"
+				>
+					<div class="absolute top-0 left-0 w-full h-1 bg-secondary-container"></div>
+					<form
+						class="relative space-y-lg"
+						id="book-consultation-form"
+						data-api="/_emdash/api/plugins/fadvisor-book-consultation/submit"
+						data-recaptcha-site-key={recaptchaSiteKey}
+						data-recaptcha-action="book_consultation_submit"
+						data-honeypot-field={HONEYPOT_FIELD}
+					>
+						<div
+							class="absolute -left-[9999px] h-px w-px overflow-hidden opacity-0 pointer-events-none"
+							aria-hidden="true"
+						>
+							<label for="bcf-hp-fax">Fax</label>
+							<input
+								type="text"
+								id="bcf-hp-fax"
+								name={HONEYPOT_FIELD}
+								tabindex={-1}
+								autocomplete="off"
+							/>
+						</div>
+						<div id="book-consultation-form-message" class="hidden rounded-lg px-md py-sm text-sm" aria-live="polite" />
+						<div class="space-y-lg">
+							<div>
+								{
+									d.form_title && (
+										<h2 class="font-h2 text-h2 text-primary-container mb-sm">{d.form_title}</h2>
+									)
+								}
+								{
+									d.form_description && (
+										<p class="font-body-md text-on-surface-variant">{d.form_description}</p>
+									)
+								}
+							</div>
+							<div class="grid md:grid-cols-2 gap-lg">
+								<div class="space-y-xs">
+									<label class="font-label-sm text-label-sm text-on-surface-variant block" for="bcf-name"
+										>ชื่อ-นามสกุล</label
+									>
+									<input
+										class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container outline-none transition-all"
+										id="bcf-name"
+										name="full_name"
+										placeholder="ระบุชื่อจริงของคุณ"
+										type="text"
+										required
+									/>
+								</div>
+								<div class="space-y-xs">
+									<label class="font-label-sm text-label-sm text-on-surface-variant block" for="bcf-email"
+										>อีเมลสำหรับติดต่อ</label
+									>
+									<input
+										class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container outline-none transition-all"
+										id="bcf-email"
+										name="email"
+										placeholder="example@email.com"
+										type="email"
+										required
+									/>
+								</div>
+							</div>
+							<div class="grid md:grid-cols-2 gap-lg">
+								<div class="space-y-xs">
+									<label class="font-label-sm text-label-sm text-on-surface-variant block" for="bcf-phone"
+										>เบอร์โทรศัพท์</label
+									>
+									<input
+										class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container outline-none transition-all"
+										id="bcf-phone"
+										name="phone"
+										placeholder="08x-xxx-xxxx"
+										type="tel"
+									/>
+								</div>
+								<div class="space-y-xs">
+									<label class="font-label-sm text-label-sm text-on-surface-variant block" for="bcf-service"
+										>{d.service_field_label?.trim() || "บริการที่สนใจ"}</label
+									>
+									<select
+										class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container outline-none transition-all"
+										id="bcf-service"
+										name="service_slug"
+										required
+									>
+										<option value="">เลือกบริการที่สนใจ</option>
+										{
+											serviceList.map((s) => {
+												const data = s.data as Service;
+												const selected = paramMatches && s.id === paramService;
+												return (
+													<option value={s.id} selected={selected} data-service-name={data.name}>
+														{data.name}
+													</option>
+												);
+											})
+										}
+									</select>
+								</div>
+							</div>
+							<div class="grid md:grid-cols-2 gap-lg">
+								<div class="space-y-xs">
+									<label class="font-label-sm text-label-sm text-on-surface-variant block" for="bcf-date"
+										>วันที่สะดวก</label
+									>
+									<div class="relative">
+										<input
+											class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container outline-none transition-all"
+											id="bcf-date"
+											name="preferred_date"
+											type="date"
+											required
+										/>
+									</div>
+								</div>
+								<div class="space-y-xs">
+									<label class="font-label-sm text-label-sm text-on-surface-variant block" for="bcf-time"
+										>ช่วงเวลา</label
+									>
+									<select
+										class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container outline-none transition-all"
+										id="bcf-time"
+										name="preferred_time"
+										required
+									>
+										<option value="">{timePlaceholder}</option>
+										{timeOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
+									</select>
+								</div>
+							</div>
+							<div class="space-y-xs">
+								<label class="font-label-sm text-label-sm text-on-surface-variant block" for="bcf-message"
+									>ข้อความเพิ่มเติม (ถ้ามี)</label
+								>
+								<textarea
+									class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container outline-none transition-all resize-none"
+									id="bcf-message"
+									name="message"
+									placeholder={d.form_message_placeholder?.trim() ||
+										"ระบุรายละเอียดเพิ่มเติมที่คุณต้องการปรึกษา..."}
+									rows="3"
+								/>
+							</div>
+							<div class="flex items-start space-x-sm pt-sm">
+								<input
+									class="mt-1 rounded border-outline-variant text-secondary focus:ring-secondary"
+									id="bcf-privacy"
+									name="privacy"
+									type="checkbox"
+									required
+								/>
+								<label class="font-label-sm text-on-surface-variant" for="bcf-privacy">
+									{d.form_privacy_text ||
+										"ข้าพเจ้ายอมรับนโยบายความเป็นส่วนตัวและยินยอมให้เก็บข้อมูลเพื่อการติดต่อกลับ"}
+								</label>
+							</div>
+							<div class="pt-md">
+								<button
+									class="w-full bg-primary text-white font-h2 text-h2 py-4 rounded-lg shadow-lg hover:bg-primary-container transition-all active:scale-[0.98] disabled:opacity-60"
+									id="bcf-submit"
+									type="submit"
+								>
+									{d.form_button_label || "ยืนยันการจองปรึกษา"}
+								</button>
+								{
+									d.form_submit_note && (
+										<p class="text-center font-label-sm text-label-sm text-on-surface-variant mt-md">
+											{d.form_submit_note}
+										</p>
+									)
+								}
+							</div>
+						</div>
+					</form>
+				</div>
+				{
+					showBrandLogos && brandLogos.length > 0 && (
+						<div class="mt-xl grid grid-cols-2 md:grid-cols-4 gap-md items-center grayscale opacity-60">
+							{brandLogos.map((img) => (
+								<Image
+									class="h-6 object-contain mx-auto max-w-full"
+									image={img as { id: string; src?: string; alt?: string; width?: number; height?: number }}
+								/>
+							))}
+						</div>
+					)
+				}
+			</div>
+		</div>
+	</main>
+</FadvisorStitchPage>
+
+{
+	recaptchaSiteKey ? (
+		<script
+			async
+			defer
+			src={`https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(recaptchaSiteKey)}`}
+		/>
+	) : null
+}
+
+<script>
+	const form = document.getElementById("book-consultation-form") as HTMLFormElement | null;
+	const msg = document.getElementById("book-consultation-form-message");
+	const submitBtn = document.getElementById("bcf-submit") as HTMLButtonElement | null;
+	const serviceSel = document.getElementById("bcf-service") as HTMLSelectElement | null;
+	const recaptchaSiteKey = (form?.dataset.recaptchaSiteKey ?? "").trim();
+	const recaptchaAction = (form?.dataset.recaptchaAction ?? "book_consultation_submit").trim();
+	const honeypotField = (form?.dataset.honeypotField ?? "company_fax").trim();
+
+	function showMessage(kind: "ok" | "err", text: string) {
+		if (!msg) return;
+		msg.classList.remove("hidden", "bg-green-100", "text-green-800", "bg-red-100", "text-red-800");
+		if (kind === "ok") {
+			msg.classList.add("bg-green-100", "text-green-800");
+		} else {
+			msg.classList.add("bg-red-100", "text-red-800");
+		}
+		msg.textContent = text;
+	}
+
+	function selectedServiceName(): string {
+		if (!serviceSel) return "";
+		const opt = serviceSel.selectedOptions[0];
+		const fromData = opt?.getAttribute("data-service-name");
+		if (fromData && fromData.trim()) return fromData.trim();
+		return (opt?.textContent || "").trim();
+	}
+
+	function getRecaptchaToken(): Promise<string> {
+		if (!recaptchaSiteKey) return Promise.resolve("");
+		const w = window as unknown as {
+			grecaptcha?: {
+				ready: (cb: () => void) => void;
+				execute: (siteKey: string, opts: { action: string }) => Promise<string>;
+			};
+		};
+		const g = w.grecaptcha;
+		if (!g) return Promise.resolve("");
+		return new Promise((resolve) => {
+			g.ready(() => {
+				g.execute(recaptchaSiteKey, { action: recaptchaAction })
+					.then(resolve)
+					.catch(() => resolve(""));
+			});
+		});
+	}
+
+	if (form && msg) {
+		form.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			const api = form.getAttribute("data-api");
+			if (!api || !submitBtn) return;
+
+			const fd = new FormData(form);
+			const service_slug = String(fd.get("service_slug") || "").trim();
+			if (!service_slug) {
+				showMessage("err", "กรุณาเลือกบริการที่สนใจ");
+				return;
+			}
+			const preferred_time = String(fd.get("preferred_time") || "").trim();
+			if (!preferred_time) {
+				showMessage("err", "กรุณาเลือกช่วงเวลา");
+				return;
+			}
+			const preferred_date = String(fd.get("preferred_date") || "").trim();
+			if (!preferred_date) {
+				showMessage("err", "กรุณาเลือกวันที่สะดวก");
+				return;
+			}
+			const privacy = form.querySelector<HTMLInputElement>("#bcf-privacy");
+			if (!privacy?.checked) {
+				showMessage("err", "กรุณายอมรับนโยบายความเป็นส่วนตัว");
+				return;
+			}
+
+			const recaptcha_token = await getRecaptchaToken();
+			if (recaptchaSiteKey && !recaptcha_token) {
+				showMessage("err", "ระบบยืนยันตัวตนไม่พร้อม กรุณารีเฟรชหน้าแล้วลองอีกครั้ง");
+				return;
+			}
+
+			const body = {
+				full_name: String(fd.get("full_name") || "").trim(),
+				phone: String(fd.get("phone") || "").trim(),
+				email: String(fd.get("email") || "").trim(),
+				service_slug,
+				service_name: selectedServiceName(),
+				preferred_date,
+				preferred_time,
+				message: String(fd.get("message") || "").trim(),
+				privacy_consent: fd.get("privacy") === "on",
+				[honeypotField]: String(fd.get(honeypotField) || ""),
+				recaptcha_token,
+			};
+
+			submitBtn.disabled = true;
+			msg.classList.add("hidden");
+			try {
+				const res = await fetch(api, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(body),
+				});
+				const json = (await res.json().catch(() => ({}))) as {
+					data?: { success?: boolean; emailSkipped?: boolean; notificationsSent?: number };
+					error?: { code?: string; message?: string };
+				};
+
+				if (!res.ok) {
+					const code = json.error?.code;
+					if (code === "RATE_LIMITED" || res.status === 429) {
+						showMessage("err", "ส่งบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่");
+						return;
+					}
+					const err =
+						json.error?.message || json.error?.code || "ส่งไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+					showMessage("err", err);
+					return;
+				}
+
+				const data = json.data;
+				if (data?.success) {
+					let t = "ส่งข้อมูลเรียบร้อยแล้ว ขอบคุณค่ะ";
+					if (data.emailSkipped) {
+						t +=
+							" (ยังไม่มีการส่งอีเมลแจ้งเตือน: ตั้งอีเมลรับแจ้งเตือนในหน้า Book consultation หรือตั้ง Email provider ที่หลังบ้าน)";
+					} else if ((data.notificationsSent ?? 0) > 0) {
+						t += " (ส่งอีเมลแจ้งเตือนแล้ว)";
+					}
+					showMessage("ok", t);
+					form.reset();
+				} else {
+					showMessage("err", "ส่งไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+				}
+			} catch {
+				showMessage("err", "เครือข่ายขัดข้อง กรุณาลองอีกครั้ง");
+			} finally {
+				submitBtn.disabled = false;
+			}
+		});
+	}
+</script>
+
+<style is:global>
+	.stitch-fadvisor-main :global(a[href^="http"]):hover {
+		opacity: 0.92;
+	}
+</style>

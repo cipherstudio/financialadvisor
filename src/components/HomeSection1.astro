@@ -1,0 +1,227 @@
+---
+import { Image } from "emdash/ui";
+import type { Home } from "../../emdash-env";
+
+interface Props {
+	page: { data: Home };
+}
+
+const { page } = Astro.props;
+const d = page.data;
+
+const has = (s: string | undefined | null) => typeof s === "string" && s.trim() !== "";
+
+const hasEmDashMedia = (img: unknown): boolean => {
+	if (img == null) return false;
+	if (typeof img === "string") return img.trim() !== "";
+	if (typeof img !== "object") return false;
+	const o = img as Record<string, unknown>;
+	if (typeof o.src === "string" && o.src.trim() !== "") return true;
+	if (typeof o.previewUrl === "string" && o.previewUrl.trim() !== "") return true;
+	if (typeof o.id === "string" && o.id.trim() !== "") return true;
+	const meta = o.meta;
+	if (meta != null && typeof meta === "object") {
+		const sk = (meta as Record<string, unknown>).storageKey;
+		if (typeof sk === "string" && sk.trim() !== "") return true;
+	}
+	return false;
+};
+
+/** Booleans from SQLite/API may be 0/1 — `0 !== false` is true in JS, so never compare only to `false`. */
+const sectionOn = (b: unknown, defaultValue = true): boolean => {
+	if (b === true || b === 1) return true;
+	if (b === false || b === 0) return false;
+	if (b == null) return defaultValue;
+	if (typeof b === "string") {
+		const t = b.trim().toLowerCase();
+		if (t === "0" || t === "false") return false;
+		if (t === "1" || t === "true") return true;
+	}
+	return defaultValue;
+};
+
+const showSecCard = sectionOn(d.sec_show, true);
+
+const trustFallbacks = ["account_balance", "assignment_ind", "trending_up", "security"] as const;
+
+const trustItems = [
+	{ line1: d.trust_1_line1, line2: d.trust_1_line2, icon: d.trust_1_icon, fallback: trustFallbacks[0] },
+	{ line1: d.trust_2_line1, line2: d.trust_2_line2, icon: d.trust_2_icon, fallback: trustFallbacks[1] },
+	{ line1: d.trust_3_line1, line2: d.trust_3_line2, icon: d.trust_3_icon, fallback: trustFallbacks[2] },
+	{ line1: d.trust_4_line1, line2: d.trust_4_line2, icon: d.trust_4_icon, fallback: trustFallbacks[3] },
+];
+
+const visibleTrustItems = trustItems.filter((t) => has(t.line1) || has(t.line2));
+
+const trustCount = visibleTrustItems.length;
+/** Match column count to item count so empty slots don’t leave a gap (e.g. 3 items → 3 cols). */
+const trustGridClass =
+	trustCount === 1
+		? "grid-cols-1"
+		: trustCount === 2
+			? "grid-cols-1 sm:grid-cols-2"
+			: trustCount === 3
+				? "grid-cols-1 sm:grid-cols-3"
+				: "grid-cols-2 md:grid-cols-4";
+
+const heroSectionEnabled = sectionOn(d.hero_section_show, true);
+
+const showPrimaryBtn = has(d.cta_primary_label) && has(d.cta_primary_url);
+const showSecondaryBtn = has(d.cta_secondary_label) && has(d.cta_secondary_url);
+
+const hasLeftColumn =
+	has(d.hero_badge) ||
+	has(d.hero_headline_line1) ||
+	has(d.hero_headline_line2) ||
+	has(d.hero_description) ||
+	showPrimaryBtn ||
+	showSecondaryBtn;
+---
+
+{
+	heroSectionEnabled && (
+		<>
+			<!-- Hero Section -->
+			<section class="relative hero-gradient overflow-hidden py-xxl">
+	<div
+		class:list={[
+			"max-w-7xl mx-auto px-8 grid gap-12 items-center relative z-10",
+			hasLeftColumn ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1",
+		]}
+	>
+		{
+			hasLeftColumn && (
+				<div class="animate-in fade-in slide-in-from-left duration-1000">
+					{has(d.hero_badge) && (
+						<span class="inline-block py-1.5 px-4 mb-6 rounded-full bg-white/80 border border-secondary/30 text-secondary font-label-sm uppercase tracking-wider glass-card">
+							{d.hero_badge}
+						</span>
+					)}
+					{(has(d.hero_headline_line1) || has(d.hero_headline_line2)) && (
+						<h1 class="font-display text-4xl md:text-display text-primary mb-lg leading-tight">
+							{has(d.hero_headline_line1) && (
+								<>
+									{d.hero_headline_line1}
+									{has(d.hero_headline_line2) && <br />}
+								</>
+							)}
+							{has(d.hero_headline_line2) && (
+								<span class="text-secondary-fixed-variant">{d.hero_headline_line2}</span>
+							)}
+						</h1>
+					)}
+					{has(d.hero_description) && (
+						<p class="font-body-lg text-body-lg text-on-surface-variant mb-xl max-w-lg">{d.hero_description}</p>
+					)}
+					{(showPrimaryBtn || showSecondaryBtn) && (
+						<div class="flex flex-col sm:flex-row gap-md">
+							{showPrimaryBtn && (
+								<a
+									class="inline-flex justify-center bg-secondary text-on-secondary px-8 py-4 rounded-xl font-h3 shadow-lg shadow-secondary/20 hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95"
+									href={d.cta_primary_url!.trim()}
+								>
+									{d.cta_primary_label}
+								</a>
+							)}
+							{showSecondaryBtn && (
+								<a
+									class="inline-flex justify-center glass-card text-primary px-8 py-4 rounded-xl font-h3 hover:bg-white transition-all border border-outline/20"
+									href={d.cta_secondary_url!.trim()}
+								>
+									{d.cta_secondary_label}
+								</a>
+							)}
+						</div>
+					)}
+				</div>
+			)
+		}
+		<div
+			class:list={[
+				"relative animate-in fade-in zoom-in duration-1000",
+				!hasLeftColumn && "lg:max-w-2xl lg:mx-auto w-full",
+			]}
+		>
+			<div class="aspect-square rounded-3xl overflow-hidden shadow-2xl border-8 border-white/50 relative">
+				{
+					hasEmDashMedia(d.hero_image) ? (
+						<Image
+							class="w-full h-full object-cover"
+							image={d.hero_image!}
+							alt={d.hero_image?.alt?.trim() || ""}
+						/>
+					) : (
+						<div class="w-full h-full bg-gradient-to-br from-primary-container/40 to-surface-container-high min-h-[200px]" />
+					)
+				}
+				<div class="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
+			</div>
+			{
+				showSecCard && (
+					<div class="absolute -bottom-6 -left-6 glass-card p-6 rounded-2xl shadow-2xl border border-white/40 max-w-xs">
+						<div class="flex items-start gap-3 mb-2">
+							<div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+								{hasEmDashMedia(d.sec_icon) ? (
+									<Image
+										class="w-5 h-5 object-contain"
+										image={d.sec_icon!}
+										alt={d.sec_icon?.alt?.trim() || ""}
+									/>
+								) : (
+									<span
+										class="material-symbols-outlined text-white text-sm"
+										style="font-variation-settings: 'FILL' 1;"
+									>
+										verified
+									</span>
+								)}
+							</div>
+							{has(d.sec_title) && <span class="font-h3 text-primary">{d.sec_title}</span>}
+						</div>
+						{has(d.sec_description) && (
+							<p class="text-label-sm text-on-surface-variant leading-relaxed">{d.sec_description}</p>
+						)}
+					</div>
+				)
+			}
+		</div>
+	</div>
+	<div
+		class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none"
+	>
+	</div>
+			</section>
+
+			<!-- Trust Indicators -->
+			{
+				visibleTrustItems.length > 0 && (
+					<section class="bg-white py-lg border-b border-gray-50">
+			<div class="max-w-7xl mx-auto px-8">
+				<div class:list={["grid gap-lg", trustGridClass]}>
+					{visibleTrustItems.map((t) => (
+						<div class="flex items-center gap-md">
+							<div class="w-12 h-12 flex items-center justify-center rounded-xl bg-primary-fixed/30 text-primary overflow-hidden flex-shrink-0">
+								{hasEmDashMedia(t.icon) ? (
+									<Image
+										class="w-6 h-6 object-contain"
+										image={t.icon!}
+										alt={t.icon?.alt?.trim() || ""}
+									/>
+								) : (
+									<span class="material-symbols-outlined">{t.fallback}</span>
+								)}
+							</div>
+							<div>
+								{has(t.line1) && <p class="font-h3 text-primary text-base">{t.line1}</p>}
+								{has(t.line2) && <p class="text-label-sm text-on-surface-variant">{t.line2}</p>}
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
+					</section>
+				)
+			}
+		</>
+	)
+}

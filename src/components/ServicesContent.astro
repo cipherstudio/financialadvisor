@@ -1,0 +1,130 @@
+---
+import type { Service, ServicePage } from "../../emdash-env";
+import ServiceCard from "./ServiceCard.astro";
+
+type EditBag = { [k: string]: unknown };
+
+interface Props {
+	page: {
+		data: ServicePage;
+		edit: Partial<Record<keyof ServicePage, EditBag | undefined>>;
+	};
+	serviceEntries: Array<{
+		id: string;
+		data: Service;
+		edit: Partial<Record<keyof Service, EditBag | undefined>>;
+	}>;
+}
+
+const { page, serviceEntries } = Astro.props;
+const d = page.data;
+const e = page.edit;
+
+const has = (s: string | undefined | null) => typeof s === "string" && s.trim() !== "";
+
+const sectionOn = (b: unknown, defaultValue = true): boolean => {
+	if (b === true || b === 1) return true;
+	if (b === false || b === 0) return false;
+	if (b == null) return defaultValue;
+	if (typeof b === "string") {
+		const t = b.trim().toLowerCase();
+		if (t === "0" || t === "false") return false;
+		if (t === "1" || t === "true") return true;
+	}
+	return defaultValue;
+};
+
+const showBottomBanner =
+	sectionOn(d.show_bottom_cta) &&
+	(has(d.bottom_cta_title) ||
+		has(d.bottom_cta_description) ||
+		(has(d.bottom_cta_button_label) && has(d.bottom_cta_button_url)));
+---
+
+<main class="pt-32 pb-xxl px-lg max-w-7xl mx-auto">
+	<header class="mb-xxl text-center max-w-3xl mx-auto">
+		{
+			has(d.hero_eyebrow) && (
+				<span
+					class="text-secondary font-semibold tracking-wider text-label-sm uppercase mb-sm block"
+					{...((e as Record<string, EditBag>).hero_eyebrow ?? {})}
+				>
+					{d.hero_eyebrow}
+				</span>
+			)
+		}
+		{
+			has(d.hero_title) && (
+				<h1
+					class="font-display text-display text-primary mb-md"
+					{...((e as Record<string, EditBag>).hero_title ?? {})}
+				>
+					{d.hero_title}
+				</h1>
+			)
+		}
+		{
+			has(d.hero_description) && (
+				<p
+					class="font-body-lg text-body-lg text-on-surface-variant"
+					{...((e as Record<string, EditBag>).hero_description ?? {})}
+				>
+					{d.hero_description}
+				</p>
+			)
+		}
+	</header>
+
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+		{
+			serviceEntries.length === 0 ? (
+				<p class="text-on-surface-variant col-span-full text-center font-body-md">
+					ยังไม่มีรายการบริการ — เพิ่มรายการในคอลเลกชัน Services ที่ /_emdash/admin
+				</p>
+			) : (
+				serviceEntries.map((entry) => <ServiceCard entry={entry} />)
+			)
+		}
+	</div>
+
+	{
+		showBottomBanner && (
+			<section
+				class="mt-xxl bg-primary-container text-on-primary rounded-xl p-xl flex flex-col md:flex-row items-center justify-between gap-lg"
+				{...((e as Record<string, EditBag>).show_bottom_cta ?? {})}
+			>
+				<div class="max-w-xl">
+					{has(d.bottom_cta_title) && (
+						<h2
+							class="font-h2 text-h2 mb-sm text-white"
+							{...((e as Record<string, EditBag>).bottom_cta_title ?? {})}
+						>
+							{d.bottom_cta_title}
+						</h2>
+					)}
+					{has(d.bottom_cta_description) && (
+						<p
+							class="font-body-md text-on-tertiary-container"
+							{...((e as Record<string, EditBag>).bottom_cta_description ?? {})}
+						>
+							{d.bottom_cta_description}
+						</p>
+					)}
+				</div>
+				<div class="flex flex-col sm:flex-row gap-md">
+					{has(d.bottom_cta_button_label) && has(d.bottom_cta_button_url) ? (
+						<a
+							href={d.bottom_cta_button_url}
+							class="inline-flex items-center justify-center bg-secondary-container text-on-secondary-container px-8 py-3 rounded-lg font-bold hover:bg-secondary-fixed transition-colors text-center"
+							{...((e as Record<string, EditBag>).bottom_cta_button_url ??
+								(e as Record<string, EditBag>).bottom_cta_button_label ??
+								{})}
+						>
+							{d.bottom_cta_button_label}
+						</a>
+					) : null}
+				</div>
+			</section>
+		)
+	}
+</main>

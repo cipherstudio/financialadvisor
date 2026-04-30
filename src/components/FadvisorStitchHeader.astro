@@ -1,0 +1,339 @@
+---
+import { getMenu, getSiteSettings } from "emdash";
+import { Image } from "emdash/ui";
+import { siteLogoForImage } from "../utils/site-logo-for-image";
+import { resolveBlogSiteIdentity } from "../utils/site-identity";
+import type { MenuItem } from "emdash";
+
+const [menu, siteSettings] = await Promise.all([
+	getMenu("primary"),
+	getSiteSettings(),
+]);
+
+const { siteTitle } = resolveBlogSiteIdentity(siteSettings);
+const displayName = siteTitle || "FinancialAdvisorThailand";
+const logo = siteSettings.logo;
+const headerLogoImage = siteLogoForImage(logo);
+
+const pathname = Astro.url.pathname;
+
+function normalizePath(p: string) {
+	if (!p) {
+		return "/";
+	}
+	const t = p.replace(/\/$/, "");
+	return t === "" ? "/" : t;
+}
+
+const pathNorm = normalizePath(pathname);
+
+function isItemPathActive(item: MenuItem) {
+	if (pathMatchesPath(pathNorm, item.url)) {
+		return true;
+	}
+	return item.children.some((c) => isItemPathActive(c));
+}
+
+function pathMatchesPath(pNorm: string, itemUrl: string) {
+	const u = normalizePath(itemUrl);
+	if (u === "/") {
+		return pNorm === "/";
+	}
+	return pNorm === u || pNorm.startsWith(`${u}/`);
+}
+
+const activeClass =
+	"text-primary border-b-2 border-secondary pb-1 font-semibold transition-all duration-300";
+const idleClass =
+	"text-on-surface-variant font-medium hover:text-secondary transition-all duration-300";
+
+function classForItem(item: MenuItem) {
+	const on = isItemPathActive(item);
+	return `${on ? activeClass : idleClass}${item.cssClasses ? ` ${item.cssClasses}` : ""}`;
+}
+---
+
+<!-- TopNavBar: primary menu from EmDash (menus/primary) -->
+<nav
+	class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)]"
+>
+	<div class="flex items-center justify-between max-w-7xl mx-auto px-6 md:px-8 h-20">
+		<a
+			href="/"
+			class="flex items-center gap-2 shrink-0 min-w-0 max-h-[60px] self-center"
+		>
+			{
+				headerLogoImage ? (
+					<Image
+						image={headerLogoImage}
+						class="max-h-[60px] h-auto w-auto max-w-[min(100%,280px)] object-contain object-left"
+						priority
+						alt={logo?.alt || displayName}
+					/>
+				) : (
+					<span
+						class="text-lg md:text-xl font-bold tracking-tight text-primary uppercase font-display truncate"
+					>
+						{displayName}
+					</span>
+				)
+			}
+		</a>
+		<div
+			class="hidden lg:flex items-center flex-wrap justify-end gap-x-8 gap-y-1 max-w-[60%] xl:max-w-none"
+		>
+			{
+				(menu?.items.length ?? 0) > 0 ? (
+					menu!.items.map((item) => (
+						<span class="inline-block">
+							{item.children.length > 0 ? (
+								<div class="relative group">
+									<a
+										class={`${classForItem(item)} inline-block`}
+										href={item.url}
+										target={item.target}
+										title={item.titleAttr}
+										rel={
+											item.target === "_blank"
+												? "noopener noreferrer"
+												: undefined
+										}
+									>
+										{item.label}
+									</a>
+									<div class="invisible group-hover:visible group-focus-within:visible absolute left-0 top-full pt-1 z-50 min-w-[12rem]">
+										<div class="bg-white border border-gray-100 rounded-lg shadow-lg py-2 text-sm">
+											{item.children.map((child) => (
+												<a
+													class={
+														pathMatchesPath(pathNorm, child.url)
+															? "block px-4 py-2 font-semibold text-primary bg-surface-container-low"
+															: "block px-4 py-2 text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors"
+													}
+													href={child.url}
+													target={child.target}
+													title={child.titleAttr}
+													rel={
+														child.target === "_blank"
+															? "noopener noreferrer"
+															: undefined
+													}
+												>
+													{child.label}
+												</a>
+											))}
+										</div>
+									</div>
+								</div>
+							) : (
+								<a
+									class={classForItem(item)}
+									href={item.url}
+									target={item.target}
+									title={item.titleAttr}
+									rel={
+										item.target === "_blank" ? "noopener noreferrer" : undefined
+									}
+								>
+									{item.label}
+								</a>
+							)}
+						</span>
+					))
+				) : (
+					<a class={activeClass} href="/">
+						Home
+					</a>
+				)
+			}
+		</div>
+		<div class="flex items-center gap-2 sm:gap-4 shrink-0">
+			<a
+				href="/book-consultation"
+				class="bg-primary-container text-white px-3 sm:px-5 py-2.5 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-opacity-90 text-sm md:text-base font-h3 inline-block text-center"
+			>
+				Book Consultation
+			</a>
+			<button
+				type="button"
+				id="fadvisor-nav-menu-toggle"
+				class="lg:hidden p-2 text-primary -mr-2 rounded-md hover:bg-surface-container-low focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+				aria-label="Open menu"
+				aria-controls="fadvisor-nav-mobile-panel"
+				aria-expanded="false"
+			>
+				<span
+					class="material-symbols-outlined fadvisor-nav-icon-open block"
+					aria-hidden="true"
+				>menu</span>
+				<span
+					class="material-symbols-outlined fadvisor-nav-icon-close hidden"
+					aria-hidden="true"
+				>close</span>
+			</button>
+		</div>
+	</div>
+</nav>
+
+<!-- Mobile: slide-out + backdrop (z below fixed bar; bar stays interactive) -->
+<div
+	id="fadvisor-nav-mobile"
+	class="lg:hidden pointer-events-none fixed left-0 right-0 top-20 bottom-0 z-40"
+	aria-hidden="true"
+>
+	<button
+		type="button"
+		id="fadvisor-nav-backdrop"
+		class="fadvisor-nav-backdrop absolute inset-0 bg-primary/20 backdrop-blur-[2px] opacity-0 pointer-events-none transition-opacity duration-200"
+		aria-label="Close menu"
+		tabindex="-1"
+	>
+	</button>
+	<aside
+		id="fadvisor-nav-mobile-panel"
+		role="dialog"
+		aria-modal="true"
+		aria-label="Site menu"
+		class="fadvisor-nav-panel absolute right-0 top-0 h-full w-[90%] max-w-full border-l border-gray-100 bg-white shadow-xl transition-transform duration-200 ease-out translate-x-full will-change-transform"
+	>
+		<nav class="flex h-full min-h-0 flex-col" aria-label="Primary">
+			<div class="overflow-y-auto py-2">
+				{
+					(menu?.items.length ?? 0) > 0 ? (
+						<ul class="px-1">
+							{menu!.items.map((item) => (
+								<li class="border-b border-gray-100 last:border-b-0">
+									<div class="flex min-h-[3rem] flex-col justify-center">
+										<a
+											href={item.url}
+											target={item.target}
+											title={item.titleAttr}
+											rel={
+												item.target === "_blank"
+													? "noopener noreferrer"
+													: undefined
+											}
+											class:list={[
+												"block w-full py-2 pl-3 pr-4 text-base font-h3",
+												isItemPathActive(item)
+													? "text-primary font-semibold"
+													: "text-on-surface hover:bg-surface-container-low",
+											]}
+										>
+											{item.label}
+										</a>
+										{item.children.length > 0 ? (
+											<ul class="border-t border-dashed border-gray-100/80 pl-1 pb-2">
+												{item.children.map((child) => (
+													<li>
+														<a
+															href={child.url}
+															target={child.target}
+															title={child.titleAttr}
+															rel={
+																child.target === "_blank"
+																	? "noopener noreferrer"
+																	: undefined
+															}
+															class:list={[
+																"block w-full py-1.5 pl-5 pr-4 text-sm",
+																pathMatchesPath(pathNorm, child.url)
+																	? "font-semibold text-primary"
+																	: "text-on-surface-variant hover:text-primary",
+															]}
+														>
+															{child.label}
+														</a>
+													</li>
+												))}
+											</ul>
+										) : null}
+									</div>
+								</li>
+							))}
+						</ul>
+					) : (
+						<ul class="px-1">
+							<li class="border-b border-gray-100">
+								<a
+									href="/"
+									class:list={[
+										"block w-full min-h-[3rem] flex items-center py-2 pl-3 pr-4 text-base font-h3",
+										pathNorm === "/"
+											? "text-primary font-semibold"
+											: "text-on-surface hover:bg-surface-container-low",
+									]}
+								>
+									Home
+								</a>
+							</li>
+						</ul>
+					)
+				}
+			</div>
+		</nav>
+	</aside>
+</div>
+
+<script is:inline>
+	(function () {
+		const root = document.getElementById("fadvisor-nav-mobile");
+		const toggle = document.getElementById("fadvisor-nav-menu-toggle");
+		const backdrop = document.getElementById("fadvisor-nav-backdrop");
+		const panel = document.getElementById("fadvisor-nav-mobile-panel");
+		if (!root || !toggle || !backdrop || !panel) return;
+
+		const iconOpen = toggle.querySelector(".fadvisor-nav-icon-open");
+		const iconClose = toggle.querySelector(".fadvisor-nav-icon-close");
+		if (!iconOpen || !iconClose) return;
+
+		/** @param {boolean} open */
+		function setOpen(open) {
+			root.setAttribute("aria-hidden", open ? "false" : "true");
+			toggle.setAttribute("aria-expanded", open ? "true" : "false");
+			toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+			backdrop.setAttribute("tabindex", open ? "0" : "-1");
+			backdrop.setAttribute("aria-hidden", open ? "false" : "true");
+			backdrop.classList.toggle("pointer-events-auto", open);
+			backdrop.classList.toggle("opacity-100", open);
+			backdrop.classList.toggle("pointer-events-none", !open);
+			backdrop.classList.toggle("opacity-0", !open);
+			root.classList.toggle("pointer-events-none", !open);
+			panel.classList.toggle("translate-x-0", open);
+			panel.classList.toggle("translate-x-full", !open);
+			if (iconOpen) iconOpen.classList.toggle("hidden", open);
+			if (iconClose) iconClose.classList.toggle("hidden", !open);
+			if (iconOpen) iconOpen.classList.toggle("block", !open);
+			if (iconClose) iconClose.classList.toggle("block", open);
+			document.body.style.overflow = open ? "hidden" : "";
+		}
+
+		function isOpen() {
+			return toggle.getAttribute("aria-expanded") === "true";
+		}
+
+		toggle.addEventListener("click", function (e) {
+			e.stopPropagation();
+			setOpen(!isOpen());
+		});
+		backdrop.addEventListener("click", function () {
+			setOpen(false);
+		});
+		panel.addEventListener("click", function (e) {
+			if (e.target && e.target.closest("a[href]")) {
+				setOpen(false);
+			}
+		});
+		document.addEventListener("keydown", function (e) {
+			if (e.key === "Escape" && isOpen()) {
+				setOpen(false);
+			}
+		});
+		window.addEventListener("hashchange", function () {
+			setOpen(false);
+		});
+		document.addEventListener("astro:page-load", function () {
+			if (isOpen()) setOpen(false);
+		});
+	})();
+</script>

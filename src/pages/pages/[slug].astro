@@ -1,0 +1,72 @@
+---
+/**
+ * คอลเลกชัน `pages` — ใช้ Fadvisor header/footer เดียวกับหน้าอื่น (ไม่ใช้ layouts/Base แบบเก่า)
+ */
+import { getEmDashEntry, decodeSlug, getSiteSettings } from "emdash";
+import { PortableText } from "emdash/ui";
+import { getSeoMeta } from "emdash";
+import { createPublicPageContext } from "emdash/page";
+import { resolveBlogSiteIdentity } from "../../utils/site-identity";
+import FadvisorStitchPage from "../../components/FadvisorStitchPage.astro";
+
+const slug = decodeSlug(Astro.params.slug);
+
+if (!slug) {
+	return Astro.redirect("/404");
+}
+
+const { entry: page, cacheHint } = await getEmDashEntry("pages", slug);
+
+if (!page) {
+	return Astro.redirect("/404");
+}
+
+Astro.cache.set(cacheHint);
+
+const canonicalPath = `/pages/${slug}`;
+const { siteTitle } = resolveBlogSiteIdentity(await getSiteSettings());
+const seo = getSeoMeta(page, {
+	siteTitle,
+	siteUrl: Astro.url.origin,
+	path: canonicalPath,
+});
+
+const stitchHeadPage = createPublicPageContext({
+	Astro,
+	kind: "content",
+	pageType: "website",
+	title: seo.title,
+	pageTitle: seo.ogTitle,
+	description: seo.description,
+	canonical: seo.canonical,
+	image: seo.ogImage,
+	content: { collection: "pages", id: page.data.id, slug: page.id },
+	seo: { ogImage: seo.ogImage, robots: seo.robots },
+	siteName: siteTitle,
+	siteUrl: Astro.url.origin,
+});
+---
+
+<FadvisorStitchPage title={seo.title} bodyClass="bg-surface text-on-surface antialiased" page={stitchHeadPage}>
+	<main class="pt-20">
+		<!-- ระยะอิง section บริการหน้าแรก: py-xxl, max-w-7xl, px-8 -->
+		<section class="py-xxl bg-surface">
+			<div class="mx-auto max-w-7xl px-6 sm:px-8">
+				<article class="space-y-8 md:space-y-10">
+					<header>
+						<h1
+							class="text-3xl font-bold tracking-tight text-[#0a1f44] md:text-4xl"
+							{...page.edit.title}
+						>
+							{page.data.title}
+						</h1>
+					</header>
+
+					<div class="article-content fadvisor-article-prose w-full !max-w-7xl" {...page.edit.content}>
+						<PortableText value={page.data.content} />
+					</div>
+				</article>
+			</div>
+		</section>
+	</main>
+</FadvisorStitchPage>

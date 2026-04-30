@@ -1,0 +1,4 @@
+---
+/** EmDash preview URL ค่าเริ่มต้น: `/our_advisors_page/{id}?_preview=…` — ส่งต่อไป `/our-advisors` (เก็บ query) */
+return Astro.redirect(`/our-advisors${Astro.url.search || ""}`);
+---

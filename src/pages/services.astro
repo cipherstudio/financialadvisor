@@ -1,0 +1,11 @@
+---
+import { getEmDashEntry } from "emdash";
+import ServicesIndex from "../components/ServicesIndex.astro";
+
+const { entry: servicesPageEntry } = await getEmDashEntry("services_page", "main");
+if (!servicesPageEntry) {
+	return Astro.redirect("/404");
+}
+---
+
+<ServicesIndex />

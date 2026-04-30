@@ -1,0 +1,4 @@
+---
+/** EmDash preview URL ค่าเริ่มต้น: `/faq_page/{id}?_preview=…` — ส่งต่อไป `/faq` */
+return Astro.redirect(`/faq${Astro.url.search || ""}`);
+---

@@ -1,0 +1,11 @@
+---
+import { getEmDashEntry } from "emdash";
+import AboutUsPage from "../components/AboutUsPage.astro";
+
+const { entry: aboutUsEntry } = await getEmDashEntry("about_us", "main");
+if (!aboutUsEntry) {
+	return Astro.redirect("/404");
+}
+---
+
+<AboutUsPage entryId="main" />

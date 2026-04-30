@@ -1,0 +1,8 @@
+---
+import TestimonialsPage from "../../components/TestimonialsPage.astro";
+
+const raw = Astro.params.id;
+const previewTestimonialId = raw ? decodeURIComponent(raw) : undefined;
+---
+
+<TestimonialsPage previewTestimonialId={previewTestimonialId} />

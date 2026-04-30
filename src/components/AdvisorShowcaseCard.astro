@@ -1,0 +1,161 @@
+---
+/**
+ * Horizontal advisor teaser card (e.g. homepage). Optional “View Profile” link for reuse elsewhere.
+ */
+import type { ContentEntry } from "emdash";
+import type { MediaValue } from "emdash";
+import { Image, PortableText } from "emdash/ui";
+import type { Advisor } from "../../emdash-env";
+
+const ADVISOR_SPECIALTY_OPTIONS = [
+	"Retirement Planning",
+	"Tax Planning",
+	"Wealth Management",
+	"Insurance",
+	"Mutual Funds",
+	"Stocks",
+	"Crypto",
+	"Estate Planning",
+	"Corporate Finance",
+] as const;
+const allowedSpecialties = new Set<string>(ADVISOR_SPECIALTY_OPTIONS);
+
+function filterAdvisorySpecialties(list: string[] | undefined | null): string[] {
+	if (!list?.length) return [];
+	return list.filter((s) => typeof s === "string" && allowedSpecialties.has(s));
+}
+
+function hasMediaPayload(im: MediaValue | string | undefined | null): boolean {
+	if (im == null) return false;
+	if (typeof im === "string") return im.trim().length > 0;
+	return Boolean(
+		im.id ||
+			im.src ||
+			(im.meta as { storageKey?: string } | undefined)?.storageKey,
+	);
+}
+
+function mediaForEmDashImage(im: MediaValue | string): MediaValue | string {
+	if (typeof im === "string") return im;
+	const isLocal = im.provider === "local" || im.provider == null;
+	if (isLocal) {
+		return { ...im, src: undefined };
+	}
+	return im;
+}
+
+export interface Props {
+	entry: ContentEntry<Advisor>;
+	showViewProfile?: boolean;
+	/** Default `/our-advisors` when View Profile is shown */
+	viewProfileHref?: string;
+}
+
+const {
+	entry,
+	showViewProfile = true,
+	viewProfileHref = "/our-advisors",
+} = Astro.props;
+
+const d = entry.data;
+const specs = filterAdvisorySpecialties(d.specialties);
+const showBio = Array.isArray(d.bio) && d.bio.length > 0;
+---
+
+<article
+	class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-slate-100 flex flex-col md:flex-row border-t-4 border-t-secondary transition-all hover:shadow-lg"
+>
+	<div class="md:w-2/5 relative h-64 md:min-h-[260px] md:h-auto shrink-0 overflow-hidden">
+		<div class="advisor-showcase-photo absolute inset-0 bg-slate-200">
+			{
+				hasMediaPayload(d.photo as MediaValue | undefined) ? (
+					<Image class="h-full w-full object-cover" image={mediaForEmDashImage(d.photo as MediaValue)} />
+				) : (
+					<div class="flex h-full w-full items-center justify-center">
+						<span class="material-symbols-outlined text-5xl text-slate-400" aria-hidden="true">person</span>
+					</div>
+				)
+			}
+		</div>
+	</div>
+	<div class="md:w-3/5 p-lg flex flex-col min-w-0">
+		<div class="mb-md">
+			<h2 class="font-h3 text-primary mb-1">{d.name}</h2>
+			{
+				d.role_title && (
+					<p class="text-[10px] text-secondary font-bold uppercase tracking-widest">{d.role_title}</p>
+				)
+			}
+		</div>
+		{
+			showBio && (
+				<div class="text-label-sm text-on-surface-variant mb-lg line-clamp-3 [&_p]:mb-0 [&_p:last-child]:mb-0">
+					<PortableText value={d.bio} />
+				</div>
+			)
+		}
+		{
+			specs.length > 0 && (
+				<div class="flex flex-wrap gap-1.5 mb-md">
+					{specs.map((s) => (
+						<span class="bg-surface-container-low px-2 py-0.5 rounded-full text-[10px] text-on-surface-variant">
+							{s}
+						</span>
+					))}
+				</div>
+			)
+		}
+		<div
+			class:list={[
+				"mt-auto flex items-center border-t border-slate-50 pt-md gap-md",
+				showViewProfile ? "justify-between" : "justify-start",
+			]}
+		>
+			<div class="flex gap-2 items-center">
+				{
+					d.email ? (
+						<a
+							class="text-secondary hover:text-primary transition-colors"
+							href={`mailto:${encodeURIComponent(d.email)}`}
+							aria-label={`อีเมล ${d.name}`}
+						>
+							<span class="material-symbols-outlined text-sm" aria-hidden="true">mail</span>
+						</a>
+					) : (
+						<span class="material-symbols-outlined text-sm text-slate-300" aria-hidden="true">mail</span>
+					)
+				}
+				{
+					d.phone ? (
+						<a
+							class="text-secondary hover:text-primary transition-colors"
+							href={`tel:${d.phone.replace(/\s+/g, "")}`}
+							aria-label={`โทร ${d.name}`}
+						>
+							<span class="material-symbols-outlined text-sm" aria-hidden="true">call</span>
+						</a>
+					) : (
+						<span class="material-symbols-outlined text-sm text-slate-300" aria-hidden="true">call</span>
+					)
+				}
+			</div>
+			{
+				showViewProfile && (
+					<a class="text-label-sm text-primary font-bold shrink-0" href={viewProfileHref}>
+						View Profile
+					</a>
+				)
+			}
+		</div>
+	</div>
+</article>
+
+<style>
+	.advisor-showcase-photo :global(img) {
+		width: 100% !important;
+		height: 100% !important;
+		object-fit: cover;
+		aspect-ratio: unset !important;
+		max-width: none !important;
+	}
+</style>

@@ -1,0 +1,58 @@
+diff --git a/dist/apply-B4MsLM-w.mjs b/dist/apply-B4MsLM-w.mjs
+index 1111111..2222222 100644
+--- a/dist/apply-B4MsLM-w.mjs
++++ b/dist/apply-B4MsLM-w.mjs
+@@ -934,10 +934,11 @@
+ 	}
+ 	if (seed.menus) for (const menu of seed.menus) {
+ 		const existingMenu = await db.selectFrom("_emdash_menus").selectAll().where("name", "=", menu.name).executeTakeFirst();
++		const hasSeedItems = Array.isArray(menu.items) && menu.items.length > 0;
+ 		let menuId;
+ 		if (existingMenu) {
+ 			menuId = existingMenu.id;
+-			await db.deleteFrom("_emdash_menu_items").where("menu_id", "=", menuId).execute();
++			if (hasSeedItems) await db.deleteFrom("_emdash_menu_items").where("menu_id", "=", menuId).execute();
+ 		} else {
+ 			menuId = ulid();
+ 			await db.insertInto("_emdash_menus").values({
+@@ -949,8 +950,10 @@
+ 			}).execute();
+ 			result.menus.created++;
+ 		}
+-		const itemCount = await applyMenuItems(db, menuId, menu.items, null, 0, seedIdMap);
+-		result.menus.items += itemCount;
++		if (hasSeedItems) {
++			const itemCount = await applyMenuItems(db, menuId, menu.items, null, 0, seedIdMap);
++			result.menus.items += itemCount;
++		}
+ 	}
+ 	if (seed.redirects) {
+ 		const redirectRepo = new RedirectRepository(db);
+diff --git a/src/components/widgets/RecentPosts.astro b/src/components/widgets/RecentPosts.astro
+index 1111111..2222222 100644
+--- a/src/components/widgets/RecentPosts.astro
++++ b/src/components/widgets/RecentPosts.astro
+@@ -36,7 +36,7 @@
+ 							class="widget-recent-posts__thumbnail"
+ 						/>
+ 					)}
+-					<a href={`/posts/${post.id}`} class="widget-recent-posts__link">
++					<a href={`/investment-articles/${post.id}`} class="widget-recent-posts__link">
+ 						{title}
+ 					</a>
+ 					{showDate && publishedAt && (
+diff --git a/dist/apply-B4MsLM-w.mjs b/dist/apply-B4MsLM-w.mjs
+index 1111111..2222222 100644
+--- a/dist/apply-B4MsLM-w.mjs
++++ b/dist/apply-B4MsLM-w.mjs
+@@ -763,6 +763,10 @@
+ 						});
+ 						result.fields.created++;
+ 					}
++					await registry.reorderFields(
++						collection.slug,
++						collection.fields.map((f) => f.slug)
++					);
+ 					continue;
+ 				}
+ 				result.collections.skipped++;

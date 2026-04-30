@@ -1,0 +1,4 @@
+---
+/** EmDash preview เริ่มต้น: `/book_consultation_page/{id}?_preview=…` — ส่งต่อไปหน้าสาธารณะ `/book-consultation` */
+return Astro.redirect(`/book-consultation${Astro.url.search || ""}`);
+---

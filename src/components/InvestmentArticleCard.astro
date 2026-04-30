@@ -1,0 +1,123 @@
+---
+import type { ContentEntry, MediaValue } from "emdash";
+import { Image } from "emdash/ui";
+import type { Post } from "../../emdash-env";
+import PostRiskSentimentBadges from "./PostRiskSentimentBadges.astro";
+
+export interface Props {
+	post: ContentEntry<Post>;
+	href?: string;
+	/** First category label for the pill; defaults to "ไม่มีหมวดหมู่" */
+	primaryCategoryLabel?: string;
+	/** Extra classes on the root `<article>` (e.g. pagination `hidden`) */
+	class?: string;
+	/** Listing filters / client search */
+	dataCategories?: string;
+	dataSearchBlob?: string;
+	dataPage?: number | string;
+}
+
+const {
+	post,
+	href: hrefProp,
+	primaryCategoryLabel,
+	class: className,
+	dataCategories,
+	dataSearchBlob,
+	dataPage,
+} = Astro.props as Props;
+
+const postHref = hrefProp ?? `/investment-articles/${post.id}`;
+const primaryTag =
+	primaryCategoryLabel != null && String(primaryCategoryLabel).trim() !== ""
+		? String(primaryCategoryLabel).trim()
+		: "ไม่มีหมวดหมู่";
+
+const published = post.data.publishedAt
+	? post.data.publishedAt.toLocaleDateString("th-TH", {
+			day: "2-digit",
+			month: "short",
+			year: "numeric",
+		})
+	: "";
+
+const hasMedia = (img: unknown): img is MediaValue => {
+	if (!img || typeof img !== "object") return false;
+	const o = img as Record<string, unknown>;
+	return Boolean(o.id || o.src || (o.meta as Record<string, unknown> | undefined)?.storageKey);
+};
+
+function mediaForEmDashImage(im: MediaValue): MediaValue {
+	const isLocal = im.provider === "local" || im.provider == null;
+	if (isLocal) return { ...im, src: undefined };
+	return im;
+}
+
+const articleBaseClass =
+	"group bg-white rounded-xl shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] border-t-4 border-secondary-container overflow-hidden hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all flex flex-col h-full";
+---
+
+<article
+	class:list={[articleBaseClass, className]}
+	data-categories={dataCategories}
+	data-search-blob={dataSearchBlob}
+	data-page={dataPage}
+>
+	<a
+		class="relative block h-48 shrink-0 overflow-hidden rounded-t-xl bg-slate-100"
+		href={postHref}
+		aria-label={post.data.title}
+	>
+		{
+			hasMedia(post.data.featured_image) ? (
+				<div class="absolute inset-0 z-0 overflow-hidden">
+					<Image
+						alt={post.data.featured_image?.alt ?? post.data.title}
+						class="transition-transform duration-500 ease-out will-change-transform group-hover:scale-105"
+						style="width:100%;height:100%;max-width:none;aspect-ratio:auto;object-fit:cover;object-position:center"
+						image={mediaForEmDashImage(post.data.featured_image)}
+					/>
+				</div>
+			) : (
+				<div class="relative z-0 flex h-full w-full items-center justify-center text-slate-400">
+					<span class="material-symbols-outlined text-[42px]">article</span>
+				</div>
+			)
+		}
+		<div class="pointer-events-none absolute top-3 right-3 z-10">
+			<PostRiskSentimentBadges
+				risk={post.data.risk_level}
+				sentiment={post.data.market_sentiment}
+				class="flex flex-col items-end gap-1"
+			/>
+		</div>
+	</a>
+	<div class="p-lg flex flex-col flex-grow">
+		<div class="flex items-center gap-md mb-sm flex-wrap">
+			<span class="text-label-sm font-label-sm px-2 py-1 bg-surface-container-low text-primary rounded">
+				{primaryTag}
+			</span>
+		</div>
+		<h3 class="font-h3 text-h3 text-primary mb-sm leading-tight line-clamp-2" {...(post.edit.title ?? {})}>
+			<a class="hover:text-secondary transition-colors block" href={postHref}>
+				{post.data.title}
+			</a>
+		</h3>
+		{
+			post.data.excerpt && (
+				<p class="font-body-md text-body-md text-on-surface-variant mb-lg line-clamp-2" {...(post.edit.excerpt ?? {})}>
+					{post.data.excerpt}
+				</p>
+			)
+		}
+		<div class="mt-auto flex items-center justify-between gap-2">
+			<span class="text-label-sm text-outline font-label-sm">{published}</span>
+			<a
+				class="text-primary font-semibold flex items-center gap-xs hover:text-secondary transition-colors"
+				href={postHref}
+			>
+				อ่านต่อ <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+			</a>
+		</div>
+	</div>
+</article>

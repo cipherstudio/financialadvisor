@@ -1,0 +1,10 @@
+---
+import MarketUpdatesPage from "../../components/MarketUpdatesPage.astro";
+import { marketUpdatesShould404 } from "../../utils/market-updates-gate.ts";
+
+if (await marketUpdatesShould404(undefined)) {
+	return Astro.redirect("/404");
+}
+---
+
+<MarketUpdatesPage />

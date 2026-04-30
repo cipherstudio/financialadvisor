@@ -1,0 +1,11 @@
+---
+import { getEmDashEntry } from "emdash";
+import FaqPage from "../components/FaqPage.astro";
+
+const { entry: faqPageEntry } = await getEmDashEntry("faq_page", "main");
+if (!faqPageEntry) {
+	return Astro.redirect("/404");
+}
+---
+
+<FaqPage />

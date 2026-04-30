@@ -1,0 +1,16 @@
+---
+import InvestmentArticlesPage from "../../../components/InvestmentArticlesPage.astro";
+
+const rawPage = Astro.params.page ?? "1";
+const page = Number.parseInt(rawPage, 10);
+
+if (!Number.isFinite(page) || page < 1) {
+	return Astro.redirect("/404");
+}
+
+if (page === 1) {
+	return Astro.redirect("/investment-articles");
+}
+---
+
+<InvestmentArticlesPage currentPage={page} />

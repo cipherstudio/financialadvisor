@@ -1,0 +1,197 @@
+---
+import type { MediaValue } from "emdash";
+import type { Service } from "../../emdash-env";
+import { Image, PortableText } from "emdash/ui";
+
+type EditBag = { [k: string]: unknown };
+
+interface Props {
+	entry: {
+		id: string;
+		data: Service;
+		edit?: Partial<Record<keyof Service, EditBag | undefined>>;
+	};
+}
+
+const { entry } = Astro.props;
+const s = entry.data;
+const se = entry.edit ?? {};
+
+const has = (str: string | undefined | null) => typeof str === "string" && str.trim() !== "";
+
+const hasEmDashMedia = (img: unknown): boolean => {
+	if (img == null) return false;
+	if (typeof img === "string") return img.trim() !== "";
+	if (typeof img !== "object") return false;
+	const o = img as Record<string, unknown>;
+	if (typeof o.src === "string" && o.src.trim() !== "") return true;
+	if (typeof o.previewUrl === "string" && o.previewUrl.trim() !== "") return true;
+	if (typeof o.id === "string" && o.id.trim() !== "") return true;
+	const meta = o.meta;
+	if (meta != null && typeof meta === "object") {
+		const sk = (meta as Record<string, unknown>).storageKey;
+		if (typeof sk === "string" && sk.trim() !== "") return true;
+	}
+	return false;
+};
+
+const recommendedOn = (b: unknown): boolean => b === true || b === 1;
+
+function parseFeatureLines(raw: string | undefined | null): string[] {
+	if (raw == null || typeof raw !== "string") return [];
+	return raw
+		.split(/\r?\n/)
+		.map((l) => l.trim())
+		.filter(Boolean);
+}
+
+const rec = recommendedOn(s.is_recommended);
+const iconImg = s.icon;
+const iconSym = typeof s.icon_symbol === "string" ? s.icon_symbol.trim() : "";
+const features = parseFeatureLines(s.feature_lines);
+const hasIcon = hasEmDashMedia(iconImg) || has(iconSym);
+const hasBadge = rec && has(s.recommended_badge_label);
+const hasPrice = has(s.pricing_line);
+const hasDuration = has(s.duration);
+const hasCta = has(s.cta_text);
+const serviceSlug =
+	typeof entry.id === "string" && entry.id.trim() !== ""
+		? entry.id.trim()
+		: typeof s.slug === "string" && s.slug.trim() !== ""
+			? s.slug.trim()
+			: "";
+const bookHref =
+	serviceSlug !== ""
+		? `/book-consultation?service=${encodeURIComponent(serviceSlug)}`
+		: "/book-consultation";
+---
+
+<div
+	class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] flex flex-col group hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all duration-300 border-t-4 border-t-secondary-container"
+>
+	<div class="p-lg flex-grow">
+		{
+			hasIcon || hasBadge ? (
+				<div class={`flex items-center mb-md ${hasBadge ? "justify-between gap-sm" : ""}`}>
+					{hasIcon ? (
+						<div
+							class={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${
+								rec ? "bg-secondary-fixed/20" : "bg-on-tertiary-container/10"
+							}`}
+						>
+							{hasEmDashMedia(iconImg) ? (
+								<span
+									class="inline-flex h-8 w-8 items-center justify-center [&_img]:max-h-8 [&_img]:max-w-8 [&_img]:object-contain"
+									{...((se as Record<string, EditBag>).icon ?? {})}
+								>
+									<Image
+										image={iconImg as MediaValue}
+										class="max-h-8 max-w-8 object-contain"
+										alt={iconImg?.alt || ""}
+									/>
+								</span>
+							) : (
+								<span
+									class={`material-symbols-outlined text-2xl ${rec ? "text-secondary" : "text-on-tertiary-container"}`}
+									data-icon={iconSym}
+									{...((se as Record<string, EditBag>).icon_symbol ?? {})}
+								>
+									{iconSym}
+								</span>
+							)}
+						</div>
+					) : null}
+					{hasBadge ? (
+						<span
+							class="text-label-sm font-semibold text-secondary px-3 py-1 bg-secondary-fixed/10 rounded-full shrink-0"
+							{...((se as Record<string, EditBag>).recommended_badge_label ??
+								(se as Record<string, EditBag>).is_recommended ??
+								{})}
+						>
+							{s.recommended_badge_label}
+						</span>
+					) : null}
+				</div>
+			) : null
+		}
+		<h3 class="font-h3 text-h3 text-primary mb-sm" {...((se as Record<string, EditBag>).name ?? {})}>
+			{s.name}
+		</h3>
+		{
+			s.description && s.description.length > 0 ? (
+				<div
+					class="font-body-md text-body-md text-on-surface-variant mb-lg [&_p]:mb-0"
+					{...((se as Record<string, EditBag>).description ?? {})}
+				>
+					<PortableText value={s.description} />
+				</div>
+			) : null
+		}
+		{
+			hasPrice || hasDuration ? (
+				<div class="space-y-sm mb-lg">
+					{hasPrice ? (
+						<div
+							class="flex items-center gap-sm"
+							{...((se as Record<string, EditBag>).pricing_line ?? {})}
+						>
+							<span
+								class="material-symbols-outlined text-on-primary-container text-body-md"
+								aria-hidden="true"
+							>
+								sell
+							</span>
+							<span class="font-label-sm text-label-sm">{s.pricing_line}</span>
+						</div>
+					) : null}
+					{hasDuration ? (
+						<div
+							class="flex items-center gap-sm"
+							{...((se as Record<string, EditBag>).duration ?? {})}
+						>
+							<span
+								class="material-symbols-outlined text-on-primary-container text-body-md"
+								aria-hidden="true"
+							>
+								schedule
+							</span>
+							<span class="font-label-sm text-label-sm">{s.duration}</span>
+						</div>
+					) : null}
+				</div>
+			) : null
+		}
+		{
+			features.length > 0 ? (
+				<ul class="space-y-xs mb-lg" {...((se as Record<string, EditBag>).feature_lines ?? {})}>
+					{features.map((line) => (
+						<li class="flex items-start gap-xs text-body-md text-on-surface-variant">
+							<span
+								class="material-symbols-outlined text-secondary text-lg shrink-0 mt-[-3px]"
+								data-icon="check_circle"
+								data-weight="fill"
+								aria-hidden="true"
+							>
+								check_circle
+							</span>
+							<span>{line}</span>
+						</li>
+					))}
+				</ul>
+			) : null
+		}
+	</div>
+	{
+		hasCta ? (
+			<div class="p-lg pt-0">
+				<a
+					class="block w-full text-center bg-primary text-on-primary py-3 rounded-lg font-medium hover:bg-primary-container transition-colors active:scale-[0.98] transform"
+					href={bookHref}
+					{...((se as Record<string, EditBag>).cta_text ?? {})}
+				>
+					{s.cta_text}
+				</a>
+			</div>
+		) : null
+	}
+</div>

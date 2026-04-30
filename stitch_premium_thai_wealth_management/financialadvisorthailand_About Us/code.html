@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="light" lang="th"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>เกี่ยวกับเรา | FinancialAdvisorThailand</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#0a1f44",
+                        "outline-variant": "#c5c6cf",
+                        "on-primary-fixed": "#041a3f",
+                        "on-primary-container": "#7687b2",
+                        "secondary-fixed-dim": "#e9c349",
+                        "inverse-surface": "#2e3132",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#6b88c1",
+                        "on-secondary-container": "#745c00",
+                        "on-secondary-fixed": "#241a00",
+                        "surface-bright": "#f8f9fa",
+                        "surface-variant": "#e1e3e4",
+                        "tertiary-fixed": "#d8e2ff",
+                        "on-tertiary-fixed": "#001a41",
+                        "on-tertiary": "#ffffff",
+                        "surface": "#f8f9fa",
+                        "secondary": "#735c00",
+                        "tertiary-container": "#001f4a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#574500",
+                        "secondary-fixed": "#ffe088",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#acc7ff",
+                        "on-tertiary-fixed-variant": "#28467b",
+                        "surface-container-highest": "#e1e3e4",
+                        "outline": "#75777f",
+                        "surface-dim": "#d9dadb",
+                        "surface-container": "#edeeef",
+                        "inverse-on-surface": "#f0f1f2",
+                        "surface-tint": "#4c5e86",
+                        "surface-container-low": "#f3f4f5",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#d9e2ff",
+                        "on-error": "#ffffff",
+                        "background": "#f8f9fa",
+                        "on-background": "#191c1d",
+                        "on-primary-fixed-variant": "#34466d",
+                        "surface-container-high": "#e7e8e9",
+                        "inverse-primary": "#b4c6f4",
+                        "tertiary": "#00081d",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#b4c6f4",
+                        "on-surface": "#191c1d",
+                        "primary": "#00081e",
+                        "on-surface-variant": "#44464e",
+                        "secondary-container": "#fed65b",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "unit": "8px",
+                        "gutter": "24px",
+                        "xl": "40px",
+                        "xxl": "64px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "container-max": "1200px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "display": ["IBM Plex Sans Thai"],
+                        "h1": ["IBM Plex Sans Thai"],
+                        "label-sm": ["IBM Plex Sans Thai"],
+                        "h3": ["IBM Plex Sans Thai"],
+                        "h2": ["IBM Plex Sans Thai"],
+                        "body-md": ["IBM Plex Sans Thai"],
+                        "body-lg": ["IBM Plex Sans Thai"]
+                    },
+                    "fontSize": {
+                        "display": ["48px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "h1": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "label-sm": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                        "h2": ["24px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'IBM Plex Sans Thai', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .premium-card-hover:hover {
+            box-shadow: 0 10px 15px -3px rgba(10, 31, 68, 0.08);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 border-b bg-white/95 backdrop-blur-md border-slate-200 shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)]">
+<div class="max-w-[1200px] mx-auto flex justify-between items-center px-6 h-20">
+<div class="text-xl font-bold tracking-tight text-slate-900">FinancialAdvisorThailand</div>
+<div class="hidden md:flex gap-8 items-center font-sans antialiased text-sm font-medium">
+<a class="text-slate-600 hover:text-slate-900 transition-all duration-300" href="#">หน้าแรก</a>
+<a class="text-slate-600 hover:text-slate-900 transition-all duration-300" href="#">บริการ</a>
+<a class="text-slate-600 hover:text-slate-900 transition-all duration-300" href="#">พอร์ตการลงทุน</a>
+<a class="text-slate-600 hover:text-slate-900 transition-all duration-300" href="#">บทวิเคราะห์</a>
+<a class="text-amber-600 border-b-2 border-amber-500 pb-1" href="#">เกี่ยวกับเรา</a>
+</div>
+<button class="bg-primary-container text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90 active:scale-95">
+                ปรึกษาเรา
+            </button>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative h-[600px] flex items-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="Financial Tower" class="w-full h-full object-cover grayscale opacity-20" data-alt="Modern corporate skyscraper architecture with clean glass lines reflecting the sky in a professional monochrome business aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSwdG0dX9H6QhlqiSEN2Fh_G6TAJlAJ-y9Hr1cAQOb8E17_tZSAmJ2XPE9LzkgkGNbjxoLicSdzDbr_Zh_icE5kwWFreZ1O17W5MVULzn6Aj5veW_loJvCsWlpbsuvUYy-rOib9Jzu0WfiTGZZQH56rCTafKQgJyjh3FWVBESXRi5It37ej0e-0OF9fFqo1Ssz8cuGBQBzAqSRTSjbG-1pypbLcIZJbNv1v3060tHLeFkWoQlHycmPtf1L3rciOon-lWN15esCQ2Y"/>
+<div class="absolute inset-0 bg-gradient-to-r from-surface via-surface/80 to-transparent"></div>
+</div>
+<div class="relative z-10 max-w-[1200px] mx-auto px-6 w-full">
+<div class="max-w-2xl">
+<span class="inline-block px-4 py-1.5 mb-6 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+                        สถาบันที่ปรึกษาการเงินชั้นนำของไทย
+                    </span>
+<h1 class="font-display text-display text-primary-container mb-6">ความเชี่ยวชาญและมรดกแห่งความไว้วางใจ</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-10 leading-relaxed">
+                        เราคือพันธมิตรที่มุ่งเน้นการสร้างความมั่งคั่งอย่างยั่งยืน ด้วยกลยุทธ์ที่ล้ำสมัยและการบริหารจัดการความเสี่ยงที่เหนือระดับ สำหรับลูกค้าบุคคลระดับสูงและองค์กรชั้นนำ
+                    </p>
+<div class="flex gap-4">
+<button class="bg-primary-container text-on-primary px-8 py-4 rounded-lg font-medium shadow-md transition-all active:scale-95">
+                            รู้จักเรามากขึ้น
+                        </button>
+<button class="border border-outline-variant text-primary-container px-8 py-4 rounded-lg font-medium transition-all hover:bg-surface-container-low active:scale-95">
+                            ดาวน์โหลดโปรไฟล์บริษัท
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Legacy & Stats Section -->
+<section class="py-xxl bg-white">
+<div class="max-w-[1200px] mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
+<div>
+<h2 class="font-h1 text-h1 text-primary-container mb-8">กว่า 2 ทศวรรษ แห่งความสำเร็จ</h2>
+<div class="space-y-6">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                                FinancialAdvisorThailand ก่อตั้งขึ้นด้วยเจตนารมณ์ที่ต้องการยกระดับมาตรฐานการวางแผนการเงินในประเทศไทย เราเริ่มต้นจากการเป็นสำนักงานให้คำปรึกษาเล็กๆ จนก้าวสู่การเป็นสถาบันการเงินที่ได้รับความไว้วางใจสูงสุดในปัจจุบัน
+                            </p>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                                หัวใจหลักของเราคือ "Wise Sentinel" หรือผู้เฝ้าระวังที่ชาญฉลาด เราไม่เพียงแต่บริหารพอร์ตการลงทุนของคุณ แต่เราทำหน้าที่ปกป้องและสร้างภูมิคุ้มกันให้แก่ความมั่งคั่งของครอบครัวคุณในทุกสภาวะเศรษฐกิจ
+                            </p>
+</div>
+<div class="mt-12 grid grid-cols-2 gap-8">
+<div class="border-l-4 border-secondary-container pl-6">
+<div class="text-3xl font-bold text-primary-container">฿50B+</div>
+<div class="text-sm text-on-surface-variant font-medium">สินทรัพย์ภายใต้การดูแล</div>
+</div>
+<div class="border-l-4 border-secondary-container pl-6">
+<div class="text-3xl font-bold text-primary-container">2,500+</div>
+<div class="text-sm text-on-surface-variant font-medium">ลูกค้ากลุ่ม High Net Worth</div>
+</div>
+</div>
+</div>
+<div class="relative">
+<div class="aspect-square rounded-2xl overflow-hidden shadow-2xl border-t-4 border-secondary-container">
+<img alt="Office Meeting" class="w-full h-full object-cover" data-alt="Professional boardroom meeting in a high-end corporate office with specialists discussing financial charts and investment strategies" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTUe86r6TBkBhh99_JX7CSGeGsuWIi4rHHiX1v7OD2WWnK9elHtLadmbut7a12Ph1CB9dqUXMVdfLSkvayiB-8yFd8-lFzEwXEDy6NvBnN5RBwKJ2elPnTH1y8b8tAQmhpusP3uoVZ-eT6pMuIHsNTbuI_q8ySDr1rMz_2eLjoSaF2MWzSCsStU-0nTi2zX4yXoAMVvPEy3eTsbHEsoqCIKH4bTZXwmPXeJIfJvPzLkqs2gMrjYkPAL6WJ4ueXKs2M4VsykOjIlh8"/>
+</div>
+<div class="absolute -bottom-8 -left-8 bg-primary-container p-8 rounded-xl shadow-xl text-white max-w-xs">
+<span class="material-symbols-outlined text-4xl text-secondary-fixed mb-4" data-icon="verified_user">verified_user</span>
+<p class="text-sm font-light leading-relaxed">ได้รับใบอนุญาตอย่างถูกต้องจากสำนักงาน ก.ล.ต. และมาตรฐานการจัดการระดับสากล</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Mission & Vision (Bento Grid) -->
+<section class="py-xxl bg-surface-container-low">
+<div class="max-w-[1200px] mx-auto px-6">
+<div class="text-center mb-16">
+<h2 class="font-h2 text-h2 text-primary-container mb-4">วิสัยทัศน์และพันธกิจ</h2>
+<p class="font-body-md text-on-surface-variant">เรามีเป้าหมายที่ชัดเจนในการสร้างความมั่งคั่งที่ยั่งยืน</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Vision -->
+<div class="md:col-span-2 bg-white p-10 rounded-xl shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] border-t-4 border-secondary-container">
+<span class="material-symbols-outlined text-3xl text-secondary mb-6" data-icon="visibility">visibility</span>
+<h3 class="font-h2 text-h2 text-primary-container mb-4">วิสัยทัศน์ของเรา</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                            มุ่งสู่การเป็นสถาบันที่ปรึกษาทางการเงินอันดับหนึ่งของเอเชียตะวันออกเฉียงใต้ ที่ผสมผสานภูมิปัญญาทางการเงินแบบดั้งเดิมเข้ากับเทคโนโลยีการบริหารจัดการสินทรัพย์ที่ล้ำสมัยที่สุด เพื่อความมั่งคั่งที่ส่งต่อจากรุ่นสู่รุ่น
+                        </p>
+</div>
+<!-- Mission -->
+<div class="bg-primary-container p-10 rounded-xl shadow-xl text-white">
+<span class="material-symbols-outlined text-3xl text-secondary-fixed mb-6" data-icon="rocket_launch">rocket_launch</span>
+<h3 class="font-h3 text-h3 mb-4">พันธกิจ</h3>
+<p class="font-body-md text-sm opacity-80 leading-relaxed">
+                            เรามุ่งมั่นให้คำปรึกษาที่ซื่อสัตย์ โปร่งใส และเป็นกลาง เพื่อช่วยให้ลูกค้าบรรลุเป้าหมายทางการเงินสูงสุด ผ่านนวัตกรรมและการวิเคราะห์ข้อมูลเชิงลึกที่มีความแม่นยำสูง
+                        </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Core Values -->
+<section class="py-xxl bg-white">
+<div class="max-w-[1200px] mx-auto px-6">
+<h2 class="font-h1 text-h1 text-primary-container mb-16 text-center">ค่านิยมหลักของเรา</h2>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+<!-- Value 1 -->
+<div class="p-8 rounded-xl bg-surface border border-slate-100 premium-card-hover transition-all duration-300">
+<div class="w-12 h-12 bg-secondary-fixed rounded-lg flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary" data-icon="gavel">gavel</span>
+</div>
+<h4 class="font-h3 text-h3 text-primary-container mb-3">ความซื่อสัตย์</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">ยึดมั่นในจริยธรรมสูงสุด โปร่งใสในทุกขั้นตอนการทำงาน เพื่อรักษาผลประโยชน์ของลูกค้าเป็นสำคัญ</p>
+</div>
+<!-- Value 2 -->
+<div class="p-8 rounded-xl bg-surface border border-slate-100 premium-card-hover transition-all duration-300">
+<div class="w-12 h-12 bg-secondary-fixed rounded-lg flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary" data-icon="lightbulb">lightbulb</span>
+</div>
+<h4 class="font-h3 text-h3 text-primary-container mb-3">นวัตกรรม</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">ไม่หยุดนิ่งที่จะนำเทคโนโลยีและกลยุทธ์ใหม่ๆ มาประยุกต์ใช้เพื่อความสำเร็จที่เหนือกว่า</p>
+</div>
+<!-- Value 3 -->
+<div class="p-8 rounded-xl bg-surface border border-slate-100 premium-card-hover transition-all duration-300">
+<div class="w-12 h-12 bg-secondary-fixed rounded-lg flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary" data-icon="workspace_premium">workspace_premium</span>
+</div>
+<h4 class="font-h3 text-h3 text-primary-container mb-3">ความเป็นเลิศ</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">มุ่งมั่นมอบมาตรฐานการบริการระดับสูงสุดในทุกมิติของงานที่ปรึกษาการเงิน</p>
+</div>
+<!-- Value 4 -->
+<div class="p-8 rounded-xl bg-surface border border-slate-100 premium-card-hover transition-all duration-300">
+<div class="w-12 h-12 bg-secondary-fixed rounded-lg flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary" data-icon="diversity_3">diversity_3</span>
+</div>
+<h4 class="font-h3 text-h3 text-primary-container mb-3">การเติบโตร่วมกัน</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">เราเติบโตไปพร้อมกับความสำเร็จของลูกค้า มุ่งสร้างความมั่งคั่งที่ยั่งยืนให้แก่สังคม</p>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-24 bg-primary-container text-white overflow-hidden relative">
+<div class="absolute inset-0 opacity-10">
+<div class="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full filter blur-[100px] translate-x-1/2 -translate-y-1/2"></div>
+<div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary-fixed rounded-full filter blur-[80px] -translate-x-1/2 translate-y-1/2"></div>
+</div>
+<div class="relative z-10 max-w-[1200px] mx-auto px-6 text-center">
+<h2 class="font-h1 text-h1 mb-6">พร้อมเริ่มต้นเส้นทางสู่ความมั่งคั่งที่มั่นคงแล้วหรือยัง?</h2>
+<p class="font-body-lg text-body-lg opacity-80 mb-10 max-w-2xl mx-auto">
+                    พูดคุยกับที่ปรึกษาผู้เชี่ยวชาญของเราวันนี้ เพื่อรับการประเมินสถานะทางการเงินและออกแบบแผนกลยุทธ์ที่เหมาะสมกับคุณโดยเฉพาะ
+                </p>
+<div class="flex flex-col md:flex-row gap-4 justify-center">
+<button class="bg-secondary-container text-on-secondary-container px-10 py-4 rounded-lg font-bold text-lg hover:brightness-110 transition-all">
+                        นัดหมายปรึกษาฟรี
+                    </button>
+<button class="border border-white/20 bg-white/5 backdrop-blur-sm text-white px-10 py-4 rounded-lg font-medium text-lg hover:bg-white/10 transition-all">
+                        โทรติดต่อเรา
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-slate-200 bg-slate-50">
+<div class="max-w-[1200px] mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="col-span-1 md:col-span-1">
+<div class="text-lg font-bold text-slate-900 mb-6">FinancialAdvisorThailand</div>
+<p class="text-sm font-light text-slate-500 leading-relaxed mb-6">
+                    เราเป็นผู้เชี่ยวชาญด้านการวางแผนการเงินและการลงทุนที่ได้รับความไว้วางใจระดับประเทศ
+                </p>
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-white cursor-pointer hover:opacity-80 transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="public">public</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-white cursor-pointer hover:opacity-80 transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="groups">groups</span>
+</div>
+</div>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 mb-6">ลิงก์ด่วน</h4>
+<ul class="space-y-4 text-sm font-light text-slate-500">
+<li class="hover:text-amber-500 transition-colors cursor-pointer">หน้าแรก</li>
+<li class="hover:text-amber-500 transition-colors cursor-pointer">บริการของเรา</li>
+<li class="hover:text-amber-500 transition-colors cursor-pointer">พอร์ตการลงทุน</li>
+<li class="hover:text-amber-500 transition-colors cursor-pointer">บทวิเคราะห์</li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 mb-6">ข้อมูลตามกฎหมาย</h4>
+<ul class="space-y-4 text-sm font-light text-slate-500">
+<li class="hover:text-amber-500 transition-colors cursor-pointer">นโยบายความเป็นส่วนตัว</li>
+<li class="hover:text-amber-500 transition-colors cursor-pointer">ข้อกำหนดการใช้งาน</li>
+<li class="hover:text-amber-500 transition-colors cursor-pointer">ความปลอดภัย</li>
+<li class="hover:text-amber-500 transition-colors cursor-pointer">แผนผังเว็บไซต์</li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 mb-6">สำนักงานใหญ่</h4>
+<p class="text-sm font-light text-slate-500 leading-relaxed">
+                    เลขที่ 123 อาคารไฟแนนเชียลทาวเวอร์ ชั้น 45<br/>
+                    ถนนวิทยุ แขวงลุมพินี เขตปทุมวัน<br/>
+                    กรุงเทพมหานคร 10330<br/>
+<span class="block mt-4 text-primary-container font-medium">โทร: 02-XXX-XXXX</span>
+</p>
+</div>
+</div>
+<div class="max-w-[1200px] mx-auto px-6 py-8 border-t border-slate-200">
+<div class="flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-sm font-light text-slate-500">© 2024 FinancialAdvisorThailand. สงวนลิขสิทธิ์.</p>
+<div class="flex items-center gap-6">
+<img alt="Trust Badge 1" class="h-8 grayscale opacity-50" data-alt="Small corporate gold quality certification seal with minimalist design" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuDBOh1oSz-XhVvBKXdEcDsMvQCE2b9VZxjHWv_24Daxl5Ntp03etXJoZP7-jc5kr-2Fan7KxsItU3e76rQVIPFl2gwWTq1XlOtjrKtDmpwiqbK7h1LjV46A1PkpCvjRuYGg-ymQq3APCHH9QVSXrEgbLrD0vmt0IJWa_H-tfKhIJEkWwh7PM1u689bx2b_OVsyZ4ZeE4_EGRBusp_0NupAVV92q1Ms2qraF5cZlty-iYU4hxFjR2UPTVlhYA5NuBt36CkvZdrmO8"/>
+<img alt="Trust Badge 2" class="h-8 grayscale opacity-50" data-alt="Regulatory compliance emblem icon in professional grey and gold style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBk3IJqPNa1S-SL5afOZxGGnbbcMlr7N9IGVZjG48xe_6j_jF7zV_gBhHflyxYQ3Njoa-uYETyCXxDIxV1x5pGxtjxmvbQvR_kqUgHYhCvqzhfEQmIqVu13D1OT6eWgP1nlf_njOFrxjXq13fk8h91yiiGlkWCo-HljvBZaD1Aiq5LGH2T2Sqja5HxgM13bfsHlPzZcU_zz8T3wxgFj-5Bao0efCrdC3T0kup_Qh-7fKZQX3hIl1ssrpduX-APQUruQtvQcJcBQtc"/>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

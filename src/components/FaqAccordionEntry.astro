@@ -1,0 +1,80 @@
+---
+/**
+ * Single FAQ accordion row — same UI as FaqContent (full FAQ page), without search/sidebar.
+ */
+import type { ContentEntry } from "emdash";
+import { PortableText } from "emdash/ui";
+import type { Faq } from "../../emdash-env";
+import { portableTextToPlain } from "../utils/portable-text-plain";
+
+type EditBag = { [k: string]: unknown };
+
+export interface Props {
+	entry: ContentEntry<Faq> & { edit?: Partial<Record<keyof Faq, EditBag | undefined>> };
+	initiallyOpen: boolean;
+	/** Label for is_popular badge (e.g. from FAQ page settings); home section passes a default. */
+	popularBadgeLabel?: string;
+	/** FAQ page only: visual-edit attrs for the badge text (from faq_page). */
+	popularBadgeEditAttrs?: Record<string, unknown>;
+}
+
+const { entry, initiallyOpen, popularBadgeLabel = "ยอดนิยม", popularBadgeEditAttrs } = Astro.props;
+
+const q = entry.data;
+
+const popularOn = (b: unknown): boolean => b === true || b === 1;
+
+type FaqDataWithCatTerms = { terms?: { faq_category?: Array<{ slug?: string }> } };
+const cat = ((q as FaqDataWithCatTerms).terms?.faq_category?.[0]?.slug ?? "").trim();
+
+const popular = popularOn(q.is_popular);
+const searchBlob = [q.title, portableTextToPlain(q.answer)].filter(Boolean).join(" ").toLowerCase().normalize("NFKC");
+---
+
+<article
+	data-faq-item
+	data-cat={cat}
+	data-search-blob={searchBlob}
+	class={`fap-acc group bg-white rounded-xl border border-outline-variant transition-all overflow-hidden ${
+		popular
+			? "border-t-4 border-t-secondary-fixed-dim shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)]"
+			: "hover:shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)]"
+	}${initiallyOpen ? " fap-open" : ""}`}
+>
+	<button
+		type="button"
+		class="fap-toggle w-full py-3 px-4 sm:py-3.5 sm:px-5 flex justify-between items-center cursor-pointer text-left gap-3"
+		aria-expanded={initiallyOpen ? "true" : "false"}
+	>
+		<div class="min-w-0 flex flex-row flex-wrap items-center gap-x-2 gap-y-1 sm:gap-x-3 flex-1">
+			<h2 class="font-h3 text-primary group-hover:text-secondary transition-colors font-semibold" {...(entry.edit?.title ?? {})}>
+				{q.title}
+			</h2>
+			{
+				popular && (
+					<span
+						class="shrink-0 bg-secondary-fixed text-on-secondary-fixed text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider"
+						{...(popularBadgeEditAttrs ?? {})}
+					>
+						{popularBadgeLabel}
+					</span>
+				)
+			}
+		</div>
+		<span class="material-symbols-outlined fap-chevron text-[22px] sm:text-[24px] transition-transform text-outline shrink-0" aria-hidden="true"
+			>expand_more</span
+		>
+	</button>
+	{
+		q.answer && q.answer.length > 0 && (
+			<div class="fap-panel">
+				<div
+					class={`fap-panel-content px-4 ${initiallyOpen ? "py-4 sm:py-5" : "py-0 sm:py-0"} sm:px-5 text-body-md text-on-surface-variant leading-relaxed bg-slate-50/50 border-t border-slate-50`}
+					{...(entry.edit?.answer ?? {})}
+				>
+					<PortableText value={q.answer} />
+				</div>
+			</div>
+		)
+	}
+</article>

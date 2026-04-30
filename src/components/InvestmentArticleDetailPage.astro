@@ -1,0 +1,332 @@
+---
+import { getEmDashCollection, getEmDashEntry, getEntryTerms, getSeoMeta, getSiteSettings } from "emdash";
+import { createPublicPageContext } from "emdash/page";
+import type { CacheHint, ContentEntry, MediaValue } from "emdash";
+import { Image, PortableText } from "emdash/ui";
+import type { Post } from "../../emdash-env";
+import FadvisorStitchPage from "./FadvisorStitchPage.astro";
+import InvestmentArticleCard from "./InvestmentArticleCard.astro";
+import PostRiskSentimentBadges from "./PostRiskSentimentBadges.astro";
+import SectionHeadingBar from "./SectionHeadingBar.astro";
+import { cmsBool } from "../utils/cms-boolean";
+import { getOgAbsoluteUrlFromImageField } from "../utils/emdash-og-image-url";
+import { resolveBlogSiteIdentity } from "../utils/site-identity";
+
+interface Props {
+	slug: string;
+}
+
+type EditBag = { [k: string]: unknown };
+type InvestmentArticlesPageData = {
+	page_title?: string;
+	detail_back_label?: string;
+	detail_back_href?: string;
+	detail_sidebar_author_label?: string;
+	/** เว้นว่าง → ใช้ byline จากบทความ แล้วจึงค่าเริ่มต้น */
+	detail_sidebar_author_title?: string;
+	detail_sidebar_author_subtitle?: string;
+	/** false = ซ่อนกล่อง CTA (ไม่ตั้งหรือ true = แสดงเมื่อมีเนื้อหา CTA) */
+	show_detail_cta_section?: boolean;
+	detail_cta_title?: string;
+	detail_cta_description?: string;
+	detail_cta_button_label?: string;
+	detail_cta_button_href?: string;
+	detail_related_eyebrow?: string;
+	detail_related_heading?: string;
+	detail_related_link_label?: string;
+};
+
+const { slug } = Astro.props as Props;
+const { entry: pageEntry, cacheHint: pageHint } = await getEmDashEntry("investment_articles_page", "main");
+const { entry: postEntry, cacheHint: postHint } = await getEmDashEntry("posts", slug);
+
+const tags = postEntry ? await getEntryTerms("posts", postEntry.data.id, "tag") : [];
+
+/** Related posts = latest published in the same category/categories as this post (taxonomy `category`). */
+const postCategories = postEntry ? await getEntryTerms("posts", postEntry.data.id, "category") : [];
+const categorySlugs = [...new Set(postCategories.map((t) => t.slug).filter(Boolean))];
+
+let relatedHint: CacheHint | undefined;
+let relatedCandidates: ContentEntry<Post>[] = [];
+
+if (postEntry && categorySlugs.length > 0) {
+	const { entries, cacheHint } = await getEmDashCollection("posts", {
+		status: "published",
+		orderBy: { published_at: "desc" },
+		limit: 48,
+		where: { category: categorySlugs },
+	});
+	relatedHint = cacheHint;
+	relatedCandidates = entries
+		.filter((p) => p.id !== postEntry.id)
+		.slice(0, 3) as ContentEntry<Post>[];
+}
+
+const relatedPostsWithCategories = await Promise.all(
+	relatedCandidates.map(async (p) => ({
+		post: p,
+		categories: await getEntryTerms("posts", p.data.id, "category"),
+	})),
+);
+
+Astro.cache.set({
+	tags: [...new Set([...(pageHint.tags ?? []), ...(postHint.tags ?? []), ...(relatedHint?.tags ?? [])])],
+	lastModified: [pageHint.lastModified, postHint.lastModified, relatedHint?.lastModified]
+		.filter((x): x is Date => !!x)
+		.sort((a, b) => b.getTime() - a.getTime())[0],
+});
+
+const pageData = (pageEntry?.data ?? {}) as InvestmentArticlesPageData;
+const showDetailCtaSection = cmsBool(pageData.show_detail_cta_section, true);
+const pageEdit = ((pageEntry?.edit as Record<string, EditBag | undefined>) ?? {});
+const post = postEntry as ContentEntry<Post> | null;
+const byline = post?.data.bylines?.[0]?.byline?.displayName;
+
+const has = (s: string | undefined | null) => typeof s === "string" && s.trim() !== "";
+
+const sidebarAuthorLabel = has(pageData.detail_sidebar_author_label)
+	? pageData.detail_sidebar_author_label!.trim()
+	: "ทีมผู้เชี่ยวชาญ";
+const sidebarAuthorTitle = has(pageData.detail_sidebar_author_title)
+	? pageData.detail_sidebar_author_title!.trim()
+	: byline?.trim() || "FinancialAdvisorThailand";
+const sidebarAuthorSubtitle = has(pageData.detail_sidebar_author_subtitle)
+	? pageData.detail_sidebar_author_subtitle!.trim()
+	: "Wealth Advisory Team";
+
+const hasMedia = (img: unknown): img is MediaValue => {
+	if (!img || typeof img !== "object") return false;
+	const o = img as Record<string, unknown>;
+	return Boolean(o.id || o.src || (o.meta as Record<string, unknown> | undefined)?.storageKey);
+};
+
+function mediaForEmDashImage(im: MediaValue): MediaValue {
+	const isLocal = im.provider === "local" || im.provider == null;
+	if (isLocal) return { ...im, src: undefined };
+	return im;
+}
+
+const publishDate = post?.data.publishedAt
+	? post.data.publishedAt.toLocaleDateString("th-TH", {
+			day: "2-digit",
+			month: "long",
+			year: "numeric",
+		})
+	: "";
+const pageTitle = has(pageData.page_title)
+	? pageData.page_title!.trim()
+	: `${post?.data.title ?? "Investment Articles"} | FinancialAdvisorThailand`;
+
+const { siteTitle } = resolveBlogSiteIdentity(await getSiteSettings());
+
+let stitchTitle = pageTitle;
+let stitchHeadPage: ReturnType<typeof createPublicPageContext> | undefined;
+
+if (post) {
+	const defaultOg = getOgAbsoluteUrlFromImageField(post.data.featured_image, Astro.url.origin);
+	const seo = getSeoMeta(post, {
+		siteTitle,
+		siteUrl: Astro.url.origin,
+		path: `/investment-articles/${slug}`,
+		defaultOgImage: defaultOg,
+	});
+	stitchTitle = seo.title;
+	stitchHeadPage = createPublicPageContext({
+		Astro,
+		kind: "content",
+		pageType: "article",
+		title: seo.title,
+		pageTitle: seo.ogTitle,
+		description: seo.description,
+		canonical: seo.canonical,
+		image: seo.ogImage,
+		content: { collection: "posts", id: post.data.id, slug },
+		seo: { ogImage: seo.ogImage, robots: seo.robots },
+		articleMeta: {
+			publishedTime: post.data.publishedAt?.toISOString() ?? null,
+			modifiedTime: post.data.updatedAt.toISOString(),
+			author: byline ?? null,
+		},
+		siteName: siteTitle,
+		siteUrl: Astro.url.origin,
+	});
+}
+---
+
+<FadvisorStitchPage title={stitchTitle} bodyClass="bg-background text-on-surface" page={stitchHeadPage}>
+	<main class="pt-20">
+		{
+			!post && (
+				<section class="max-w-7xl mx-auto px-8 py-xxl text-center">
+					<h1 class="font-h2 text-h2 text-primary mb-sm">ไม่พบบทความที่ต้องการ</h1>
+					<a class="text-primary underline" href="/investment-articles">
+						กลับไปหน้าบทความทั้งหมด
+					</a>
+				</section>
+			)
+		}
+		{
+			post && (
+				<>
+		<section class="relative w-full h-[614px] min-h-[450px] overflow-hidden">
+			<div class="absolute inset-0 bg-slate-200">
+				{hasMedia(post.data.featured_image) ? (
+					<Image
+						class="w-full !h-full object-cover"
+						image={mediaForEmDashImage(post.data.featured_image)}
+						alt={post.data.featured_image?.alt ?? post.data.title}
+					/>
+				) : (
+					<div class="w-full h-full flex items-center justify-center text-slate-400">
+						<span class="material-symbols-outlined text-[64px]">article</span>
+					</div>
+				)}
+			</div>
+			<div class="absolute inset-0 bg-gradient-to-t from-[#0A1F44]/80 via-[#0A1F44]/20 to-transparent" />
+			<div class="absolute bottom-0 left-0 w-full p-8 md:p-xxl">
+				<div class="max-w-[1200px] mx-auto">
+				<div class="flex flex-wrap gap-sm mb-md items-center">
+					{tags[0]?.label && (
+						<span class="bg-[#D4AF37] text-[#0A1F44] px-4 py-1 rounded-full font-label-sm text-xs uppercase font-bold tracking-widest">
+							{tags[0].label}
+						</span>
+					)}
+					<PostRiskSentimentBadges risk={post.data.risk_level} sentiment={post.data.market_sentiment} />
+				</div>
+				<h1 class="text-white font-display text-display max-w-4xl mb-4 leading-tight" {...(post.edit.title ?? {})}>
+					{post.data.title}
+				</h1>
+				{post.data.excerpt && (
+					<p class="text-white/80 font-body-lg text-body-lg max-w-3xl" {...(post.edit.excerpt ?? {})}>
+						{post.data.excerpt}
+					</p>
+				)}
+				</div>
+			</div>
+		</section>
+
+		<section class="max-w-7xl mx-auto px-8 py-xxl grid grid-cols-1 lg:grid-cols-12 gap-xl">
+			<aside class="lg:col-span-3 order-2 lg:order-1">
+				<div class="sticky top-28 space-y-xl">
+					<div class="bg-white p-lg rounded-xl content-shadow premium-border-top">
+						<p class="font-label-sm text-slate-600 mb-1" {...(pageEdit.detail_sidebar_author_label ?? {})}>
+							{sidebarAuthorLabel}
+						</p>
+						<h4 class="font-h3 text-h3 text-primary mb-xs" {...(pageEdit.detail_sidebar_author_title ?? {})}>
+							{sidebarAuthorTitle}
+						</h4>
+						<p class="text-slate-500 text-sm" {...(pageEdit.detail_sidebar_author_subtitle ?? {})}>
+							{sidebarAuthorSubtitle}
+						</p>
+					</div>
+					<div class="space-y-md px-md">
+						{publishDate && (
+							<div>
+								<p class="font-label-sm text-slate-400 uppercase text-xs tracking-widest mb-1">Published At</p>
+								<p class="font-body-md text-primary">{publishDate}</p>
+							</div>
+						)}
+						{has(pageData.detail_back_label) && has(pageData.detail_back_href) && (
+							<a
+								class="inline-flex items-center gap-2 text-primary hover:text-secondary transition-colors"
+								href={pageData.detail_back_href}
+								{...(pageEdit.detail_back_label ?? {})}
+							>
+								<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+								{pageData.detail_back_label}
+							</a>
+						)}
+					</div>
+				</div>
+			</aside>
+
+			<article class="lg:col-span-9 order-1 lg:order-2">
+				<div class="bg-white p-8 md:p-xl rounded-xl content-shadow">
+					<div class="article-content fadvisor-article-prose w-full max-w-none" {...(post.edit.content ?? {})}>
+						<PortableText value={post.data.content ?? []} />
+					</div>
+					{tags.length > 0 && (
+						<div class="pt-xl border-t border-slate-100">
+							<p class="font-label-sm text-slate-400 mb-md uppercase text-xs tracking-widest">Article Tags</p>
+							<div class="flex flex-wrap gap-xs">
+								{tags.map((tag) => (
+									<span class="bg-slate-100 text-slate-600 px-4 py-1 rounded-full text-sm font-body-md">
+										#{tag.label}
+									</span>
+								))}
+							</div>
+						</div>
+					)}
+				</div>
+
+				{
+					showDetailCtaSection &&
+						(has(pageData.detail_cta_title) ||
+							has(pageData.detail_cta_description) ||
+							(has(pageData.detail_cta_button_label) && has(pageData.detail_cta_button_href))) && (
+						<div class="mt-xxl bg-[#0A1F44] rounded-xl p-xl relative overflow-hidden text-center md:text-left">
+							<div class="absolute top-0 right-0 w-64 h-64 bg-[#D4AF37] opacity-10 rounded-full -mr-32 -mt-32" />
+							<div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-xl">
+								<div>
+									{has(pageData.detail_cta_title) && (
+										<h3 class="font-h1 text-h1 text-white mb-2" {...(pageEdit.detail_cta_title ?? {})}>
+											{pageData.detail_cta_title}
+										</h3>
+									)}
+									{has(pageData.detail_cta_description) && (
+										<p class="font-body-md text-slate-300" {...(pageEdit.detail_cta_description ?? {})}>
+											{pageData.detail_cta_description}
+										</p>
+									)}
+								</div>
+								{has(pageData.detail_cta_button_label) && has(pageData.detail_cta_button_href) && (
+									<a
+										class="inline-flex items-center justify-center bg-secondary-container text-on-secondary-container px-8 py-3 rounded-lg font-bold hover:bg-secondary-fixed transition-colors text-center"
+										href={pageData.detail_cta_button_href}
+										{...(pageEdit.detail_cta_button_label ?? {})}
+									>
+										{pageData.detail_cta_button_label}
+									</a>
+								)}
+							</div>
+						</div>
+					)
+				}
+			</article>
+		</section>
+
+		{
+			relatedPostsWithCategories.length > 0 && (
+				<section class="bg-slate-50 py-xxl border-t border-slate-200">
+					<div class="max-w-7xl mx-auto px-8">
+						<SectionHeadingBar
+							eyebrow={
+								pageData.detail_related_eyebrow != null &&
+								pageData.detail_related_eyebrow.trim() !== ""
+									? pageData.detail_related_eyebrow.trim()
+									: undefined
+							}
+							title={has(pageData.detail_related_heading) ? pageData.detail_related_heading! : "บทความที่เกี่ยวข้อง"}
+							linkHref="/investment-articles"
+							linkLabel={has(pageData.detail_related_link_label) ? pageData.detail_related_link_label! : "ทั้งหมด"}
+							eyebrowAttrs={pageEdit.detail_related_eyebrow}
+							titleAttrs={pageEdit.detail_related_heading}
+							linkAttrs={pageEdit.detail_related_link_label}
+						/>
+						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+							{relatedPostsWithCategories.map(({ post: related, categories }) => {
+								const primaryTag = categories[0]?.label ?? "ไม่มีหมวดหมู่";
+								return (
+									<InvestmentArticleCard post={related} primaryCategoryLabel={primaryTag} />
+								);
+							})}
+						</div>
+					</div>
+				</section>
+			)
+		}
+				</>
+			)
+		}
+	</main>
+</FadvisorStitchPage>

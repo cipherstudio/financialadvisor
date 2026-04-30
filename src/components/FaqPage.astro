@@ -1,0 +1,24 @@
+---
+import { getEmDashEntry, getEmDashCollection } from "emdash";
+import FadvisorStitchPage from "./FadvisorStitchPage.astro";
+import FaqContent from "./FaqContent.astro";
+
+const { entry: page, cacheHint: pageHint } = await getEmDashEntry("faq_page", "main");
+
+const { entries: faqEntries, cacheHint: faqsHint } = await getEmDashCollection("faqs", {
+	status: "published",
+	orderBy: { order: "asc" },
+	limit: 200,
+});
+Astro.cache.set(pageHint);
+Astro.cache.set(faqsHint);
+
+const pageTitle = page.data.page_title?.trim() || "คำถามที่พบบ่อย | FinancialAdvisorThailand";
+---
+
+<FadvisorStitchPage
+	title={pageTitle}
+	bodyClass="bg-surface font-body-md text-on-surface antialiased"
+>
+	<FaqContent page={page} faqEntries={faqEntries} />
+</FadvisorStitchPage>

@@ -1,0 +1,135 @@
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -2926,7 +2926,7 @@
+ 		const obj = typeof item === "object" && item !== null ? item : {};
+ 		return {
+ 			...obj,
+-			_key: obj._key || `item-${i}-${Date.now()}`
++			_key: obj._key || `repeater-row-${i}`
+ 		};
+ 	});
+ }
+@@ -2957,7 +2957,7 @@
+ 	const handleAdd = () => {
+ 		if (maxItems && items.length >= maxItems) return;
+ 		const newItem = { _key: `item-${Date.now()}` };
+-		for (const sf of subFields) newItem[sf.slug] = sf.type === "boolean" ? false : sf.type === "number" || sf.type === "integer" ? null : "";
++		for (const sf of subFields) newItem[sf.slug] = sf.type === "boolean" ? false : sf.type === "number" || sf.type === "integer" || sf.type === "image" || sf.type === "file" ? null : "";
+ 		emitChange([...items, newItem]);
+ 	};
+ 	const handleRemove = (key) => {
+@@ -3173,6 +3173,17 @@
+ 				children: opt
+ 			}, opt))]
+ 		})] });
++		case "image": {
++			const imageValue = value != null && typeof value === "object" ? value : void 0;
++			return /* @__PURE__ */ jsx(ImageFieldRenderer, {
++				id: void 0,
++				label: subField.label,
++				description: void 0,
++				value: imageValue,
++				onChange,
++				required: subField.required
++			});
++		}
+ 		default: return /* @__PURE__ */ jsx(Input, {
+ 			label: subField.label,
+ 			value: typeof value === "string" ? value : "",
+@@ -8993,7 +8993,8 @@
+ 		if (!item?.id) return;
+ 		setIsLoadingPreview(true);
+ 		try {
+-			const result = await getPreviewUrl(collection, item.id);
++			const previewPath = contentUrl(collection, slug || item.id, urlPattern);
++			const result = await getPreviewUrl(collection, item.id, { pathPattern: previewPath });
+ 			if (result?.url) window.open(result.url, "_blank", "noopener,noreferrer");
+ 			else window.open(contentUrl(collection, slug || item.id, urlPattern), "_blank", "noopener,noreferrer");
+ 		} catch {
+@@ -11116,7 +11127,10 @@
+ 		max: field.validation?.max?.toString() ?? "",
+ 		pattern: field.validation?.pattern ?? "",
+ 		options: field.validation?.options?.join("\n") ?? "",
+-		subFields: field.validation?.subFields ? field.validation.subFields : [],
++		subFields: field.validation?.subFields ? field.validation.subFields.map((sfd) => ({
++			...sfd,
++			options: Array.isArray(sfd.options) ? sfd.options.join("\n") : typeof sfd.options === "string" ? sfd.options : sfd.type === "select" ? "" : sfd.options
++		})) : [],
+ 		minItems: field.validation?.minItems?.toString() ?? "",
+ 		maxItems: field.validation?.maxItems?.toString() ?? ""
+ 	};
+@@ -11376,12 +11390,14 @@
+ 			if (optionList.length > 0) validation.options = optionList;
+ 		}
+ 		if (selectedType === "repeater") {
+-			if (formState.subFields.length > 0) validation.subFields = formState.subFields.map((sf) => ({
+-				slug: sf.slug,
+-				type: sf.type,
+-				label: sf.label,
+-				required: sf.required || void 0
+-			}));
++			if (formState.subFields.length > 0) validation.subFields = formState.subFields.map((sf) => {
++				const row = { slug: sf.slug, type: sf.type, label: sf.label, required: sf.required || void 0 };
++				if (sf.type === "select" && sf.options) {
++					const subOpts = (typeof sf.options === "string" ? sf.options : String(sf.options || "")).split("\n").map((o) => o.trim()).filter(Boolean);
++					if (subOpts.length > 0) row.options = subOpts;
++				}
++				return row;
++			});
+ 			if (formState.minItems) validation.minItems = parseInt(formState.minItems, 10);
+ 			if (formState.maxItems) validation.maxItems = parseInt(formState.maxItems, 10);
+ 		}
+@@ -11684,7 +11700,8 @@
+ 												slug: "",
+ 												type: "string",
+ 												label: "",
+-												required: false
++												required: false,
++												options: ""
+ 											}]
+ 										})),
+ 										children: _t({
+@@ -11739,10 +11756,8 @@
+ 												value: sf.type,
+ 												onChange: (e) => {
+ 													const updated = [...formState.subFields];
+-													updated[i] = {
+-														...sf,
+-														type: e.target.value
+-													};
++													const t = e.target.value;
++													updated[i] = { ...sf, type: t, options: t === "select" ? (sf.options ?? "") : void 0 };
+ 													setFormState((prev) => ({
+ 														...prev,
+ 														subFields: updated
+@@ -11827,6 +11842,21 @@
+ 												id: "TMLAx2",
+ 												message: "Required"
+ 											})]
++										}),
++										sf.type === "select" && /* @__PURE__ */ jsx(InputArea, {
++											label: _t({
++												message: "Options (one per line)"
++											}),
++											value: typeof sf.options === "string" ? sf.options : "",
++											onChange: (e) => {
++												const updated2 = [...formState.subFields];
++												updated2[i] = { ...sf, options: e.target.value };
++												setFormState((prev) => ({
++													...prev,
++													subFields: updated2
++												}));
++											},
++											rows: 4
+ 										})]
+ 									}), /* @__PURE__ */ jsx(Button, {
+ 										variant: "ghost",
+@@ -27589,7 +27619,7 @@
+ 			}), /* @__PURE__ */ jsx(PortableTextEditor, {
+ 				value: content,
+ 				onChange: (value) => setContent(value),
+-				minimal: true,
++				 				minimal: false,
+ 				placeholder: "Write widget content...",
+ 				pluginBlocks
+ 			})] }),

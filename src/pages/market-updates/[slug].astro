@@ -1,0 +1,21 @@
+---
+/**
+ * Route ตาม seed urlPattern `/market-updates/{slug}` — ต้องใช้ `{slug}` ไม่ใช่ `{id}` (ลิงก์ Live ในแอดมินแทนเฉพาะ slug)
+ * param รับได้ทั้ง ULID และ slug รายการ (resolve ใน CMS)
+ */
+import MarketUpdatesPage from "../../components/MarketUpdatesPage.astro";
+import { marketUpdatesShould404 } from "../../utils/market-updates-gate.ts";
+
+const slug = Astro.params.slug;
+if (!slug) {
+	return Astro.redirect("/404");
+}
+if (slug === "latest") {
+	return Astro.redirect("/market-updates");
+}
+if (await marketUpdatesShould404(slug)) {
+	return Astro.redirect("/404");
+}
+---
+
+<MarketUpdatesPage entrySlugOrId={slug} canonicalPath={`/market-updates/${slug}`} />

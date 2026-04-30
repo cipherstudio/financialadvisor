@@ -1,0 +1,8 @@
+---
+import ServicesIndex from "../../components/ServicesIndex.astro";
+
+const raw = Astro.params.id;
+const previewServiceId = raw ? decodeURIComponent(raw) : undefined;
+---
+
+<ServicesIndex previewServiceId={previewServiceId} />

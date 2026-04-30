@@ -1,0 +1,457 @@
+---
+import { getEmDashCollection, getEmDashEntry, getEntryTerms } from "emdash";
+import type { CacheHint, ContentEntry } from "emdash";
+import type { Post } from "../../emdash-env";
+import FadvisorStitchPage from "./FadvisorStitchPage.astro";
+import InvestmentArticleCard from "./InvestmentArticleCard.astro";
+import { portableTextToPlain } from "../utils/portable-text-plain";
+import { getPaginationItems, type PaginationItem } from "../utils/pagination-items";
+import { cmsBool } from "../utils/cms-boolean";
+
+type EditBag = { [k: string]: unknown };
+interface Props {
+	currentPage?: number;
+	pageSize?: number;
+}
+type InvestmentArticlesPageData = {
+	page_title?: string;
+	hero_title?: string;
+	hero_description?: string;
+	show_category_filters?: boolean;
+	/** false = ซ่อนกล่อง CTA ด้านล่าง (ไม่ตั้งหรือ true = แสดงเมื่อมีเนื้อหา CTA) */
+	show_cta_section?: boolean;
+	cta_title?: string;
+	cta_description?: string;
+	cta_button_label?: string;
+	cta_button_href?: string;
+	empty_state_title?: string;
+	empty_state_description?: string;
+};
+
+const { currentPage = 1, pageSize = 9 } = Astro.props as Props;
+const initialKeyword = Astro.url.searchParams.get("q")?.trim() ?? "";
+
+function mergeCacheHints(...hints: CacheHint[]): CacheHint {
+	const tagSet = new Set<string>();
+	let lastModified: Date | undefined;
+	for (const h of hints) {
+		for (const t of h.tags ?? []) tagSet.add(t);
+		if (h.lastModified && (!lastModified || h.lastModified > lastModified)) {
+			lastModified = h.lastModified;
+		}
+	}
+	return { tags: tagSet.size ? [...tagSet] : undefined, lastModified };
+}
+
+const { entry: pageEntry, cacheHint: pageHint } = await getEmDashEntry("investment_articles_page", "main");
+
+const { entries: postEntries, cacheHint: postsHint } = await getEmDashCollection("posts", {
+	status: "published",
+	orderBy: { published_at: "desc" },
+	limit: 100,
+});
+
+const postTerms = await Promise.all(
+	postEntries.map(async (post) => {
+		const categories = await getEntryTerms("posts", post.data.id, "category");
+		return { post: post as ContentEntry<Post>, categories };
+	}),
+);
+
+Astro.cache.set(mergeCacheHints(pageHint, postsHint));
+
+const pageData = (pageEntry?.data ?? {}) as InvestmentArticlesPageData;
+const showCtaSection = cmsBool(pageData.show_cta_section, true);
+const pageEdit = ((pageEntry?.edit as Record<string, EditBag | undefined>) ?? {});
+const posts = postTerms;
+const totalPages = Math.max(1, Math.ceil(posts.length / pageSize));
+const safeCurrentPage = Number.isFinite(currentPage)
+	? Math.min(Math.max(1, Math.floor(currentPage)), totalPages)
+	: 1;
+
+const has = (s: string | undefined | null) => typeof s === "string" && s.trim() !== "";
+
+const categories = [
+	"all",
+	...new Set(posts.flatMap((x) => x.categories.map((t) => t.label.trim()).filter(Boolean))),
+];
+
+const showFilters = pageData.show_category_filters !== false;
+const pageTitle = has(pageData.page_title) ? pageData.page_title!.trim() : "Investment Insights | FinancialAdvisorThailand";
+const pageHref = (n: number, keyword = initialKeyword) => {
+	const base = n <= 1 ? "/investment-articles" : `/investment-articles/page/${n}`;
+	if (!keyword) return base;
+	return `${base}?q=${encodeURIComponent(keyword)}`;
+};
+
+const paginationItems: PaginationItem[] = getPaginationItems(totalPages, safeCurrentPage);
+---
+
+<FadvisorStitchPage title={pageTitle} bodyClass="bg-surface font-body-md text-on-surface">
+	<main class="pt-32 pb-xxl" data-current-page={safeCurrentPage} data-page-size={pageSize}>
+		<header class="max-w-[1200px] mx-auto px-6 mb-xxl text-center">
+			{has(pageData.hero_title) && (
+				<h1 class="font-display text-display text-primary mb-md" {...(pageEdit.hero_title ?? {})}>
+					{pageData.hero_title}
+				</h1>
+			)}
+			{has(pageData.hero_description) && (
+				<p
+					class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto"
+					{...(pageEdit.hero_description ?? {})}
+				>
+					{pageData.hero_description}
+				</p>
+			)}
+		</header>
+
+		{
+			showFilters && categories.length > 1 && (
+				<div
+					class="max-w-[1200px] mx-auto px-6 mb-lg flex flex-nowrap gap-md overflow-x-auto overscroll-x-contain pb-1 [-webkit-overflow-scrolling:touch] lg:flex-wrap lg:overflow-visible lg:justify-center lg:pb-0"
+					data-post-filters
+				>
+					{categories.map((cat, idx) => (
+						<button
+							type="button"
+							class={`shrink-0 px-6 py-2 rounded-full border-2 transition-colors font-medium ${
+								idx === 0
+									? "border-primary bg-primary text-white"
+									: "border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary"
+							}`}
+							data-filter={cat}
+							aria-pressed={idx === 0}
+						>
+							{cat === "all" ? "ทั้งหมด" : cat}
+						</button>
+					))}
+				</div>
+			)
+		}
+		<section class="max-w-[1200px] mx-auto px-6 mb-lg">
+			<div class="relative max-w-xl mx-auto">
+				<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant" aria-hidden="true"
+					>search</span
+				>
+				<input
+					id="investment-search-input"
+					name="q"
+					type="search"
+					autocomplete="off"
+					enterkeyhint="search"
+					placeholder="ค้นหาบทความจากชื่อหรือคำอธิบาย"
+					value={initialKeyword}
+					class="w-full pl-12 pr-4 py-3 rounded-xl border border-outline-variant bg-white text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary-container"
+				/>
+			</div>
+		</section>
+
+		<section class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg" data-post-grid>
+			{
+				posts.map(({ post, categories }, idx) => {
+					const primaryTag = categories[0]?.label ?? "ไม่มีหมวดหมู่";
+					const categoryBlob =
+						categories.map((t) => t.label.trim()).filter(Boolean).join("|") || primaryTag;
+					const searchBlob = [
+						post.data.title ?? "",
+						post.data.excerpt ?? "",
+						portableTextToPlain(post.data.content),
+					]
+						.join(" ")
+						.toLowerCase()
+						.normalize("NFKC");
+					const itemPage = Math.floor(idx / pageSize) + 1;
+					const hiddenByPage = itemPage !== safeCurrentPage;
+					return (
+						<InvestmentArticleCard
+							post={post}
+							primaryCategoryLabel={primaryTag}
+							class={hiddenByPage ? "hidden" : undefined}
+							dataCategories={categoryBlob}
+							dataSearchBlob={searchBlob}
+							dataPage={itemPage}
+						/>
+					);
+				})
+			}
+		</section>
+		<p
+			id="investment-no-results"
+			class="hidden max-w-[1200px] mx-auto px-6 mt-lg text-center text-on-surface-variant"
+			role="status"
+		>
+			ไม่พบบทความที่ตรงกับคำค้นหา
+		</p>
+
+		{
+			posts.length === 0 && (
+				<section class="max-w-[1200px] mx-auto px-6 text-center">
+					<h2 class="font-h2 text-h2 text-primary mb-sm" {...(pageEdit.empty_state_title ?? {})}>
+						{has(pageData.empty_state_title) ? pageData.empty_state_title : "ยังไม่มีบทความ"}
+					</h2>
+					<p class="text-on-surface-variant" {...(pageEdit.empty_state_description ?? {})}>
+						{has(pageData.empty_state_description)
+							? pageData.empty_state_description
+							: "เพิ่มรายการใน content type Posts เพื่อแสดงบนหน้านี้"}
+					</p>
+				</section>
+			)
+		}
+		{
+			totalPages > 1 && (
+				<section id="investment-pagination-section" class="max-w-[1200px] mx-auto px-6 mt-xl">
+					<nav aria-label="Pagination" class="flex items-center justify-center gap-2 flex-wrap">
+						<a
+							href={safeCurrentPage > 1 ? pageHref(safeCurrentPage - 1) : undefined}
+							data-page-prev
+							data-page-target={safeCurrentPage - 1}
+							class={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors active:scale-[0.98] ${
+								safeCurrentPage > 1
+									? "border-outline-variant text-on-surface-variant hover:bg-primary-container hover:text-white"
+									: "border-outline-variant/50 text-outline cursor-not-allowed pointer-events-none"
+							}`}
+							aria-disabled={safeCurrentPage <= 1}
+						>
+							ก่อนหน้า
+						</a>
+						<div id="investment-page-digits" class="flex items-center justify-center gap-2 flex-wrap">
+							{paginationItems.map((item) => {
+								if (item.kind === "ellipsis") {
+									return (
+										<span
+											class="min-w-10 h-10 inline-flex items-center justify-center px-1 text-on-surface-variant select-none"
+											aria-hidden="true"
+											data-page-ellipsis
+										>
+											…
+										</span>
+									);
+								}
+								return (
+									<a
+										href={pageHref(item.n)}
+										data-page-link
+										data-page-num={item.n}
+										aria-current={item.n === safeCurrentPage ? "page" : undefined}
+										class={`min-w-10 h-10 inline-flex items-center justify-center px-3 rounded-lg border font-medium transition-colors active:scale-[0.98] hover:bg-primary-container hover:text-white ${
+											item.n === safeCurrentPage
+												? "bg-primary text-on-primary border-primary"
+												: "border-outline-variant text-on-surface-variant"
+										}`}
+									>
+										{item.n}
+									</a>
+								);
+							})}
+						</div>
+						<a
+							href={safeCurrentPage < totalPages ? pageHref(safeCurrentPage + 1) : undefined}
+							data-page-next
+							data-page-target={safeCurrentPage + 1}
+							class={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors active:scale-[0.98] ${
+								safeCurrentPage < totalPages
+									? "border-outline-variant text-on-surface-variant hover:bg-primary-container hover:text-white"
+									: "border-outline-variant/50 text-outline cursor-not-allowed pointer-events-none"
+							}`}
+							aria-disabled={safeCurrentPage >= totalPages}
+						>
+							ถัดไป
+						</a>
+					</nav>
+				</section>
+			)
+		}
+
+		{
+			showCtaSection &&
+				(has(pageData.cta_title) ||
+					has(pageData.cta_description) ||
+					(has(pageData.cta_button_label) && has(pageData.cta_button_href))) && (
+				<section class="max-w-[1200px] mx-auto px-6 mt-xxl">
+					<div class="bg-primary-container rounded-xl p-xl text-center shadow-lg relative overflow-hidden">
+						<div class="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full -mr-32 -mt-32" />
+						{has(pageData.cta_title) && (
+							<h2 class="font-h1 text-h1 text-white mb-md relative z-10" {...(pageEdit.cta_title ?? {})}>
+								{pageData.cta_title}
+							</h2>
+						)}
+						{has(pageData.cta_description) && (
+							<p
+								class="font-body-lg text-body-lg text-on-primary-container mb-lg max-w-xl mx-auto relative z-10"
+								{...(pageEdit.cta_description ?? {})}
+							>
+								{pageData.cta_description}
+							</p>
+						)}
+						{has(pageData.cta_button_label) && has(pageData.cta_button_href) && (
+							<a
+								class="inline-flex items-center justify-center gap-sm bg-secondary-container text-on-secondary-container px-8 py-3 rounded-lg font-bold hover:bg-secondary-fixed transition-colors text-center active:scale-95 relative z-10"
+								href={pageData.cta_button_href}
+								{...(pageEdit.cta_button_label ?? {})}
+							>
+								<span class="material-symbols-outlined">mail</span>
+								{pageData.cta_button_label}
+							</a>
+						)}
+					</div>
+				</section>
+			)
+		}
+	</main>
+</FadvisorStitchPage>
+
+<script>
+	import { getPaginationItems } from "../utils/pagination-items";
+
+	const root = document.querySelector("[data-post-filters]");
+	const buttons = root ? [...root.querySelectorAll("button[data-filter]")] : [];
+	const cards = [...document.querySelectorAll("[data-post-grid] article[data-categories]")];
+	const searchInput = document.getElementById("investment-search-input");
+	const noResults = document.getElementById("investment-no-results");
+	const pagerSection = document.getElementById("investment-pagination-section");
+	const digitContainer = document.getElementById("investment-page-digits");
+	const prevLink = document.querySelector("a[data-page-prev]");
+	const nextLink = document.querySelector("a[data-page-next]");
+	const currentPage = Number.parseInt(
+		String(document.querySelector("main[data-current-page]")?.getAttribute("data-current-page") || "1"),
+		10,
+	);
+	const pageSize = Number.parseInt(
+		String(document.querySelector("main[data-page-size]")?.getAttribute("data-page-size") || "9"),
+		10,
+	);
+	/** Mutable page index for client-side filter/search; synced to URL in apply(). */
+	let activePageNum = Number.isFinite(currentPage) ? Math.max(1, currentPage) : 1;
+	let active = "all";
+	let keyword =
+		searchInput && "value" in searchInput
+			? String(searchInput.value).toLowerCase().normalize("NFKC").trim()
+			: "";
+
+	const digitLinkActive =
+		"min-w-10 h-10 inline-flex items-center justify-center px-3 rounded-lg border font-medium transition-colors active:scale-[0.98] hover:bg-primary-container hover:text-white bg-primary text-on-primary border-primary";
+	const digitLinkDefault =
+		"min-w-10 h-10 inline-flex items-center justify-center px-3 rounded-lg border font-medium transition-colors active:scale-[0.98] hover:bg-primary-container hover:text-white border-outline-variant text-on-surface-variant";
+	const digitEllipsis = "min-w-10 h-10 inline-flex items-center justify-center px-1 text-on-surface-variant select-none";
+
+	function syncListingUrl(activePage: number, searchSuffix: string) {
+		const base = activePage <= 1 ? "/investment-articles" : `/investment-articles/page/${activePage}`;
+		const pathAndSearch = `${base}${searchSuffix}`;
+		if (window.location.pathname + window.location.search !== pathAndSearch) {
+			history.replaceState(null, "", pathAndSearch);
+		}
+	}
+
+	function renderPageDigits(matchedPages: number, activePage: number, searchSuffix: string) {
+		if (!digitContainer) return;
+		if (matchedPages < 1) {
+			digitContainer.replaceChildren();
+			return;
+		}
+		const c = Math.min(Math.max(1, activePage), matchedPages);
+		const items = getPaginationItems(matchedPages, c);
+		digitContainer.replaceChildren();
+		for (const item of items) {
+			if (item.kind === "ellipsis") {
+				const span = document.createElement("span");
+				span.className = digitEllipsis;
+				span.setAttribute("aria-hidden", "true");
+				span.setAttribute("data-page-ellipsis", item.key);
+				span.textContent = "…";
+				digitContainer.appendChild(span);
+			} else {
+				const a = document.createElement("a");
+				a.setAttribute("data-page-link", "");
+				a.setAttribute("data-page-num", String(item.n));
+				const base = item.n <= 1 ? "/investment-articles" : `/investment-articles/page/${item.n}`;
+				a.setAttribute("href", `${base}${searchSuffix}`);
+				a.className = item.n === c ? digitLinkActive : digitLinkDefault;
+				if (item.n === c) a.setAttribute("aria-current", "page");
+				a.textContent = String(item.n);
+				digitContainer.appendChild(a);
+			}
+		}
+	}
+
+	function apply() {
+		const matched: HTMLElement[] = [];
+		cards.forEach((card) => {
+			const cats = String(card.getAttribute("data-categories") || "").split("|");
+			const blob = String(card.getAttribute("data-search-blob") || "").toLowerCase().normalize("NFKC");
+			const categoryPass = active === "all" || cats.includes(active);
+			const searchPass = !keyword || blob.includes(keyword);
+			if (categoryPass && searchPass) matched.push(card as HTMLElement);
+		});
+
+		const totalMatched = matched.length;
+		const matchedPages = Math.max(1, Math.ceil(totalMatched / pageSize));
+		activePageNum = Math.min(Math.max(1, activePageNum), matchedPages);
+		const activePage = activePageNum;
+		const start = (activePage - 1) * pageSize;
+		const end = start + pageSize;
+		const visibleSet = new Set(matched.slice(start, end));
+
+		cards.forEach((card) => {
+			card.classList.toggle("hidden", !visibleSet.has(card as HTMLElement));
+		});
+
+		if (noResults) {
+			noResults.classList.toggle("hidden", totalMatched > 0);
+		}
+		if (pagerSection) {
+			pagerSection.classList.toggle("hidden", totalMatched <= pageSize);
+		}
+
+		const searchSuffix = keyword ? `?q=${encodeURIComponent(keyword)}` : "";
+		syncListingUrl(activePage, searchSuffix);
+		renderPageDigits(matchedPages, activePage, searchSuffix);
+
+		if (prevLink) {
+			const disabled = activePage <= 1;
+			const prevPage = Math.max(1, activePage - 1);
+			const base = prevPage <= 1 ? "/investment-articles" : `/investment-articles/page/${prevPage}`;
+			prevLink.setAttribute("href", `${base}${searchSuffix}`);
+			prevLink.classList.toggle("pointer-events-none", disabled);
+			prevLink.classList.toggle("cursor-not-allowed", disabled);
+			prevLink.setAttribute("aria-disabled", disabled ? "true" : "false");
+		}
+		if (nextLink) {
+			const disabled = activePage >= matchedPages;
+			const nextPage = Math.min(matchedPages, activePage + 1);
+			const base = nextPage <= 1 ? "/investment-articles" : `/investment-articles/page/${nextPage}`;
+			nextLink.setAttribute("href", `${base}${searchSuffix}`);
+			nextLink.classList.toggle("pointer-events-none", disabled);
+			nextLink.classList.toggle("cursor-not-allowed", disabled);
+			nextLink.setAttribute("aria-disabled", disabled ? "true" : "false");
+		}
+	}
+
+	buttons.forEach((button) => {
+		button.addEventListener("click", () => {
+			active = String(button.getAttribute("data-filter") || "all");
+			buttons.forEach((b) => {
+				const pressed = b === button;
+				b.setAttribute("aria-pressed", pressed ? "true" : "false");
+				b.classList.toggle("border-primary", pressed);
+				b.classList.toggle("bg-primary", pressed);
+				b.classList.toggle("text-white", pressed);
+				b.classList.toggle("hover:text-white", pressed);
+				b.classList.toggle("border-outline-variant", !pressed);
+				b.classList.toggle("text-on-surface-variant", !pressed);
+				b.classList.toggle("hover:border-primary", !pressed);
+				b.classList.toggle("hover:text-primary", !pressed);
+			});
+			apply();
+		});
+	});
+
+	if (searchInput) {
+		searchInput.addEventListener("input", (event) => {
+			const target = event.target;
+			keyword = target && "value" in target ? String(target.value).toLowerCase().normalize("NFKC").trim() : "";
+			apply();
+		});
+	}
+
+	apply();
+</script>

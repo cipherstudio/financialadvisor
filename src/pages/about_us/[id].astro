@@ -1,0 +1,9 @@
+---
+import AboutUsPage from "../../components/AboutUsPage.astro";
+
+/** Route สำหรับ EmDash default preview: `/{collection}/{id}` = `/about_us/<slug-or-ulid>`. หน้า `/about-us` ยังคง route สาธารณะหลัก. */
+const raw = Astro.params.id;
+const entryId = raw ? decodeURIComponent(raw) : "main";
+---
+
+<AboutUsPage entryId={entryId} />

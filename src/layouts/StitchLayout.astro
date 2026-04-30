@@ -1,0 +1,161 @@
+---
+import "../styles/fadvisor-stitch-extra.css";
+/** Article rich text — loaded globally so it wins Tailwind CDN cascade after bundle order */
+import "../styles/fadvisor-article-prose.css";
+import { createPublicPageContext } from "emdash/page";
+import { EmDashHead } from "emdash/ui";
+
+type EmDashPublicPageContext = ReturnType<typeof createPublicPageContext>;
+
+interface Props {
+	title: string;
+	/** Class string copied from the Stitch <body> for each design page */
+	bodyClass?: string;
+	/** When set, renders EmDash meta (OG, Twitter, canonical, JSON-LD, etc.) */
+	page?: EmDashPublicPageContext;
+}
+
+const { title, bodyClass = "bg-surface text-on-surface", page } = Astro.props;
+---
+
+<!doctype html>
+<html class="light" lang="th">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
+		/>
+		<script is:inline src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+		<script is:inline src="/tw-fadvisorth-config.js"></script>
+		<title>{title}</title>
+		{page && <EmDashHead page={page} />}
+		<style is:global>
+			.material-symbols-outlined {
+				font-variation-settings:
+					"FILL" 0,
+					"wght" 400,
+					"GRAD" 0,
+					"opsz" 24;
+			}
+			body.stitch-fadvisor-body {
+				font-family: "IBM Plex Sans Thai", sans-serif;
+				line-height: 1.5;
+			}
+			body.stitch-fadvisor-body *:not(.material-symbols-outlined) {
+				line-height: 1.5;
+			}
+			.glass-card {
+				background: rgba(255, 255, 255, 0.7);
+				backdrop-filter: blur(12px);
+				border: 1px solid rgba(255, 255, 255, 0.3);
+			}
+			.hero-gradient {
+				background:
+					radial-gradient(circle at top right, #d9e2ff, transparent),
+					radial-gradient(circle at bottom left, #ffe088, transparent),
+					#f8f9fa;
+			}
+
+			/* Floating back-to-top — ยึดกับมุมขวาล่างของหน้าจอ (viewport) ไม่ต่อท้าย document หลัง footer */
+			.stitch-fadvisor-body .stitch-back-to-top {
+				margin: 0;
+				width: max-content;
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				position: fixed !important;
+				top: auto !important;
+				left: auto !important;
+				right: max(1rem, calc(env(safe-area-inset-right, 0px) + 0.25rem)) !important;
+				bottom: max(1.25rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem)) !important;
+				z-index: 10000 !important;
+				padding: 0.5rem 0.75rem;
+				border: 1px solid rgba(10, 31, 68, 0.12);
+				border-radius: 9999px;
+				background: rgba(255, 255, 255, 0.92);
+				color: #101828;
+				box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+				backdrop-filter: blur(8px);
+				-webkit-backdrop-filter: blur(8px);
+				font-size: 0.875rem;
+				font-weight: 500;
+				line-height: 1.5;
+				cursor: pointer;
+				opacity: 0;
+				visibility: hidden;
+				pointer-events: none;
+				transform: translateY(8px);
+				transition:
+					opacity 0.12s ease,
+					transform 0.12s ease,
+					visibility 0.12s ease;
+			}
+
+			.stitch-fadvisor-body .stitch-back-to-top--visible {
+				opacity: 1;
+				visibility: visible;
+				pointer-events: auto;
+				transform: translateY(0);
+			}
+
+			.stitch-fadvisor-body .stitch-back-to-top:hover {
+				border-color: #2563eb;
+				color: #2563eb;
+			}
+
+			.stitch-fadvisor-body .stitch-back-to-top:focus-visible {
+				outline: none;
+				box-shadow: 0 0 0 3px color-mix(in srgb, #2563eb 30%, transparent);
+			}
+
+			/* เผื่อแถบ/โอเวอร์เลย์ล่างจอ (รวมถึง dev UI) ไม่ดันปุ่มไปนอกกรอบ */
+			@media (max-width: 640px) {
+				.stitch-fadvisor-body .stitch-back-to-top {
+					right: 1rem !important;
+					bottom: max(5.5rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem)) !important;
+				}
+			}
+		</style>
+	</head>
+	<body class:list={["stitch-fadvisor-body", bodyClass]}>
+		<slot />
+		<button type="button" class="stitch-back-to-top" aria-label="กลับขึ้นด้านบน">
+			<svg
+				width="16"
+				height="16"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				aria-hidden="true"
+			>
+				<polyline points="18 15 12 9 6 15"></polyline>
+			</svg>
+			<span>Top</span>
+		</button>
+		<script is:inline>
+			(function () {
+				var btn = document.querySelector(".stitch-back-to-top");
+				if (!btn) return;
+				var showAfter = 120;
+				function upd() {
+					if (window.scrollY > showAfter) btn.classList.add("stitch-back-to-top--visible");
+					else btn.classList.remove("stitch-back-to-top--visible");
+				}
+				upd();
+				window.addEventListener("scroll", upd, { passive: true });
+				btn.addEventListener("click", function () {
+					window.scrollTo({ top: 0, behavior: "smooth" });
+				});
+			})();
+		</script>
+	</body>
+</html>

@@ -1,0 +1,4 @@
+---
+/** EmDash preview: `/advisors/{slug-or-id}?_preview=…` — ยังไม่มีหน้าโปรไฟล์เดี่ยว ส่งต่อ `/our-advisors` (รายการ + โทเคน preview) */
+return Astro.redirect(`/our-advisors${Astro.url.search || ""}`);
+---

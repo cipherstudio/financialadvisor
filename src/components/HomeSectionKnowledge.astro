@@ -1,0 +1,92 @@
+---
+import { getEntryTerms } from "emdash";
+import type { ContentEntry } from "emdash";
+import type { Home, Post } from "../../emdash-env";
+import SectionHeadingBar from "./SectionHeadingBar.astro";
+import InvestmentArticleCard from "./InvestmentArticleCard.astro";
+
+interface Props {
+	page: { data: Home };
+	/** Pre-fetched so index can merge cache hints once */
+	latestPostEntries: ContentEntry<Post>[];
+}
+
+const { page, latestPostEntries } = Astro.props;
+const d = page.data;
+
+const has = (s: string | undefined | null) => typeof s === "string" && s.trim() !== "";
+
+const sectionOn = (b: unknown, defaultValue = true): boolean => {
+	if (b === true || b === 1) return true;
+	if (b === false || b === 0) return false;
+	if (b == null) return defaultValue;
+	if (typeof b === "string") {
+		const t = b.trim().toLowerCase();
+		if (t === "0" || t === "false") return false;
+		if (t === "1" || t === "true") return true;
+	}
+	return defaultValue;
+};
+
+const postRows = await Promise.all(
+	latestPostEntries.map(async (post) => {
+		const categories = await getEntryTerms("posts", post.data.id, "category");
+		const primaryTag = categories[0]?.label?.trim() ?? "ไม่มีหมวดหมู่";
+		return { post, primaryTag };
+	}),
+);
+
+const sectionEnabled = sectionOn(d.knowledge_section_show, true);
+
+const hasHeaderContent =
+	has(d.knowledge_section_title) ||
+	has(d.knowledge_section_description) ||
+	has(d.knowledge_section_link_label) ||
+	has(d.knowledge_section_link_href);
+
+const showSection = sectionEnabled && (postRows.length > 0 || hasHeaderContent);
+
+const sectionTitle = has(d.knowledge_section_title)
+	? d.knowledge_section_title!.trim()
+	: showSection
+		? "คลังความรู้การเงิน"
+		: "";
+
+const explicitLinkHref = has(d.knowledge_section_link_href) ? d.knowledge_section_link_href!.trim() : "";
+const linkHref =
+	explicitLinkHref !== ""
+		? explicitLinkHref
+		: showSection
+			? "/investment-articles"
+			: undefined;
+
+const linkLabel = has(d.knowledge_section_link_label)
+	? d.knowledge_section_link_label!.trim()
+	: "อ่านบทความทั้งหมด";
+---
+
+{
+	showSection && (
+		<section class="py-xxl bg-white">
+			<div class="max-w-7xl mx-auto px-8">
+				<SectionHeadingBar
+					title={sectionTitle}
+					description={has(d.knowledge_section_description) ? d.knowledge_section_description!.trim() : undefined}
+					linkHref={linkHref}
+					linkLabel={linkLabel}
+				/>
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+					{postRows.length === 0 ? (
+						<p class="text-on-surface-variant col-span-full text-center font-body-md">
+							ยังไม่มีบทความเผยแพร่ — เพิ่มรายการในคอลเลกชัน Posts
+						</p>
+					) : (
+						postRows.map(({ post, primaryTag }) => (
+							<InvestmentArticleCard post={post} primaryCategoryLabel={primaryTag} />
+						))
+					)}
+				</div>
+			</div>
+		</section>
+	)
+}

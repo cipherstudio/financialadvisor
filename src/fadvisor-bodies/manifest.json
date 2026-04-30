@@ -1,0 +1,72 @@
+[
+  {
+    "slug": "home",
+    "route": "/",
+    "title": "FinancialAdvisorThailand",
+    "bodyClass": "bg-surface text-on-surface antialiased",
+    "fragment": "fadvisor-bodies/home-rest.html"
+  },
+  {
+    "slug": "about-us",
+    "route": "/about-us",
+    "title": "เกี่ยวกับเรา | FinancialAdvisorThailand",
+    "bodyClass": "bg-surface text-on-surface",
+    "fragment": "fadvisor-bodies/about-us.html"
+  },
+  {
+    "slug": "services",
+    "route": "/services",
+    "title": "บริการของเรา | FinancialAdvisorThailand",
+    "bodyClass": "bg-background text-on-background",
+    "fragment": "fadvisor-bodies/services.html"
+  },
+  {
+    "slug": "investment-articles",
+    "route": "/investment-articles",
+    "title": "Investment Insights | FinancialAdvisorThailand",
+    "bodyClass": "bg-surface font-body-md text-on-surface",
+    "fragment": "fadvisor-bodies/investment-articles.html"
+  },
+  {
+    "slug": "investment-articles-detail",
+    "route": "/investment-articles/detail",
+    "title": "FinancialAdvisorThailand",
+    "bodyClass": "text-on-surface",
+    "fragment": "fadvisor-bodies/investment-articles-detail.html"
+  },
+  {
+    "slug": "market-updates",
+    "route": "/market-updates",
+    "title": "FinancialAdvisorThailand",
+    "bodyClass": "bg-background text-on-background",
+    "fragment": "fadvisor-bodies/market-updates.html"
+  },
+  {
+    "slug": "testimonials",
+    "route": "/testimonials",
+    "title": "FinancialAdvisorThailand",
+    "bodyClass": "bg-surface font-body-md text-on-surface",
+    "fragment": "fadvisor-bodies/testimonials.html"
+  },
+  {
+    "slug": "faq",
+    "route": "/faq",
+    "title": "คำถามที่พบบ่อย | FinancialAdvisorThailand",
+    "bodyClass": "bg-surface font-body-md text-on-surface antialiased",
+    "fragment": "fadvisor-bodies/faq.html"
+  },
+  {
+    "slug": "contact",
+    "route": "/contact",
+    "title": "ติดต่อเรา | FinancialAdvisorThailand",
+    "bodyClass": "bg-surface text-on-surface antialiased",
+    "fragment": "fadvisor-bodies/contact.html"
+  },
+  {
+    "slug": "book-consultation",
+    "route": "/book-consultation",
+    "title": "FinancialAdvisorThailand",
+    "bodyClass": "bg-surface text-on-background antialiased",
+    "fragment": "fadvisor-bodies/book-consultation.html"
+  }
+]

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+
+<html lang="th"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>บริการของเรา | FinancialAdvisorThailand</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#c5c6cf",
+                    "on-error-container": "#93000a",
+                    "inverse-on-surface": "#f0f1f2",
+                    "on-error": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#001a41",
+                    "on-surface": "#191c1d",
+                    "inverse-primary": "#b4c6f4",
+                    "surface-container-low": "#f3f4f5",
+                    "on-secondary-container": "#745c00",
+                    "secondary-fixed-dim": "#e9c349",
+                    "primary-fixed": "#d9e2ff",
+                    "tertiary-fixed": "#d8e2ff",
+                    "surface-container-highest": "#e1e3e4",
+                    "on-secondary-fixed": "#241a00",
+                    "inverse-surface": "#2e3132",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#041a3f",
+                    "on-primary-container": "#7687b2",
+                    "surface-tint": "#4c5e86",
+                    "surface-dim": "#d9dadb",
+                    "surface": "#f8f9fa",
+                    "secondary-fixed": "#ffe088",
+                    "primary-container": "#0a1f44",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#6b88c1",
+                    "error-container": "#ffdad6",
+                    "secondary-container": "#fed65b",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#44464e",
+                    "surface-container-high": "#e7e8e9",
+                    "on-primary-fixed-variant": "#34466d",
+                    "on-secondary-fixed-variant": "#574500",
+                    "tertiary-container": "#001f4a",
+                    "surface-bright": "#f8f9fa",
+                    "tertiary-fixed-dim": "#acc7ff",
+                    "primary": "#00081e",
+                    "on-background": "#191c1d",
+                    "surface-variant": "#e1e3e4",
+                    "primary-fixed-dim": "#b4c6f4",
+                    "background": "#f8f9fa",
+                    "secondary": "#735c00",
+                    "surface-container": "#edeeef",
+                    "on-primary": "#ffffff",
+                    "outline": "#75777f",
+                    "tertiary": "#00081d",
+                    "on-tertiary-fixed-variant": "#28467b"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "40px",
+                    "container-max": "1200px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "unit": "8px",
+                    "gutter": "24px",
+                    "md": "16px",
+                    "xxl": "64px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "body-md": ["IBM Plex Sans Thai"],
+                    "body-lg": ["IBM Plex Sans Thai"],
+                    "h1": ["IBM Plex Sans Thai"],
+                    "h2": ["IBM Plex Sans Thai"],
+                    "display": ["IBM Plex Sans Thai"],
+                    "label-sm": ["IBM Plex Sans Thai"],
+                    "h3": ["IBM Plex Sans Thai"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h1": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "h2": ["24px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "display": ["48px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "label-sm": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "500"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)]">
+<div class="flex items-center justify-between max-w-7xl mx-auto px-8 h-20">
+<div class="text-xl font-bold tracking-tight text-blue-950 uppercase" style="">
+                FinancialAdvisorThailand
+            </div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-slate-600 font-medium hover:text-amber-600 transition-all duration-300" href="#" style="">Home</a>
+<a class="text-blue-950 border-b-2 border-amber-500 pb-1 font-semibold hover:text-amber-600 transition-all duration-300" href="#" style="">Services</a>
+<a class="text-slate-600 font-medium hover:text-amber-600 transition-all duration-300" href="#" style="">Advisors</a>
+<a class="text-slate-600 font-medium hover:text-amber-600 transition-all duration-300" href="#" style="">Insights</a>
+<a class="text-slate-600 font-medium hover:text-amber-600 transition-all duration-300" href="#" style="">Contact</a>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-medium active:scale-95 transition-transform" style="">
+                Book Consultation
+            </button>
+</div>
+</nav>
+<main class="pt-32 pb-xxl px-lg max-w-7xl mx-auto">
+<!-- Hero Section -->
+<header class="mb-xxl text-center max-w-3xl mx-auto">
+<span class="text-secondary font-semibold tracking-wider text-label-sm uppercase mb-sm block" style="">Our Expertise</span>
+<h1 class="font-display text-display text-primary mb-md" style="">บริการวางแผนการเงินระดับสถาบัน</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant" style="">เราพร้อมดูแลความมั่งคั่งและสร้างความมั่นคงให้คุณและครอบครัว ด้วยกลยุทธ์ที่ออกแบบมาเพื่อเป้าหมายเฉพาะตัวของลูกค้ากลุ่ม High Net Worth</p>
+</header>
+<!-- Services Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Service 1: วางแผนเกษียณ -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] flex flex-col group hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all duration-300 border-t-4 border-t-secondary-container">
+<div class="p-lg flex-grow">
+<div class="flex items-center justify-between mb-md">
+<div class="w-12 h-12 bg-secondary-fixed/20 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="payments" style="">payments</span>
+</div>
+<span class="text-label-sm font-semibold text-secondary px-3 py-1 bg-secondary-fixed/10 rounded-full" style="">Recommended</span>
+</div>
+<h3 class="font-h3 text-h3 text-primary mb-sm" style="">วางแผนเกษียณ</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg" style="">ออกแบบเส้นทางสู่ชีวิตหลังเกษียณอย่างมีคุณภาพและอิสระทางการเงินอย่างแท้จริง</p>
+<div class="space-y-sm mb-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary-container text-body-md" data-icon="sell" style="">sell</span>
+<span class="font-label-sm text-label-sm" style="">เริ่มต้น 10,000 บาท/เดือน</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary-container text-body-md" data-icon="schedule" style="">schedule</span>
+<span class="font-label-sm text-label-sm" style="">แผน 10 ปี, 15 ปี, 20 ปี</span>
+</div>
+</div>
+<ul class="space-y-xs mb-lg">
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">คำนวณเงินเฟ้อและค่าใช้จ่ายหลังเกษียณ</span>
+</li>
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">จัดพอร์ตลงทุนแบบกระจายความเสี่ยง</span>
+</li>
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">รองรับการเบิกถอนเงินรายเดือนสม่ำเสมอ</span>
+</li>
+</ul>
+</div>
+<div class="p-lg pt-0">
+<a class="block w-full text-center bg-primary text-on-primary py-3 rounded-lg font-medium hover:bg-primary-container transition-colors active:scale-[0.98] transform" href="#" style="">นัดหมายที่ปรึกษา</a>
+</div>
+</div>
+<!-- Service 2: บริหารความมั่งคั่ง -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] flex flex-col group hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all duration-300">
+<div class="p-lg flex-grow">
+<div class="flex items-center justify-between mb-md">
+<div class="w-12 h-12 bg-on-tertiary-container/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-tertiary-container text-2xl" data-icon="account_balance" style="">account_balance</span>
+</div>
+</div>
+<h3 class="font-h3 text-h3 text-primary mb-sm" style="">บริหารความมั่งคั่ง</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg" style="">ยกระดับสินทรัพย์ของคุณด้วยกลยุทธ์การลงทุนระดับสากลที่เน้นการเติบโตอย่างยั่งยืน</p>
+<div class="space-y-sm mb-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary-container text-body-md" data-icon="sell" style="">sell</span>
+<span class="font-label-sm text-label-sm" style="">สินทรัพย์ขั้นต่ำ 50 ล้านบาท</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary-container text-body-md" data-icon="schedule" style="">schedule</span>
+<span class="font-label-sm text-label-sm" style="">ระยะยาว (มากกว่า 5 ปี)</span>
+</div>
+</div>
+<ul class="space-y-xs mb-lg">
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">สิทธิเข้าถึงกองทุน Private Equity ทั่วโลก</span>
+</li>
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">ที่ปรึกษาส่วนตัวคอยดูแลพอร์ตเชิงรุก</span>
+</li>
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">รายงานสรุปผลประกอบการรายไตรมาส</span>
+</li>
+</ul>
+</div>
+<div class="p-lg pt-0">
+<a class="block w-full text-center bg-primary text-on-primary py-3 rounded-lg font-medium hover:bg-primary-container transition-colors active:scale-[0.98] transform" href="#" style="">นัดหมายที่ปรึกษา</a>
+</div>
+</div>
+<!-- Service 3: ประกันควบการลงทุน -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] flex flex-col group hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all duration-300">
+<div class="p-lg flex-grow">
+<div class="flex items-center justify-between mb-md">
+<div class="w-12 h-12 bg-on-primary-container/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-2xl" data-icon="monitoring" style="">monitoring</span>
+</div>
+</div>
+<h3 class="font-h3 text-h3 text-primary mb-sm" style="">ประกันควบการลงทุน</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg" style="">แผนการเงินที่รวมการลงทุนและคุ้มครองชีวิตเข้าด้วยกันเพื่อความคล่องตัวสูงสุด</p>
+<div class="space-y-sm mb-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary-container text-body-md" data-icon="sell" style="">sell</span>
+<span class="font-label-sm text-label-sm" style="">เริ่มต้น 5,000 บาท/เดือน</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary-container text-body-md" data-icon="schedule" style="">schedule</span>
+<span class="font-label-sm text-label-sm" style="">แผน 5 ปี, 10 ปี, 20 ปี</span>
+</div>
+</div>
+<ul class="space-y-xs mb-lg">
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">ลงทุน 5 ปี คุ้มครองยาวถึง 20 ปี</span>
+</li>
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">โอกาสรับผลตอบแทนสูงกว่าเงินฝากทั่วไป</span>
+</li>
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">ยืดหยุ่นในการปรับเปลี่ยนสัดส่วนการลงทุน</span>
+</li>
+</ul>
+</div>
+<div class="p-lg pt-0">
+<a class="block w-full text-center bg-primary text-on-primary py-3 rounded-lg font-medium hover:bg-primary-container transition-colors active:scale-[0.98] transform" href="#" style="">นัดหมายที่ปรึกษา</a>
+</div>
+</div>
+<!-- Service 4: วางแผนภาษี -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] flex flex-col group hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all duration-300">
+<div class="p-lg flex-grow">
+<div class="flex items-center justify-between mb-md">
+<div class="w-12 h-12 bg-on-secondary-fixed-variant/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="receipt_long" style="">receipt_long</span>
+</div>
+</div>
+<h3 class="font-h3 text-h3 text-primary mb-sm" style="">วางแผนภาษี</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg" style="">จัดการภาระภาษีอย่างถูกกฎหมายและเพิ่มประสิทธิภาพในการออมผ่านสิทธิประโยชน์ต่างๆ</p>
+<div class="space-y-sm mb-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary-container text-body-md" data-icon="sell" style="">sell</span>
+<span class="font-label-sm text-label-sm" style="">ค่าธรรมเนียมตามความซับซ้อน</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary-container text-body-md" data-icon="schedule" style="">schedule</span>
+<span class="font-label-sm text-label-sm" style="">รายปี (Annual Review)</span>
+</div>
+</div>
+<ul class="space-y-xs mb-lg">
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">วิเคราะห์รายได้และสิทธิลดหย่อนครบถ้วน</span>
+</li>
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">แนะนำกองทุนลดหย่อนภาษี (SSF/RMF/ThaiESG)</span>
+</li>
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">วางแผนโครงสร้างรายได้สำหรับนิติบุคคล</span>
+</li>
+</ul>
+</div>
+<div class="p-lg pt-0">
+<a class="block w-full text-center bg-primary text-on-primary py-3 rounded-lg font-medium hover:bg-primary-container transition-colors active:scale-[0.98] transform" href="#" style="">นัดหมายที่ปรึกษา</a>
+</div>
+</div>
+<!-- Service 5: คุ้มครองครอบครัว -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] flex flex-col group hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all duration-300">
+<div class="p-lg flex-grow">
+<div class="flex items-center justify-between mb-md">
+<div class="w-12 h-12 bg-on-tertiary-fixed-variant/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-tertiary-container text-2xl" data-icon="family_restroom" style="">family_restroom</span>
+</div>
+</div>
+<h3 class="font-h3 text-h3 text-primary mb-sm" style="">คุ้มครองครอบครัว</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg" style="">สร้างตาข่ายรองรับความเสี่ยง เพื่อให้คนที่คุณรักก้าวเดินต่อไปได้อย่างมั่นคงในทุกสถานการณ์</p>
+<div class="space-y-sm mb-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary-container text-body-md" data-icon="sell" style="">sell</span>
+<span class="font-label-sm text-label-sm" style="">ปรับตามวงเงินความคุ้มครอง</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary-container text-body-md" data-icon="schedule" style="">schedule</span>
+<span class="font-label-sm text-label-sm" style="">ตลอดชีพ หรือ ตามกำหนด</span>
+</div>
+</div>
+<ul class="space-y-xs mb-lg">
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">วางแผนมรดกและโอนย้ายความเสี่ยง</span>
+</li>
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">ทุนประกันชีวิตขั้นต่ำ 10 ล้านบาท</span>
+</li>
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">ครอบคลุมค่ารักษาพยาบาลระดับพรีเมียม</span>
+</li>
+</ul>
+</div>
+<div class="p-lg pt-0">
+<a class="block w-full text-center bg-primary text-on-primary py-3 rounded-lg font-medium hover:bg-primary-container transition-colors active:scale-[0.98] transform" href="#" style="">นัดหมายที่ปรึกษา</a>
+</div>
+</div>
+<!-- Service 6: ตรวจสอบพอร์ตลงทุน -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] flex flex-col group hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all duration-300">
+<div class="p-lg flex-grow">
+<div class="flex items-center justify-between mb-md">
+<div class="w-12 h-12 bg-on-error-container/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-fixed-variant text-2xl" data-icon="query_stats" style="">query_stats</span>
+</div>
+</div>
+<h3 class="font-h3 text-h3 text-primary mb-sm" style="">ตรวจสอบพอร์ตลงทุน</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg" style="">วิเคราะห์สุขภาพทางการเงินจากพอร์ตปัจจุบัน เพื่อหาจุดบกพร่องและโอกาสการเติบโตใหม่ๆ</p>
+<div class="space-y-sm mb-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary-container text-body-md" data-icon="sell" style="">sell</span>
+<span class="font-label-sm text-label-sm" style="">บริการครั้งแรกไม่มีค่าใช้จ่าย</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary-container text-body-md" data-icon="schedule" style="">schedule</span>
+<span class="font-label-sm text-label-sm" style="">ใช้เวลาวิเคราะห์ 7-14 วัน</span>
+</div>
+</div>
+<ul class="space-y-xs mb-lg">
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">วิเคราะห์ Risk/Return รายสินทรัพย์</span>
+</li>
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">ตรวจสอบการกระจุกตัวของพอร์ต (Concentration Risk)</span>
+</li>
+<li class="flex items-start gap-xs text-body-md text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="check_circle" data-weight="fill" style="">check_circle</span>
+<span class="" style="">แนะนำการปรับสมดุลพอร์ต (Rebalancing)</span>
+</li>
+</ul>
+</div>
+<div class="p-lg pt-0">
+<a class="block w-full text-center bg-primary text-on-primary py-3 rounded-lg font-medium hover:bg-primary-container transition-colors active:scale-[0.98] transform" href="#" style="">นัดหมายที่ปรึกษา</a>
+</div>
+</div>
+</div>
+<!-- Trust Indicator / CTA Section -->
+<section class="mt-xxl bg-primary-container text-on-primary rounded-xl p-xl flex flex-col md:flex-row items-center justify-between gap-lg">
+<div class="max-w-xl">
+<h2 class="font-h2 text-h2 mb-sm text-white" style="">ต้องการคำปรึกษาที่เจาะจงสำหรับคุณ?</h2>
+<p class="font-body-md text-on-tertiary-container" style="">ผู้เชี่ยวชาญของเราพร้อมออกแบบแผนการเงินที่ตอบโจทย์ความต้องการเฉพาะบุคคล เพื่อรักษาความมั่งคั่งของคุณให้ยั่งยืน</p>
+</div>
+<div class="flex flex-col sm:flex-row gap-md">
+<button class="bg-secondary-container text-on-secondary-container px-8 py-3 rounded-lg font-bold hover:bg-secondary-fixed transition-colors" style="">สนใจบริการ</button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-gray-200 bg-slate-50">
+<div class="max-w-7xl mx-auto px-8 py-16 grid grid-cols-1 md:grid-cols-2 gap-12">
+<div class="space-y-6">
+<div class="text-lg font-bold text-blue-950" style="">FinancialAdvisorThailand</div>
+<p class="font-body-md text-slate-500 max-w-md" style="">
+                    สถาบันที่ปรึกษาการเงินชั้นนำสำหรับลูกค้ากลุ่มมั่งคั่ง เรายึดมั่นในหลักจรรยาบรรณวิชาชีพและความโปร่งใสสูงสุดในการบริหารจัดการทรัพย์สิน
+                </p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-slate-400 hover:text-amber-600 hover:border-amber-600 transition-colors" href="#" style="">
+<span class="material-symbols-outlined" data-icon="language" style="">language</span>
+</a>
+<a class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-slate-400 hover:text-amber-600 hover:border-amber-600 transition-colors" href="#" style="">
+<span class="material-symbols-outlined" data-icon="mail" style="">mail</span>
+</a>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-8">
+<div>
+<h4 class="font-bold text-blue-950 mb-4" style="">Legal</h4>
+<ul class="space-y-2">
+<li class="" style=""><a class="text-slate-500 hover:text-amber-600 transition-colors" href="#" style="">Privacy Policy</a></li>
+<li class="" style=""><a class="text-slate-500 hover:text-amber-600 transition-colors" href="#" style="">Terms of Service</a></li>
+<li class="" style=""><a class="text-slate-500 hover:text-amber-600 transition-colors" href="#" style="">Compliance Disclosure</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-blue-950 mb-4" style="">Resources</h4>
+<ul class="space-y-2">
+<li class="" style=""><a class="text-slate-500 hover:text-amber-600 transition-colors" href="#" style="">Risk Warnings</a></li>
+<li class="" style=""><a class="text-slate-500 hover:text-amber-600 transition-colors" href="#" style="">Whistleblowing Policy</a></li>
+<li class="" style=""><a class="text-slate-500 hover:text-amber-600 transition-colors" href="#" style="">Financial News</a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-8 py-8 border-t border-gray-200">
+<p class="text-xs leading-relaxed text-slate-400" style="">
+                © 2024 FinancialAdvisorThailand. Authorized and Regulated by the Securities and Exchange Commission, Thailand. Financial services are provided to institutional and high-net-worth clients only.
+            </p>
+</div>
+</footer>
+</body></html>

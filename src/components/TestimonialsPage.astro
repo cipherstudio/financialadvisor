@@ -1,0 +1,409 @@
+---
+import { getEmDashCollection, getEmDashEntry, getRequestContext } from "emdash";
+import type { CacheHint, ContentEntry, MediaValue } from "emdash";
+import { Image } from "emdash/ui";
+import { getLiveEntry } from "astro:content";
+import type { Testimonial, TestimonialPage } from "../../emdash-env";
+import FadvisorStitchPage from "./FadvisorStitchPage.astro";
+import TestimonialCard from "./TestimonialCard.astro";
+
+type EditBag = { [k: string]: unknown };
+
+interface Props {
+	/** จาก `/testimonials/{id}` สำหรับ preview รายการเดียวจากแอดมิน (เหมือน `/services/{id}`) */
+	previewTestimonialId?: string;
+}
+
+const { previewTestimonialId } = Astro.props as Props;
+
+function mergeCacheHints(...hints: CacheHint[]): CacheHint {
+	const tagSet = new Set<string>();
+	let lastModified: Date | undefined;
+	for (const h of hints) {
+		for (const t of h.tags ?? []) tagSet.add(t);
+		if (h.lastModified && (!lastModified || h.lastModified > lastModified)) {
+			lastModified = h.lastModified;
+		}
+	}
+	return { tags: tagSet.size ? [...tagSet] : undefined, lastModified };
+}
+
+const { entry: page, cacheHint: pageHint } = await getEmDashEntry("testimonials_page", "main");
+
+const collectionQuery = {
+	orderBy: { published_at: "desc" as const },
+	limit: 100,
+};
+
+const ctx = getRequestContext();
+const inVisualEdit = ctx?.editMode === true;
+const inSignedPreview = !!ctx?.preview;
+
+const cacheHintParts: CacheHint[] = [pageHint];
+let rows: ContentEntry<Testimonial>[];
+
+/**
+ * ดึง draft ตาม `draftRevisionId` — ให้ preview / visual edit สอดคล้องกับ Our Advisors
+ */
+async function resolveRow(
+	e: ContentEntry<Testimonial>,
+): Promise<ContentEntry<Testimonial> | null> {
+	const data = e.data as Testimonial & { draftRevisionId?: string | null };
+	const revId = data.draftRevisionId;
+	if (typeof revId === "string" && revId.length > 0) {
+		const { entry, error, cacheHint } = await getLiveEntry("_emdash", {
+			type: "testimonials",
+			id: e.id,
+			revisionId: revId,
+		});
+		if (cacheHint) cacheHintParts.push(cacheHint);
+		if (!error && entry) {
+			return entry as ContentEntry<Testimonial>;
+		}
+	}
+	if (inVisualEdit) {
+		const { entry, cacheHint: rowHint } = await getEmDashEntry("testimonials", e.id);
+		if (rowHint) cacheHintParts.push(rowHint);
+		return (entry as ContentEntry<Testimonial> | null) ?? e;
+	}
+	return e;
+}
+
+if (inVisualEdit || inSignedPreview) {
+	const { entries: published, cacheHint: publishedHint } = await getEmDashCollection("testimonials", {
+		...collectionQuery,
+		status: "published",
+	});
+	const { entries: draftOnly, cacheHint: draftHint } = await getEmDashCollection("testimonials", {
+		...collectionQuery,
+		status: "draft",
+	});
+	cacheHintParts.push(publishedHint, draftHint);
+	const bySlug = new Map<string, ContentEntry<Testimonial>>();
+	for (const e of published) bySlug.set(e.id, e as ContentEntry<Testimonial>);
+	for (const e of draftOnly) {
+		if (!bySlug.has(e.id)) bySlug.set(e.id, e as ContentEntry<Testimonial>);
+	}
+	const combined = [...bySlug.values()];
+	const overlaid: ContentEntry<Testimonial>[] = [];
+	for (const e of combined) {
+		const entry = await resolveRow(e);
+		if (entry) overlaid.push(entry);
+	}
+	rows = overlaid;
+} else {
+	const { entries, cacheHint: listHint } = await getEmDashCollection("testimonials", {
+		...collectionQuery,
+		status: "published",
+	});
+	cacheHintParts.push(listHint);
+	rows = entries as ContentEntry<Testimonial>[];
+}
+
+if (previewTestimonialId) {
+	const { entry: previewEntry, cacheHint: previewOneHint } = await getEmDashEntry(
+		"testimonials",
+		previewTestimonialId,
+	);
+	if (previewOneHint) cacheHintParts.push(previewOneHint);
+	if (previewEntry) {
+		const p = previewEntry as ContentEntry<Testimonial>;
+		const pData = p.data as { id?: string };
+		const previewDbId = pData.id ?? "";
+		const idx = rows.findIndex((item) => {
+			const d = item.data as { id?: string };
+			return (
+				(previewDbId && d.id === previewDbId) || item.id === p.id || item.id === previewTestimonialId
+			);
+		});
+		if (idx >= 0) rows[idx] = p;
+		else {
+			rows.unshift(p);
+		}
+	}
+}
+
+Astro.cache.set(mergeCacheHints(...cacheHintParts));
+
+const p = page.data as unknown as TestimonialPage;
+const e = page.edit as unknown as { [k: string]: EditBag | undefined };
+/** แยก obfuscate: template กับ as Record ไม่เข้ากัน (เครื่องหมายน้อยกว่า) */
+const pe = e as unknown as Record<string, EditBag>;
+
+const pageTitle =
+	typeof p.page_title === "string" && p.page_title.trim() !== ""
+		? p.page_title.trim()
+		: "รีวิวจากลูกค้า | FinancialAdvisorThailand";
+
+const has = (s: string | undefined | null) => typeof s === "string" && s.trim() !== "";
+
+const sectionOn = (b: unknown, defaultValue = true): boolean => {
+	if (b === true || b === 1) return true;
+	if (b === false || b === 0) return false;
+	if (b == null) return defaultValue;
+	if (typeof b === "string") {
+		const t = b.trim().toLowerCase();
+		if (t === "0" || t === "false") return false;
+		if (t === "1" || t === "true") return true;
+	}
+	return defaultValue;
+};
+
+const hasEmDashMedia = (img: unknown): boolean => {
+	if (img == null) return false;
+	if (typeof img === "string") return img.trim() !== "";
+	if (typeof img !== "object") return false;
+	const o = img as Record<string, unknown>;
+	if (typeof o.src === "string" && o.src.trim() !== "") return true;
+	if (typeof o.previewUrl === "string" && o.previewUrl.trim() !== "") return true;
+	if (typeof o.id === "string" && o.id.trim() !== "") return true;
+	const meta = o.meta;
+	if (meta != null && typeof meta === "object") {
+		const sk = (meta as Record<string, unknown>).storageKey;
+		if (typeof sk === "string" && sk.trim() !== "") return true;
+	}
+	return false;
+};
+
+function mediaForEmDashImage(im: MediaValue | string): MediaValue | string {
+	if (typeof im === "string") return im;
+	const isLocal = im.provider === "local" || im.provider == null;
+	if (isLocal) {
+		return { ...im, src: undefined };
+	}
+	return im;
+}
+
+const preferredOrder = [
+	"thanin-technavation",
+	"warisara-namcharoen",
+	"pongsatorn-export",
+];
+
+const testimonials = [...rows].sort((a, b) => {
+	const ia = preferredOrder.indexOf(a.id);
+	const ib = preferredOrder.indexOf(b.id);
+	if (ia === -1 && ib === -1) {
+		const da = a.data as Testimonial;
+		const db = b.data as Testimonial;
+		const pa = da.publishedAt ? new Date(da.publishedAt).getTime() : 0;
+		const pb = db.publishedAt ? new Date(db.publishedAt).getTime() : 0;
+		return pb - pa;
+	}
+	if (ia === -1) return 1;
+	if (ib === -1) return -1;
+	return ia - ib;
+});
+
+const showStats = sectionOn(p.show_stats_section, true);
+const statRows = ([
+	[p.stat_1_value, p.stat_1_label],
+	[p.stat_2_value, p.stat_2_label],
+	[p.stat_3_value, p.stat_3_label],
+] as Array<[string | undefined, string | undefined]>).filter(
+	(pair) => has(String(pair[0])) || has(String(pair[1])),
+);
+const hasAnyStat = statRows.length > 0;
+const showPartners = sectionOn(p.show_partners_section, true);
+const showCta = sectionOn(p.show_cta_section, true);
+
+type PartnerLogoRow = {
+	logo?: MediaValue | string;
+	alt?: string;
+	url?: string;
+};
+
+const partnerLogos = Array.isArray(p.partner_logos)
+	? (p.partner_logos as PartnerLogoRow[]).filter((row) => hasEmDashMedia(row?.logo))
+	: [];
+---
+
+<FadvisorStitchPage title={pageTitle} bodyClass="bg-surface font-body-md text-on-surface">
+	<main class="pt-32 pb-xxl">
+		<!-- Hero -->
+		<header class="max-w-[1200px] mx-auto px-6 mb-xxl text-center">
+			{
+				has(p.hero_badge) && (
+					<div
+						class="inline-flex items-center gap-2 px-4 py-2 bg-secondary-fixed text-on-secondary-fixed rounded-full font-label-sm mb-md"
+						{...(pe.hero_badge ?? {})}
+					>
+						<span class="material-symbols-outlined text-[18px]">verified</span>
+						{p.hero_badge}
+					</div>
+				)
+			}
+			{
+				has(p.hero_title) && (
+					<h1
+						class="font-display text-display text-primary mb-md"
+						{...(pe.hero_title ?? {})}
+					>
+						{p.hero_title}
+					</h1>
+				)
+			}
+			{
+				has(p.hero_description) && (
+					<p
+						class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto"
+						{...(pe.hero_description ?? {})}
+					>
+						{p.hero_description}
+					</p>
+				)
+			}
+		</header>
+
+		<!-- Grid -->
+		<section class="max-w-[1200px] mx-auto px-6">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+				{testimonials.map((entry) => <TestimonialCard entry={entry} />)}
+			</div>
+		</section>
+
+		{
+			showStats && (has(p.stats_heading) || has(p.stats_subtitle) || hasAnyStat) && (
+				<section class="max-w-[1200px] mx-auto px-6 mt-xl">
+					<div class="md:col-span-8 bg-primary-container text-on-primary-container p-xxl rounded-xl luminous-elevation flex flex-col justify-center items-center text-center overflow-hidden relative">
+							{hasEmDashMedia(p.stats_background_image) && (
+							<div class="absolute inset-0 z-0">
+								<Image
+									class="w-full !h-full object-cover opacity-20"
+									image={mediaForEmDashImage(p.stats_background_image as MediaValue)}
+								/>
+							</div>
+						)}
+						{!hasEmDashMedia(p.stats_background_image) && (
+							<div
+								class="absolute inset-0 opacity-10 z-0"
+								style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD-idvhncuaMS0iHwp0XVRRCMGTVxuErIOTsCw58zDRJfEzexxL4jvfaaOgXQ6bNE6FUb2vnu5TTtmpuwx98vwa6sTehrzUts97PBow9i8v8BHV3IYAR-ElJClcjGEnvVlbsVcZxBZq3cak7B2pCl3FqHAujoCX8erepoyR4D4UP3L1rpJisMA4buRhQ0jBrFZRWXvdhfsj9y-IpDc3Y2_M1hMjuMlrGAsDVzyAtxKFmD8RxASVqn5L64oJZoUnnEwgM_iLvbRTDfE');"
+							/>
+						)}
+						<div class="relative z-10 w-full max-w-4xl">
+							{has(p.stats_heading) && (
+								<h2
+									class="font-h1 text-h1 text-white mb-md"
+									{...(pe.stats_heading ?? {})}
+								>
+									{p.stats_heading}
+								</h2>
+							)}
+							{has(p.stats_subtitle) && (
+								<p
+									class="font-body-lg text-on-primary-container mb-xl"
+									{...(pe.stats_subtitle ?? {})}
+								>
+									{p.stats_subtitle}
+								</p>
+							)}
+							{hasAnyStat && (
+								<div class="flex flex-wrap justify-center gap-lg w-full max-w-3xl mx-auto">
+									{statRows.map(([val, label]) => (
+										<div class="p-md bg-white/5 rounded-lg border border-white/10 w-full min-[480px]:w-[min(100%,220px)] min-[480px]:max-w-[240px] text-center">
+											{val && has(String(val)) && (
+												<div class="text-secondary-fixed-dim font-display text-h1">{val}</div>
+											)}
+											{label && has(String(label)) && (
+												<div class="font-label-sm text-white/70">{label}</div>
+											)}
+										</div>
+									))}
+								</div>
+							)}
+						</div>
+					</div>
+				</section>
+			)
+		}
+
+		{
+			showPartners && has(p.partners_heading) && (
+				<section class="max-w-[1200px] mx-auto px-6 mt-xxl">
+					<p
+						class="text-center font-label-sm text-on-surface-variant mb-lg tracking-widest uppercase"
+						{...(pe.partners_heading ?? {})}
+					>
+						{p.partners_heading}
+					</p>
+					{partnerLogos.length > 0 ? (
+						<div class="flex flex-wrap justify-center items-center gap-lg opacity-85 grayscale contrast-125">
+							{partnerLogos.map((row) => {
+								const image = row.logo as MediaValue | string;
+								const img = (
+									<div class="h-12 w-28 flex items-center justify-center">
+										<Image
+											class="max-h-12 w-auto object-contain"
+											image={mediaForEmDashImage(image)}
+										/>
+									</div>
+								);
+								return row.url && has(row.url) ? (
+									<a href={row.url} target="_blank" rel="noopener noreferrer" aria-label={row.alt || "Partner"}>
+										{img}
+									</a>
+								) : (
+									img
+								);
+							})}
+						</div>
+					) : (
+						<div class="flex flex-wrap justify-center items-center gap-xxl opacity-30 grayscale contrast-125">
+							<span class="material-symbols-outlined text-[48px]">account_balance</span>
+							<span class="material-symbols-outlined text-[48px]">security</span>
+							<span class="material-symbols-outlined text-[48px]">monitoring</span>
+							<span class="material-symbols-outlined text-[48px]">currency_exchange</span>
+							<span class="material-symbols-outlined text-[48px]">domain</span>
+						</div>
+					)}
+				</section>
+			)
+		}
+
+		{
+			showCta &&
+				(has(p.cta_title) || has(p.cta_description) || (has(p.cta_primary_label) && has(p.cta_primary_href)) || (has(p.cta_secondary_label) && has(p.cta_secondary_href))) && (
+					<section class="max-w-[1200px] mx-auto px-4 sm:px-6 mt-xxl">
+					<div class="bg-surface-container-high p-lg sm:p-xxl rounded-xl text-center border-l-8 border-secondary">
+							{has(p.cta_title) && (
+								<h3
+									class="font-h1 text-h1 text-primary mb-md"
+									{...(pe.cta_title ?? {})}
+								>
+									{p.cta_title}
+								</h3>
+							)}
+							{has(p.cta_description) && (
+								<p
+									class="font-body-md text-on-surface-variant mb-xl max-w-xl mx-auto"
+									{...(pe.cta_description ?? {})}
+								>
+									{p.cta_description}
+								</p>
+							)}
+							<div class="flex flex-col sm:flex-row gap-md justify-center">
+								{has(p.cta_primary_label) && has(p.cta_primary_href) && (
+									<a
+										class="bg-primary text-on-primary px-xl py-lg rounded-lg font-label-sm shadow-lg hover:opacity-90 transition-all active:scale-95 inline-block text-center"
+										href={p.cta_primary_href}
+										{...(pe.cta_primary_label ?? {})}
+									>
+										{p.cta_primary_label}
+									</a>
+								)}
+								{has(p.cta_secondary_label) && has(p.cta_secondary_href) && (
+									<a
+										class="border border-primary text-primary px-xl py-lg rounded-lg font-label-sm hover:bg-primary/5 transition-all active:scale-95 inline-block text-center"
+										href={p.cta_secondary_href}
+										{...(pe.cta_secondary_label ?? {})}
+									>
+										{p.cta_secondary_label}
+									</a>
+								)}
+							</div>
+						</div>
+					</section>
+				)
+		}
+	</main>
+</FadvisorStitchPage>

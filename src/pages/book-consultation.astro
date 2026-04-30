@@ -1,0 +1,11 @@
+---
+import { getEmDashEntry } from "emdash";
+import BookConsultationPage from "../components/BookConsultationPage.astro";
+
+const { entry: bookConsultationPageEntry } = await getEmDashEntry("book_consultation_page", "main");
+if (!bookConsultationPageEntry) {
+	return Astro.redirect("/404");
+}
+---
+
+<BookConsultationPage />

@@ -1,0 +1,40 @@
+---
+import StitchLayout from "../layouts/StitchLayout.astro";
+import FadvisorStitchHeader from "./FadvisorStitchHeader.astro";
+import FadvisorStitchFooter from "./FadvisorStitchFooter.astro";
+import { createPublicPageContext } from "emdash/page";
+
+type EmDashPublicPageContext = ReturnType<typeof createPublicPageContext>;
+
+interface Props {
+	title: string;
+	bodyClass: string;
+	/** `<main>...</main>` as raw HTML; omit when using the default slot instead. */
+	mainHtml?: string;
+	/** Optional SEO context for `<EmDashHead>` (OG/Twitter/canonical/JSON-LD). */
+	page?: EmDashPublicPageContext;
+}
+
+const { title, bodyClass, mainHtml, page } = Astro.props;
+const hasMainSlot = Astro.slots.has("default");
+---
+
+<StitchLayout {title} {bodyClass} page={page}>
+	<FadvisorStitchHeader />
+	{
+		hasMainSlot ? (
+			<div class="stitch-fadvisor-main">
+				<slot />
+			</div>
+		) : (
+			<div class="stitch-fadvisor-main" set:html={mainHtml ?? ""} />
+		)
+	}
+	<FadvisorStitchFooter />
+</StitchLayout>
+
+<style is:global>
+	.stitch-fadvisor-main :global(a[href^="http"]):hover {
+		opacity: 0.92;
+	}
+</style>

@@ -1,0 +1,82 @@
+---
+import type { ContentEntry } from "emdash";
+import type { Home, Service } from "../../emdash-env";
+import SectionHeadingBar from "./SectionHeadingBar.astro";
+import ServiceCard from "./ServiceCard.astro";
+
+interface Props {
+	page: { data: Home };
+	serviceEntries: ContentEntry<Service>[];
+}
+
+const { page, serviceEntries } = Astro.props;
+const d = page.data;
+
+const has = (s: string | undefined | null) => typeof s === "string" && s.trim() !== "";
+
+const sectionOn = (b: unknown, defaultValue = false): boolean => {
+	if (b === true || b === 1) return true;
+	if (b === false || b === 0) return false;
+	if (b == null) return defaultValue;
+	if (typeof b === "string") {
+		const t = b.trim().toLowerCase();
+		if (t === "0" || t === "false") return false;
+		if (t === "1" || t === "true") return true;
+	}
+	return defaultValue;
+};
+
+const featuredServices = serviceEntries.filter((e) => sectionOn(e.data.is_feature, false));
+
+const sectionEnabled = sectionOn(d.services_section_show, true);
+
+const hasHeaderContent =
+	has(d.services_section_title) ||
+	has(d.services_section_description) ||
+	has(d.services_section_link_label) ||
+	has(d.services_section_link_href);
+
+const showSection = sectionEnabled && (featuredServices.length > 0 || hasHeaderContent);
+
+const sectionTitle = has(d.services_section_title)
+	? d.services_section_title!.trim()
+	: showSection
+		? "บริการของเรา"
+		: "";
+
+const explicitLinkHref = has(d.services_section_link_href) ? d.services_section_link_href!.trim() : "";
+const linkHref =
+	explicitLinkHref !== ""
+		? explicitLinkHref
+		: showSection
+			? "/services"
+			: undefined;
+
+const linkLabel = has(d.services_section_link_label)
+	? d.services_section_link_label!.trim()
+	: "ดูบริการทั้งหมด";
+---
+
+{
+	showSection && (
+		<section class="py-xxl bg-surface">
+			<div class="max-w-7xl mx-auto px-8">
+				<SectionHeadingBar
+					title={sectionTitle}
+					description={has(d.services_section_description) ? d.services_section_description!.trim() : undefined}
+					linkHref={linkHref}
+					linkLabel={linkLabel}
+				/>
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+					{featuredServices.length === 0 ? (
+						<p class="text-on-surface-variant col-span-full text-center font-body-md">
+							ยังไม่มีบริการที่เลือก “แสดงในหน้าแรก” — เปิดใช้ที่แก้ไขรายการใน Services
+						</p>
+					) : (
+						featuredServices.map((entry) => <ServiceCard entry={entry} />)
+					)}
+				</div>
+			</div>
+		</section>
+	)
+}

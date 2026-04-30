@@ -1,0 +1,11 @@
+---
+import { getEmDashEntry } from "emdash";
+import OurAdvisorsPage from "../components/OurAdvisorsPage.astro";
+
+const { entry: ourAdvisorsPageEntry } = await getEmDashEntry("our_advisors_page", "main");
+if (!ourAdvisorsPageEntry) {
+	return Astro.redirect("/404");
+}
+---
+
+<OurAdvisorsPage />

@@ -1,0 +1,49 @@
+---
+/**
+ * ใช้ FadvisorStitchPage ให้ header/footer เหมือนหน้าอื่นในไซต์ (ไม่ใช้ Base.astro ที่เป็นธีมคนละชุด)
+ */
+import FadvisorStitchPage from "../components/FadvisorStitchPage.astro";
+import { createPublicPageContext } from "emdash/page";
+import { getSiteSettings } from "emdash";
+import { resolveBlogSiteIdentity } from "../utils/site-identity";
+
+const { siteTitle } = resolveBlogSiteIdentity(await getSiteSettings());
+const displayTitle = `ไม่พบหน้านี้ — ${siteTitle}`;
+
+const stitchPage = createPublicPageContext({
+	Astro,
+	kind: "custom",
+	pageType: "website",
+	title: displayTitle,
+	pageTitle: displayTitle,
+	description: "ไม่พบหน้าที่คุณค้นหา หรือลิงก์อาจไม่ถูกต้อง",
+	canonical: new URL(Astro.url.pathname, Astro.url.origin).href,
+	image: null,
+	seo: { robots: "noindex, nofollow" },
+	siteName: siteTitle,
+	siteUrl: Astro.url.origin,
+});
+---
+
+<FadvisorStitchPage
+	title={displayTitle}
+	bodyClass="bg-surface font-body-md text-on-surface antialiased"
+	page={stitchPage}
+>
+	<main
+		class="pt-32 pb-xxl px-6 lg:px-12 max-w-[1200px] mx-auto min-h-[70vh] flex flex-col justify-center"
+	>
+		<div class="not-found max-w-md mx-auto text-center">
+			<h1 class="font-h1 text-h1 text-primary-container mb-3">404</h1>
+			<p class="text-on-surface-variant font-body-md mb-8 leading-relaxed">
+				ไม่พบหน้าที่คุณค้นหา หรือลิงก์อาจไม่ถูกต้อง
+			</p>
+			<a
+				href="/"
+				class="bg-primary-container text-white px-3 sm:px-5 py-2.5 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-opacity-90 text-sm md:text-base font-h3 inline-block text-center"
+			>
+				กลับหน้าแรก
+			</a>
+		</div>
+	</main>
+</FadvisorStitchPage>

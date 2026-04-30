@@ -1,0 +1,38 @@
+/* Merged from Stitch `code.html` page-level styles (design system extras). */
+/* Investment article detail + cards — matches stitch `financialadvisorthailand_Investment Articles detail/code.html` */
+.content-shadow {
+	box-shadow:
+		0 4px 6px -1px rgba(10, 31, 68, 0.05),
+		0 2px 4px -1px rgba(10, 31, 68, 0.03);
+}
+
+.premium-border-top {
+	border-top: 4px solid #d4af37;
+}
+
+.premium-card-hover:hover {
+	box-shadow: 0 10px 15px -3px rgba(10, 31, 68, 0.08);
+	transform: translateY(-2px);
+}
+.luminous-elevation {
+	box-shadow:
+		0 4px 6px -1px rgba(10, 31, 68, 0.05),
+		0 2px 4px -1px rgba(10, 31, 68, 0.03);
+}
+.luminous-elevation-hover:hover {
+	box-shadow: 0 10px 15px -3px rgba(10, 31, 68, 0.08);
+}
+.terminal-border {
+	border: 1px solid rgba(10, 31, 68, 0.1);
+}
+.accordion-content {
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.3s ease-out;
+}
+.accordion-item:focus-within .accordion-content {
+	max-height: 500px;
+}
+.accordion-item:focus-within .chevron {
+	transform: rotate(180deg);
+}

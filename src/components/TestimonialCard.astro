@@ -1,0 +1,137 @@
+---
+/**
+ * Card UI shared by /testimonials and the home testimonials section.
+ */
+import type { ContentEntry, MediaValue } from "emdash";
+import { Image, PortableText } from "emdash/ui";
+import type { Testimonial } from "../../emdash-env";
+import { portableTextToPlain } from "../utils/portable-text-plain";
+
+type EditBag = { [k: string]: unknown };
+
+export interface Props {
+	entry: ContentEntry<Testimonial>;
+	class?: string;
+}
+
+const { entry, class: className } = Astro.props as Props;
+
+const d = entry.data as Testimonial;
+const se = (entry as unknown as { edit?: Record<string, EditBag> }).edit;
+
+const hasEmDashMedia = (img: unknown): boolean => {
+	if (img == null) return false;
+	if (typeof img === "string") return img.trim() !== "";
+	if (typeof img !== "object") return false;
+	const o = img as Record<string, unknown>;
+	if (typeof o.src === "string" && o.src.trim() !== "") return true;
+	if (typeof o.previewUrl === "string" && o.previewUrl.trim() !== "") return true;
+	if (typeof o.id === "string" && o.id.trim() !== "") return true;
+	const meta = o.meta;
+	if (meta != null && typeof meta === "object") {
+		const sk = (meta as Record<string, unknown>).storageKey;
+		if (typeof sk === "string" && sk.trim() !== "") return true;
+	}
+	return false;
+};
+
+function mediaForEmDashImage(im: MediaValue | string): MediaValue | string {
+	if (typeof im === "string") return im;
+	const isLocal = im.provider === "local" || im.provider == null;
+	if (isLocal) {
+		return { ...im, src: undefined };
+	}
+	return im;
+}
+
+function starCount(r: unknown): number {
+	const n = Math.round(Number(r));
+	if (Number.isNaN(n) || n < 0) return 0;
+	return Math.min(5, n);
+}
+
+const nStars = starCount(d.rating);
+const serviceLine = portableTextToPlain(d.service_used);
+---
+
+<div
+	class:list={[
+		"bg-surface-container-lowest border border-outline-variant p-lg rounded-xl luminous-elevation luminous-elevation-hover flex flex-col h-full",
+		className,
+	]}
+>
+	<div class="flex justify-between items-start mb-md">
+		<div class="text-secondary flex gap-0.5">
+			{
+				Array.from({ length: 5 }, (_, i) => (
+					<span
+						class="material-symbols-outlined text-[20px]"
+						style={
+							i < nStars
+								? "font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20"
+								: "font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; opacity: 0.3"
+						}
+					>
+						star
+					</span>
+				))
+			}
+		</div>
+		<span class="material-symbols-outlined text-outline-variant/40 text-4xl">format_quote</span>
+	</div>
+	<div
+		class="font-body-md text-on-surface mb-lg flex-grow leading-relaxed italic testimonial-pt"
+		{...(se?.content ?? {})}
+	>
+		{d.content && d.content.length > 0 ? (
+			<PortableText value={d.content} />
+		) : (
+			<p>—</p>
+		)}
+	</div>
+	<div class="pt-md border-t border-outline-variant">
+		<div class="flex items-center gap-md mb-md">
+			<div class="w-12 h-12 rounded-full object-cover border border-outline-variant/30 overflow-hidden bg-slate-200 shrink-0">
+				{
+					hasEmDashMedia(d.photo) ? (
+						<Image class="w-full h-full object-cover" image={mediaForEmDashImage(d.photo as MediaValue)} />
+					) : (
+						<div class="w-full h-full flex items-center justify-center">
+							<span class="material-symbols-outlined text-slate-400 text-2xl">person</span>
+						</div>
+					)
+				}
+			</div>
+			<div>
+				<h4 class="font-h3 text-[16px] text-primary" {...(se?.title ?? {})}>
+					{d.title}
+				</h4>
+				{
+					d.client_title && (
+						<p class="text-[12px] text-on-surface-variant" {...(se?.client_title ?? {})}>
+							{d.client_title}
+						</p>
+					)
+				}
+			</div>
+		</div>
+		{
+			serviceLine && (
+				<div class="flex" {...(se?.service_used ?? {})}>
+					<span class="px-3 py-1 bg-primary-fixed/50 text-on-primary-fixed-variant rounded text-[11px] font-bold uppercase tracking-wider">
+						{serviceLine}
+					</span>
+				</div>
+			)
+		}
+	</div>
+</div>
+
+<style is:global>
+	.testimonial-pt :global(p) {
+		margin: 0;
+	}
+	.testimonial-pt :global(p + p) {
+		margin-top: 0.5em;
+	}
+</style>

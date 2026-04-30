@@ -1,0 +1,11 @@
+---
+import { getEmDashEntry } from "emdash";
+import TestimonialsPage from "../components/TestimonialsPage.astro";
+
+const { entry: testimonialsPageEntry } = await getEmDashEntry("testimonials_page", "main");
+if (!testimonialsPageEntry) {
+	return Astro.redirect("/404");
+}
+---
+
+<TestimonialsPage />

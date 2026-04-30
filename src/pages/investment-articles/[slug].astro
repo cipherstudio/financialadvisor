@@ -1,0 +1,17 @@
+---
+import { decodeSlug, getEmDashEntry } from "emdash";
+import InvestmentArticleDetailPage from "../../components/InvestmentArticleDetailPage.astro";
+
+const slug = decodeSlug(Astro.params.slug);
+if (!slug) {
+	return Astro.redirect("/404");
+}
+
+const { entry, cacheHint } = await getEmDashEntry("posts", slug);
+Astro.cache.set(cacheHint);
+if (!entry) {
+	return Astro.redirect("/404");
+}
+---
+
+<InvestmentArticleDetailPage slug={slug} />

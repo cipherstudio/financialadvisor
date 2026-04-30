@@ -1,0 +1,145 @@
+---
+import type { ContentEntry } from "emdash";
+import type { Faq, Home } from "../../emdash-env";
+import FaqAccordionEntry from "./FaqAccordionEntry.astro";
+
+interface Props {
+	page: { data: Home };
+	featuredFaqEntries: ContentEntry<Faq>[];
+}
+
+const { page, featuredFaqEntries } = Astro.props;
+const d = page.data;
+
+const has = (s: string | undefined | null) => typeof s === "string" && s.trim() !== "";
+
+const sectionOn = (b: unknown, defaultValue = true): boolean => {
+	if (b === true || b === 1) return true;
+	if (b === false || b === 0) return false;
+	if (b == null) return defaultValue;
+	if (typeof b === "string") {
+		const t = b.trim().toLowerCase();
+		if (t === "0" || t === "false") return false;
+		if (t === "1" || t === "true") return true;
+	}
+	return defaultValue;
+};
+
+const sectionEnabled = sectionOn(d.faq_section_show, true);
+
+const hasHeaderContent = has(d.faq_section_title);
+const showSection = sectionEnabled && (featuredFaqEntries.length > 0 || hasHeaderContent);
+
+const sectionTitle = has(d.faq_section_title)
+	? d.faq_section_title!.trim()
+	: showSection
+		? "คำถามที่พบบ่อย"
+		: "";
+---
+
+{
+	showSection && (
+		<section class="py-xxl bg-surface" id="home-faq-accordion-root" data-faq-home>
+			<div class="max-w-3xl mx-auto px-8">
+				{sectionTitle && (
+					<h2 class="font-h1 text-h1 text-primary mb-xl text-center">{sectionTitle}</h2>
+				)}
+				<div class="space-y-md">
+					{featuredFaqEntries.length === 0 ? (
+						<p class="text-on-surface-variant text-center font-body-md">
+							ยังไม่มีคำถามที่เลือก “แสดงในหน้าแรก” — เปิดใช้ที่แก้ไขรายการใน FAQs
+						</p>
+					) : (
+						featuredFaqEntries.map((entry, i) => (
+							<FaqAccordionEntry entry={entry} initiallyOpen={i === 0} />
+						))
+					)}
+				</div>
+			</div>
+		</section>
+	)
+}
+
+<script is:inline>
+	(() => {
+		var root = document.getElementById("home-faq-accordion-root");
+		if (!root) return;
+		var items = root.querySelectorAll("[data-faq-item]");
+		function setAccordionState(acc, open) {
+			if (!acc) return;
+			if (open) acc.classList.add("fap-open");
+			else acc.classList.remove("fap-open");
+			var tb = acc.querySelector("button.fap-toggle");
+			if (tb) tb.setAttribute("aria-expanded", open ? "true" : "false");
+			var content = acc.querySelector(".fap-panel-content");
+			if (content && content.classList) {
+				content.classList.remove("py-0", "sm:py-0", "py-4", "sm:py-5");
+				if (open) {
+					content.classList.add("py-4", "sm:py-5");
+				} else {
+					content.classList.add("py-0", "sm:py-0");
+				}
+			}
+		}
+		root.addEventListener("click", function (ev) {
+			var node = ev.target;
+			if (!node || !node.closest) return;
+			var toggle = node.closest("button.fap-toggle");
+			if (!toggle) return;
+			var acc = toggle.closest("[data-faq-item]");
+			if (!acc) return;
+			var isOpen = acc.classList.contains("fap-open");
+			if (isOpen) {
+				setAccordionState(acc, false);
+			} else {
+				for (var i = 0; i < items.length; i++) {
+					setAccordionState(items[i], false);
+				}
+				setAccordionState(acc, true);
+			}
+		});
+	})();
+</script>
+
+<style is:global>
+	[data-faq-home] [data-faq-item] .fap-panel {
+		display: grid;
+		grid-template-rows: 0fr;
+		transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	[data-faq-home] [data-faq-item].fap-open .fap-panel {
+		grid-template-rows: 1fr;
+	}
+	[data-faq-home] [data-faq-item] .fap-panel > * {
+		min-height: 0;
+		overflow: hidden;
+		opacity: 0;
+		transform: translateY(-2px);
+		transition: opacity 0.2s ease, transform 0.35s ease;
+	}
+	[data-faq-home] [data-faq-item].fap-open .fap-panel > * {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	[data-faq-home] [data-faq-item] .fap-panel-content {
+		padding-top: 0;
+		padding-bottom: 0;
+		transition: padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	[data-faq-home] [data-faq-item].fap-open .fap-panel-content {
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+	}
+	@media (min-width: 640px) {
+		[data-faq-home] [data-faq-item].fap-open .fap-panel-content {
+			padding-top: 1.25rem;
+			padding-bottom: 1.25rem;
+		}
+	}
+	[data-faq-home] [data-faq-item] .fap-chevron {
+		transition: transform 0.25s ease;
+	}
+	[data-faq-home] [data-faq-item].fap-open .fap-chevron {
+		transform: rotate(180deg);
+	}
+</style>

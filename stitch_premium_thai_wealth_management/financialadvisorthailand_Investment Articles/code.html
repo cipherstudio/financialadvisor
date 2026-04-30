@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html lang="th"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Investment Insights | FinancialAdvisorThailand</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#c5c6cf",
+                    "on-error-container": "#93000a",
+                    "inverse-on-surface": "#f0f1f2",
+                    "on-error": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#001a41",
+                    "on-surface": "#191c1d",
+                    "inverse-primary": "#b4c6f4",
+                    "surface-container-low": "#f3f4f5",
+                    "on-secondary-container": "#745c00",
+                    "secondary-fixed-dim": "#e9c349",
+                    "primary-fixed": "#d9e2ff",
+                    "tertiary-fixed": "#d8e2ff",
+                    "surface-container-highest": "#e1e3e4",
+                    "on-secondary-fixed": "#241a00",
+                    "inverse-surface": "#2e3132",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#041a3f",
+                    "on-primary-container": "#7687b2",
+                    "surface-tint": "#4c5e86",
+                    "surface-dim": "#d9dadb",
+                    "surface": "#f8f9fa",
+                    "secondary-fixed": "#ffe088",
+                    "primary-container": "#0a1f44",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#6b88c1",
+                    "error-container": "#ffdad6",
+                    "secondary-container": "#fed65b",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#44464e",
+                    "surface-container-high": "#e7e8e9",
+                    "on-primary-fixed-variant": "#34466d",
+                    "on-secondary-fixed-variant": "#574500",
+                    "tertiary-container": "#001f4a",
+                    "surface-bright": "#f8f9fa",
+                    "tertiary-fixed-dim": "#acc7ff",
+                    "primary": "#00081e",
+                    "on-background": "#191c1d",
+                    "surface-variant": "#e1e3e4",
+                    "primary-fixed-dim": "#b4c6f4",
+                    "background": "#f8f9fa",
+                    "secondary": "#735c00",
+                    "surface-container": "#edeeef",
+                    "on-primary": "#ffffff",
+                    "outline": "#75777f",
+                    "tertiary": "#00081d",
+                    "on-tertiary-fixed-variant": "#28467b"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "40px",
+                    "container-max": "1200px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "unit": "8px",
+                    "gutter": "24px",
+                    "md": "16px",
+                    "xxl": "64px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "body-md": ["IBM Plex Sans Thai"],
+                    "body-lg": ["IBM Plex Sans Thai"],
+                    "h1": ["IBM Plex Sans Thai"],
+                    "h2": ["IBM Plex Sans Thai"],
+                    "display": ["IBM Plex Sans Thai"],
+                    "label-sm": ["IBM Plex Sans Thai"],
+                    "h3": ["IBM Plex Sans Thai"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h1": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "h2": ["24px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "display": ["48px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "label-sm": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)]">
+<div class="flex items-center justify-between max-w-7xl mx-auto px-8 h-20">
+<div class="text-xl font-bold tracking-tight text-blue-950 dark:text-white uppercase font-h1">
+                FinancialAdvisorThailand
+            </div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-400 transition-all duration-300 active:scale-95" href="#">Home</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-400 transition-all duration-300 active:scale-95" href="#">Services</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-400 transition-all duration-300 active:scale-95" href="#">Advisors</a>
+<a class="text-blue-950 dark:text-white border-b-2 border-amber-500 pb-1 font-semibold hover:text-amber-600 dark:hover:text-amber-400 transition-all duration-300 active:scale-95" href="#">Insights</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-400 transition-all duration-300 active:scale-95" href="#">Contact</a>
+</div>
+<button class="bg-primary text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary-container transition-all active:scale-95">
+                Book Consultation
+            </button>
+</div>
+</nav>
+<main class="pt-32 pb-xxl">
+<!-- Hero Section -->
+<header class="max-w-7xl mx-auto px-8 mb-xxl text-center">
+<h1 class="font-display text-display text-primary mb-md">Investment Insights</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+                มุมมองและบทวิเคราะห์กลยุทธ์การลงทุนเชิงลึก เพื่อบริหารความมั่งคั่งอย่างยั่งยืนสำหรับนักลงทุนระดับสถาบันและรายใหญ่
+            </p>
+</header>
+<!-- Category Filters -->
+<div class="max-w-7xl mx-auto px-8 mb-lg flex flex-wrap gap-md justify-center">
+<button class="px-6 py-2 rounded-full border-2 border-primary bg-primary text-white font-medium">ทั้งหมด</button>
+<button class="px-6 py-2 rounded-full border-2 border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-colors font-medium">กองทุนรวม</button>
+<button class="px-6 py-2 rounded-full border-2 border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-colors font-medium">หุ้นต่างประเทศ</button>
+<button class="px-6 py-2 rounded-full border-2 border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-colors font-medium">วางแผนภาษี</button>
+<button class="px-6 py-2 rounded-full border-2 border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-colors font-medium">อสังหาริมทรัพย์</button>
+</div>
+<!-- Articles Grid -->
+<section class="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Article Card 1 -->
+<article class="bg-white rounded-xl shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] border-t-4 border-secondary-container overflow-hidden hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all flex flex-col h-full">
+<div class="relative h-48 overflow-hidden">
+<img alt="Market Analysis" class="w-full h-full object-cover" data-alt="Modern stock market candle charts on a screen with soft blue and orange glowing highlights in a professional office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMgJ9SFOZ0Kobmh5JUhi0Ei5HNqZ_Q6axSm_D5NfCMVPXrFP05mySeYwGaFa_vbzDQqOzXZF_uOcWIH8GQ-Fm7A-iW9R5RhC5tnUC9fjb7kC93uNIsKCYcqCVwp1BKfS_vBMxjXb8U_u-WQcyTQ51WB4_xYghjCa2WHXg0dGcC6hE_nnydd7morCH3GVOCC7Owiyl5coRfZNuLBx72SeHTE5XwaHMuUa2-yHfiHDOODalyTNamjRC8mTIqlBRjNECuKOx4T6xC-P4"/>
+</div>
+<div class="p-lg flex flex-col flex-grow">
+<div class="flex items-center gap-md mb-sm">
+<span class="text-label-sm font-label-sm px-2 py-1 bg-surface-container-low text-primary rounded">กองทุนรวม</span>
+<span class="text-label-sm font-label-sm text-secondary flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1">trending_up</span> Risk: Medium
+                        </span>
+</div>
+<h3 class="font-h3 text-h3 text-primary mb-sm leading-tight">เจาะลึกกองทุน Global Wealth ประจำปี 2024</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg line-clamp-3">
+                        วิเคราะห์ภาพรวมการเติบโตของเศรษฐกิจโลกและโอกาสในการกระจายพอร์ตการลงทุนผ่านกองทุนชั้นนำระดับโลก...
+                    </p>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-label-sm text-outline font-label-sm">15 May 2024</span>
+<a class="text-primary font-semibold flex items-center gap-xs hover:text-secondary transition-colors" href="#">
+                            อ่านต่อ <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</article>
+<!-- Article Card 2 -->
+<article class="bg-white rounded-xl shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] border-t-4 border-secondary-container overflow-hidden hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all flex flex-col h-full">
+<div class="relative h-48 overflow-hidden">
+<img alt="Strategic Planning" class="w-full h-full object-cover" data-alt="Top down view of a minimalist workspace with a laptop displaying financial data and a cup of black coffee on a white desk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0AopEW2w3Hm7Dd0_9dgLheVX9nppU5FiGMkxnqDMh7xoFkYnIys54TUihlyZdvoF2WLHpFmljN8RP27y69uBhsobtt2AP4OY7vO16YkcfnKKwwXbWTpykn8PccUn9H1ocBvBJ55tnB2dh1m9A16ZyGG_Av3npxMW5DdGpZ0YKFMuaSJieeI8CMbg_nO5NK10uJ0E6-S1_GEuRfYdaD7l1Chr1_yWZFfmuSSb_Qs7eiPZjQP_91ls-fMUaIZOLNek91dUEbY5XRdE"/>
+</div>
+<div class="p-lg flex flex-col flex-grow">
+<div class="flex items-center gap-md mb-sm">
+<span class="text-label-sm font-label-sm px-2 py-1 bg-surface-container-low text-primary rounded">วางแผนภาษี</span>
+<span class="text-label-sm font-label-sm text-on-primary-container flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1">verified_user</span> Risk: Low
+                        </span>
+</div>
+<h3 class="font-h3 text-h3 text-primary mb-sm leading-tight">กลยุทธ์วางแผนภาษีสำหรับบุคคลธรรมดารายได้สูง</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg line-clamp-3">
+                        สรุปเครื่องมือลดหย่อนภาษีที่คุ้มค่าที่สุดในปีนี้ ตั้งแต่กองทุน Thai ESG ไปจนถึงประกันชีวิตแบบบำนาญ...
+                    </p>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-label-sm text-outline font-label-sm">12 May 2024</span>
+<a class="text-primary font-semibold flex items-center gap-xs hover:text-secondary transition-colors" href="#">
+                            อ่านต่อ <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</article>
+<!-- Article Card 3 -->
+<article class="bg-white rounded-xl shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] border-t-4 border-secondary-container overflow-hidden hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all flex flex-col h-full">
+<div class="relative h-48 overflow-hidden">
+<img alt="Global Markets" class="w-full h-full object-cover" data-alt="A futuristic digital interface showing global connectivity and stock market data points floating over a dark blue background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHzwF0FHLjxo5pnHHiOJVG6QSyr1uEDC9JClNJwrQ_edlJfDBBgor5XWBuXSYb4VChaX8GYSFrWd0JSDMAFcsFgUdrYPPUctLhDYHTJaeBLoyRKRm9lAWScwduBXrVP7M8NLYz_xzIZm13l__Lomh61B7OFtaYXi4QsriqvOfqy6Xo2muQUCVipNmmIvsSIACKwfvFNNni9temGtlPpGz5oADydbFeU5_I7qEKaK3vkJ-mjatYycjDWW8ntonCLBLI4YGbhL-R0NE"/>
+</div>
+<div class="p-lg flex flex-col flex-grow">
+<div class="flex items-center gap-md mb-sm">
+<span class="text-label-sm font-label-sm px-2 py-1 bg-surface-container-low text-primary rounded">หุ้นต่างประเทศ</span>
+<span class="text-label-sm font-label-sm text-error flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1">warning</span> Risk: High
+                        </span>
+</div>
+<h3 class="font-h3 text-h3 text-primary mb-sm leading-tight">โอกาสลงทุนในหุ้นเทคโนโลยีสหรัฐฯ หลังยุค AI Boom</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg line-clamp-3">
+                        วิเคราะห์หุ้นกลุ่ม Magnificent Seven และการปรับฐานของราคาหุ้นกลุ่มเทคโนโลยีขนาดใหญ่ใน NASDAQ...
+                    </p>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-label-sm text-outline font-label-sm">10 May 2024</span>
+<a class="text-primary font-semibold flex items-center gap-xs hover:text-secondary transition-colors" href="#">
+                            อ่านต่อ <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</article>
+<!-- Article Card 4 -->
+<article class="bg-white rounded-xl shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] border-t-4 border-secondary-container overflow-hidden hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all flex flex-col h-full">
+<div class="relative h-48 overflow-hidden">
+<img alt="Real Estate Investment" class="w-full h-full object-cover" data-alt="Clean architectural shot of a modern luxury high-rise building reflecting the sunset on its glass facade" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnyNLqcHvVTajAT_wdp7dMQFW6y0Wfd-Q2yaJlNH2oFKCv6yHXawhbTrhogHIzEjVl3hLLza1rSP7-bwflEKLwJQlxPcRmxqsEXGSGr4SWpy_LoDL0LpPmvmala6A-IRS0RqYoZvtInfgzCJmCHaapudDvekWMXfSF4aHhnfmYO7tlyrC_BqnlylJGslKrKXhsg5ZliNtiNNkzPIWCmb41YO1pO7FWbbzKC3xxRlq-Ngms49qGks4dAupcxqkibgrqwFBBnsgbtjc"/>
+</div>
+<div class="p-lg flex flex-col flex-grow">
+<div class="flex items-center gap-md mb-sm">
+<span class="text-label-sm font-label-sm px-2 py-1 bg-surface-container-low text-primary rounded">อสังหาริมทรัพย์</span>
+<span class="text-label-sm font-label-sm text-secondary flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1">trending_up</span> Risk: Medium
+                        </span>
+</div>
+<h3 class="font-h3 text-h3 text-primary mb-sm leading-tight">REITs ไทย vs REITs สิงคโปร์ เลือกลงทุนที่ไหนดี?</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg line-clamp-3">
+                        เปรียบเทียบอัตราผลตอบแทนเงินปันผลและความมั่นคงของสินทรัพย์อสังหาริมทรัพย์ในภูมิภาคอาเซียน...
+                    </p>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-label-sm text-outline font-label-sm">08 May 2024</span>
+<a class="text-primary font-semibold flex items-center gap-xs hover:text-secondary transition-colors" href="#">
+                            อ่านต่อ <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</article>
+<!-- Article Card 5 -->
+<article class="bg-white rounded-xl shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] border-t-4 border-secondary-container overflow-hidden hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all flex flex-col h-full">
+<div class="relative h-48 overflow-hidden">
+<img alt="Retirement Planning" class="w-full h-full object-cover" data-alt="Golden coins stacked in neat rows with a small green plant growing from the tallest stack, bright clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4imgUD6qIL34qmLrcPba4wFiotEQW7zzs929xQmk21OPf8cSEsmlgwe7XklFbNcJsQEKnvKLN37mnNL133LHfhMhAUTFbOBmyBdj_DfjTHaoG3F-6JCpSfDzUHoG1sToG51MqjowHGNZvzlPFllN2B-dAwTl0cMYdN3v0HIHtui-sOZcoA9oCURvf9H9kvRO6JIznZMreLZPCrXtzg1jpMoEpVv0jdmrlkSlQdObRy2fUQcWosc9BPqkjg151KAUtowuW8GZrG2k"/>
+</div>
+<div class="p-lg flex flex-col flex-grow">
+<div class="flex items-center gap-md mb-sm">
+<span class="text-label-sm font-label-sm px-2 py-1 bg-surface-container-low text-primary rounded">กองทุนรวม</span>
+<span class="text-label-sm font-label-sm text-on-primary-container flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1">verified_user</span> Risk: Low
+                        </span>
+</div>
+<h3 class="font-h3 text-h3 text-primary mb-sm leading-tight">จัดพอร์ตเกษียณอายุด้วยโมเดล 60/40 ในยุคดอกเบี้ยสูง</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg line-clamp-3">
+                        ทำไมการถือพันธบัตรรัฐบาลถึงกลับมาน่าสนใจอีกครั้ง และการปรับสัดส่วนสินทรัพย์เพื่อรองรับเงินเฟ้อ...
+                    </p>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-label-sm text-outline font-label-sm">05 May 2024</span>
+<a class="text-primary font-semibold flex items-center gap-xs hover:text-secondary transition-colors" href="#">
+                            อ่านต่อ <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</article>
+<!-- Article Card 6 -->
+<article class="bg-white rounded-xl shadow-[0_4px_6px_-1px_rgba(10,31,68,0.05)] border-t-4 border-secondary-container overflow-hidden hover:shadow-[0_10px_15px_-3px_rgba(10,31,68,0.08)] transition-all flex flex-col h-full">
+<div class="relative h-48 overflow-hidden">
+<img alt="Emerging Markets" class="w-full h-full object-cover" data-alt="Close up of a financial newspaper with stock price columns and a magnifying glass resting on the page, soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZu38mdu-omjzLH8x6sQ97LNm_HK3saTsb9WpzG6CQilvKggtoGJPBVeEe90MSiL1nvD9UUyQTvHegjStlh2P3OwOEK1dQdbRA0WFYxP5aRs2caab7P5hCpC5BhZT5OD455H4YVD8bL-Ifq-8Ui5ZBNFlHlRdcesJ1stOU1YaUdyW2hinR-w6Zc2Kty8057yEb5RTzs8p66qW-GV_NsBMo4CiCc7clFl9QBXKt57IOHmCQgtLPzpKoDgfokL9zt_f-eGjkYxK0lgc"/>
+</div>
+<div class="p-lg flex flex-col flex-grow">
+<div class="flex items-center gap-md mb-sm">
+<span class="text-label-sm font-label-sm px-2 py-1 bg-surface-container-low text-primary rounded">หุ้นต่างประเทศ</span>
+<span class="text-label-sm font-label-sm text-error flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1">warning</span> Risk: High
+                        </span>
+</div>
+<h3 class="font-h3 text-h3 text-primary mb-sm leading-tight">หุ้นเวียดนาม: เสือนอนกินตัวใหม่ของเอเชียจริงหรือ?</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg line-clamp-3">
+                        เจาะลึกปัจจัยพื้นฐานทางเศรษฐกิจของเวียดนาม และความเสี่ยงด้านการเมืองและค่าเงินที่นักลงทุนต้องระวัง...
+                    </p>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-label-sm text-outline font-label-sm">01 May 2024</span>
+<a class="text-primary font-semibold flex items-center gap-xs hover:text-secondary transition-colors" href="#">
+                            อ่านต่อ <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</article>
+</section>
+<!-- CTA Section -->
+<section class="max-w-7xl mx-auto px-8 mt-xxl">
+<div class="bg-primary-container rounded-xl p-xl text-center shadow-lg relative overflow-hidden">
+<!-- Decorative element -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full -mr-32 -mt-32"></div>
+<h2 class="font-h1 text-h1 text-white mb-md relative z-10">สนใจรับคำปรึกษาเพิ่มเติม?</h2>
+<p class="font-body-lg text-body-lg text-on-primary-container mb-lg max-w-xl mx-auto relative z-10">
+                    ติดต่อทีมผู้เชี่ยวชาญของเราเพื่อวางแผนกลยุทธ์การลงทุนที่เหมาะสมกับเป้าหมายความมั่งคั่งของคุณ
+                </p>
+<a class="inline-flex items-center gap-sm bg-secondary text-primary px-8 py-4 rounded-lg font-bold text-lg hover:bg-secondary-fixed transition-all active:scale-95 relative z-10" href="#">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+                    ติดต่อเรา
+                </a>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-50 dark:bg-slate-950 w-full border-t border-gray-200 dark:border-slate-800">
+<div class="max-w-7xl mx-auto px-8 py-16 grid grid-cols-1 md:grid-cols-2 gap-12">
+<div class="space-y-6">
+<div class="text-lg font-bold text-blue-950 dark:text-white font-h2 uppercase">
+                    FinancialAdvisorThailand
+                </div>
+<p class="font-body-md text-body-md text-slate-500 dark:text-slate-400 max-w-md">
+                    © 2024 FinancialAdvisorThailand. Authorized and Regulated by the Securities and Exchange Commission, Thailand. Financial services are provided to institutional and high-net-worth clients only.
+                </p>
+</div>
+<div class="flex flex-col md:items-end space-y-4">
+<div class="flex flex-wrap gap-x-8 gap-y-2 md:justify-end">
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-500 transition-colors" href="#">Privacy Policy</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-500 transition-colors" href="#">Terms of Service</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-500 transition-colors" href="#">Compliance Disclosure</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-500 transition-colors" href="#">Risk Warnings</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-amber-600 dark:hover:text-amber-500 transition-colors" href="#">Whistleblowing Policy</a>
+</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-slate-400 hover:text-amber-600 cursor-pointer">share</span>
+<span class="material-symbols-outlined text-slate-400 hover:text-amber-600 cursor-pointer">public</span>
+<span class="material-symbols-outlined text-slate-400 hover:text-amber-600 cursor-pointer">assured_workload</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>
