@@ -5,6 +5,8 @@ data-d1-import.sql
 .astro
 uploads
 .env
+data.db-shm
+data.db-wal
 .emdash-db-backups
 data.db.before-repair
 data.db.before-repair-wal
