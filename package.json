@@ -11,10 +11,12 @@
 	},
 	"scripts": {
 		"dev": "astro dev",
-		"build": "astro build",
+		"build": "EMDASH_CF=1 astro build",
+		"build:node": "astro build",
 		"build:cf": "EMDASH_CF=1 astro build",
 		"deploy": "EMDASH_CF=1 astro build && wrangler deploy --config dist/server/wrangler.json",
 		"deploy:wrangler": "wrangler deploy --config dist/server/wrangler.json",
+		"upload:worker": "wrangler versions upload --config dist/server/wrangler.json",
 		"preview": "astro preview",
 		"preview:cf": "EMDASH_CF=1 astro build && wrangler dev",
 		"start": "node ./dist/server/entry.mjs",
