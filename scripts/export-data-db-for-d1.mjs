@@ -9,7 +9,7 @@
  *   node scripts/export-data-db-for-d1.mjs
  *   node scripts/export-data-db-for-d1.mjs path/to/other.db
  *   pnpm run emdash:export-d1-sql -- --strip-migration-inserts
- *     → ตัด INSERT เข้า _emdash_migrations (ใช้เมื่อ D1 ถูก EmDash migrate ไปแล้ว แล้วจะ import ข้อมูลจาก data.db)
+ *     → ตัด INSERT เข้า _emdash_migrations และ _emdash_migrations_lock (ใช้เมื่อ D1 ถูก Worker migrate ไปแล้ว)
  *
  * Then (replace DB name with wrangler.jsonc database_name):
  *   pnpm exec wrangler d1 execute fadvisorth --remote --file=data-d1-import.sql
@@ -49,26 +49,25 @@ sql = sql.replace(/^PRAGMA foreign_keys=OFF;\s*/gm, "");
 sql = sql.replace(/^BEGIN TRANSACTION;\s*/m, "");
 sql = sql.replace(/^\s*COMMIT;\s*$/m, "");
 
+/** INSERT ที่ชนกับ DB ที่ Worker สร้างไว้แล้ว (migrate + lock row) */
+const MIGRATION_META_INSERT = /^\s*INSERT INTO (?:_emdash_migrations(?:_lock)?|"_emdash_migrations(?:_lock)?")\s/i;
+
 if (stripMigrationInserts) {
 	sql = sql
 		.split("\n")
-		.filter((line) => {
-			const t = line.trimStart();
-			return !(
-				t.startsWith("INSERT INTO _emdash_migrations ") ||
-				t.startsWith('INSERT INTO "_emdash_migrations" ')
-			);
-		})
+		.filter((line) => !MIGRATION_META_INSERT.test(line))
 		.join("\n");
 }
 
 const header = `-- EmDash → D1 import (from ${dbPath})
 -- Review this file; then: pnpm exec wrangler d1 execute <database_name> --remote --file=${outPath}
-${stripMigrationInserts ? "-- strip-migration-inserts: ไม่มี INSERT _emdash_migrations (ใช้กับ D1 ที่ migrate แล้ว)\n" : ""}PRAGMA defer_foreign_keys = ON;
+${stripMigrationInserts ? "-- strip-migration-inserts: ไม่มี INSERT _emdash_migrations / _emdash_migrations_lock\n" : ""}PRAGMA defer_foreign_keys = ON;
 `;
 
 writeFileSync(outPath, header + sql, "utf8");
-console.log(`เขียนไฟล์แล้ว: ${outPath}${stripMigrationInserts ? " (ตัด INSERT _emdash_migrations)" : ""}`);
+console.log(
+	`เขียนไฟล์แล้ว: ${outPath}${stripMigrationInserts ? " (ตัด INSERT migration meta)" : ""}`,
+);
 console.log(
 	"ขั้นต่อไป (remote D1): pnpm exec wrangler d1 execute fadvisorth --remote --file=data-d1-import.sql",
 );
