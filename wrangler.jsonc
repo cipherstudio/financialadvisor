@@ -8,8 +8,8 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "fadvisorth",
-			"database_id": "REPLACE_WITH_WRANGLER_D1_CREATE_OUTPUT"
+			"database_name": "financialAdvisorTH",
+			"database_id": "8b49ebb3-bd75-4700-9fbf-17c43f91d1ec"
 		}
 	],
 	// EmDash: R2 binding must match astro.config `r2({ binding: "MEDIA" })`.
@@ -17,7 +17,7 @@
 	"r2_buckets": [
 		{
 			"binding": "MEDIA",
-			"bucket_name": "fadvisorth-media"
+			"bucket_name": "financialadvisor-media"
 		}
 	]
 }
