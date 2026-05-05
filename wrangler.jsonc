@@ -1,6 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "fadvisorth",
+	"name": "financialadvisor",
 	"compatibility_date": "2026-05-05",
 	"compatibility_flags": ["nodejs_compat"],
 	// EmDash: D1 binding must match astro.config `d1({ binding: "DB" })`.
