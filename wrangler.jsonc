@@ -1,0 +1,23 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "fadvisorth",
+	"compatibility_date": "2026-05-05",
+	"compatibility_flags": ["nodejs_compat"],
+	// EmDash: D1 binding must match astro.config `d1({ binding: "DB" })`.
+	// Create: pnpm exec wrangler d1 create fadvisorth — then paste database_id below.
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "fadvisorth",
+			"database_id": "REPLACE_WITH_WRANGLER_D1_CREATE_OUTPUT"
+		}
+	],
+	// EmDash: R2 binding must match astro.config `r2({ binding: "MEDIA" })`.
+	// Create bucket in dashboard or: pnpm exec wrangler r2 bucket create fadvisorth-media
+	"r2_buckets": [
+		{
+			"binding": "MEDIA",
+			"bucket_name": "fadvisorth-media"
+		}
+	]
+}

@@ -12,7 +12,10 @@
 	"scripts": {
 		"dev": "astro dev",
 		"build": "astro build",
+		"build:cf": "EMDASH_CF=1 astro build",
+		"deploy": "wrangler deploy",
 		"preview": "astro preview",
+		"preview:cf": "EMDASH_CF=1 astro build && wrangler dev",
 		"start": "node ./dist/server/entry.mjs",
 		"bootstrap": "emdash init && emdash seed",
 		"seed": "emdash seed && node scripts/clear-emdash-manifest-cache.mjs",
@@ -33,8 +36,10 @@
 		"fadvisor:stitch": "node scripts/extract-fadvisor-stitch.mjs"
 	},
 	"dependencies": {
+		"@astrojs/cloudflare": "^13.3.1",
 		"@astrojs/node": "^10.0.0",
 		"@astrojs/react": "^5.0.0",
+		"@emdash-cms/cloudflare": "0.6.0",
 		"@emdash-cms/plugin-audit-log": "^0.1.1",
 		"astro": "^6.0.1",
 		"better-sqlite3": "^12.8.0",
@@ -44,7 +49,9 @@
 	},
 	"devDependencies": {
 		"@astrojs/check": "^0.9.7",
-		"cheerio": "1.0.0-rc.12"
+		"@cloudflare/workers-types": "^4.20260505.1",
+		"cheerio": "1.0.0-rc.12",
+		"wrangler": "^4.87.0"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
