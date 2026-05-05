@@ -32,6 +32,7 @@
 		"emdash:rebuild-fts": "node scripts/rebuild-fts.mjs",
 		"emdash:disable-pages-fts": "node scripts/disable-pages-fts.mjs",
 		"emdash:reset-db": "node scripts/reset-emdash-db.mjs",
+		"emdash:export-d1-sql": "node scripts/export-data-db-for-d1.mjs",
 		"typecheck": "astro check",
 		"fadvisor:stitch": "node scripts/extract-fadvisor-stitch.mjs"
 	},

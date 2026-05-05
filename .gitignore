@@ -1,6 +1,7 @@
 node_modules
 dist
 .wrangler
+data-d1-import.sql
 .astro
 uploads
 .env
